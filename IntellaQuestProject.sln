@@ -5,11 +5,7 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IntellaQuest.Domain", "IntellaQuest.Domain\IntellaQuest.Domain.csproj", "{763974FE-53B3-485D-9473-F86E868BC2B7}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "IntellaQuest.Repository", "IntellaQuest.Repository", "{897ED9FD-ABE1-3958-A765-5B039EE26AD1}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IntellaQuest.Data.NHibernate", "IntellaQuest.Repository\IntellaQuest.Data.NHibernate.csproj", "{B20C8537-7E8B-44D8-A84B-D334F6F3CCEA}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "IntellaQeust.BusinessLogic", "IntellaQeust.BusinessLogic", "{A677CEB8-0A8E-BD65-8FE1-AD012E9744A8}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IntellaQeust.Business", "IntellaQeust.BusinessLogic\IntellaQeust.Business.csproj", "{15AA90F0-A40A-4A73-B9EC-24E6777C936F}"
 EndProject
@@ -90,9 +86,5 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
-		{B20C8537-7E8B-44D8-A84B-D334F6F3CCEA} = {897ED9FD-ABE1-3958-A765-5B039EE26AD1}
-		{15AA90F0-A40A-4A73-B9EC-24E6777C936F} = {A677CEB8-0A8E-BD65-8FE1-AD012E9744A8}
 	EndGlobalSection
 EndGlobal
