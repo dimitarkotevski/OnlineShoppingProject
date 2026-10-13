@@ -5,59 +5,60 @@ using System.IO;
 namespace IntellaQuest.Migrations
 {
     /// <summary>
-    /// Base class for a folder-based migration.
+    /// Base class for a versioned, dated migration.
     ///
-    /// A migration lives in its own dated folder under <c>Migrations\</c>:
+    /// A migration lives in its own folder under <c>Migrations\</c>, nested by
+    /// version and then by timestamp:
     ///
     /// <code>
-    /// Migrations\20261013120000_AddOrdersTable\
-    ///     20261013120000_AddOrdersTable.cs   &lt;- this class (Id + Name)
-    ///     up.sql                             &lt;- applied by "up"   (required)
-    ///     down.sql                           &lt;- applied by "down" (optional)
+    /// Migrations\
+    ///     0.0.0.1\
+    ///         202610122030\                 (2026-10-12 20:30)
+    ///             0.0.0.1_202610122030.cs    &lt;- this class
+    ///             up.sql                     &lt;- CREATE (applied by "up")
+    ///             down.sql                   &lt;- REMOVE (applied by "down")
     /// </code>
     ///
     /// Scaffold one with:
     /// <code>
-    /// .\new-migration.ps1 AddOrdersTable
+    /// .\new-migration.ps1 -Version 0.0.0.1 -Name AddOrdersTable
     /// </code>
     ///
     /// The runner discovers every concrete <see cref="Migration"/> in the assembly,
-    /// orders them by <see cref="Id"/> and applies the forward scripts. Applied
-    /// migrations are recorded in <c>dbo.__SqlMigrations</c> by <see cref="Key"/>.
+    /// orders them by <see cref="Version"/> and then <see cref="Timestamp"/>, and
+    /// applies the forward scripts. Applied migrations are recorded in
+    /// <c>dbo.__SqlMigrations</c> by <see cref="Key"/>.
     ///
-    /// <b>Never change Id/Name once a migration has been applied</b> — that changes
-    /// the key and the migration would run a second time.
+    /// <b>Never change Version/Timestamp once a migration has been applied</b> — that
+    /// changes the key and the migration would run a second time.
     /// </summary>
     public abstract class Migration
     {
-        /// <summary>
-        /// Sortable, unique id. For scaffolded migrations this is the timestamp taken
-        /// from the folder name (<c>yyyyMMddHHmmss</c>).
-        /// </summary>
-        public abstract long Id { get; }
+        /// <summary>Version folder this migration belongs to, e.g. <c>0.0.0.1</c>.</summary>
+        public abstract string Version { get; }
 
-        /// <summary>Short PascalCase name — the suffix of the folder name.</summary>
-        public abstract string Name { get; }
+        /// <summary>Timestamp folder, <c>yyyyMMddHHmm</c>, e.g. <c>202610122030</c>.</summary>
+        public abstract string Timestamp { get; }
 
-        /// <summary>Folder under <c>Migrations\</c> that holds this migration's scripts.</summary>
+        /// <summary>Folder under <c>Migrations\</c>, <c>&lt;Version&gt;\&lt;Timestamp&gt;</c>.</summary>
         public virtual string Folder
         {
-            get { return Id + "_" + Name; }
+            get { return Path.Combine(Version, Timestamp); }
         }
 
         /// <summary>
-        /// Stable key recorded in <c>dbo.__SqlMigrations</c>. Defaults to the folder
-        /// name. Do not change it once the migration has been applied.
+        /// Stable key recorded in <c>dbo.__SqlMigrations</c>. Defaults to
+        /// <c>&lt;Version&gt;/&lt;Timestamp&gt;</c>. Do not change it once applied.
         /// </summary>
         public virtual string Key
         {
-            get { return Folder; }
+            get { return Version + "/" + Timestamp; }
         }
 
         /// <summary>Human-readable label used in console output.</summary>
         public string DisplayName
         {
-            get { return Folder; }
+            get { return Key; }
         }
 
         /// <summary>Folder the .sql files are copied to next to the built assembly.</summary>
@@ -66,13 +67,13 @@ namespace IntellaQuest.Migrations
             get { return Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Migrations"); }
         }
 
-        /// <summary>SQL batches applied when moving forward (up.sql).</summary>
+        /// <summary>SQL batches that CREATE the change (up.sql).</summary>
         public virtual IEnumerable<string> UpBatches()
         {
             return ReadBatches("up.sql");
         }
 
-        /// <summary>SQL batches applied when rolling back (down.sql).</summary>
+        /// <summary>SQL batches that REMOVE the change (down.sql).</summary>
         public virtual IEnumerable<string> DownBatches()
         {
             return ReadBatches("down.sql");

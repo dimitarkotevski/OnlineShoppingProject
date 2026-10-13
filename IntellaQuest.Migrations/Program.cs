@@ -20,9 +20,11 @@ namespace IntellaQuest.Migrations
     /// Two kinds of migration are supported and can be mixed:
     ///
     /// <list type="bullet">
-    /// <item><b>Folder migrations</b> — <c>Migrations\&lt;id&gt;_&lt;name&gt;\{up.sql,down.sql}</c>
-    /// driven by a <see cref="Migration"/> class. Create one with <c>new-migration.ps1</c>.</item>
-    /// <item><b>Legacy flat scripts</b> — <c>Migrations\001_Role.sql</c> (forward only).</item>
+    /// <item><b>Versioned migrations</b> —
+    /// <c>Migrations\&lt;version&gt;\&lt;timestamp&gt;\{up.sql,down.sql}</c> driven by a
+    /// <see cref="Migration"/> class. Create one with <c>new-migration.ps1</c>.</item>
+    /// <item><b>Legacy flat scripts</b> — <c>Migrations\001_Role.sql</c> (forward only).
+    /// They always run before the versioned migrations.</item>
     /// </list>
     ///
     /// Every applied migration is recorded in <c>dbo.__SqlMigrations</c> by a stable
@@ -62,7 +64,7 @@ namespace IntellaQuest.Migrations
                     var migrations = DiscoverMigrations(scriptsPath);
                     if (migrations.Count == 0)
                     {
-                        Console.WriteLine("No migration files found in {0}", scriptsPath);
+                        Console.WriteLine("No migrations found in {0}", scriptsPath);
                         return 1;
                     }
 
@@ -121,7 +123,8 @@ namespace IntellaQuest.Migrations
 
         private sealed class MigrationEntry
         {
-            public long Order;
+            public Version Version;
+            public string Timestamp;
             public string Key;
             public string DisplayName;
             public bool SupportsDown;
@@ -133,7 +136,7 @@ namespace IntellaQuest.Migrations
         {
             var entries = new List<MigrationEntry>();
 
-            // Folder migrations: every concrete Migration in this assembly.
+            // Versioned migrations: every concrete Migration in this assembly.
             foreach (var type in Assembly.GetExecutingAssembly().GetTypes()
                 .Where(t => typeof(Migration).IsAssignableFrom(t) && !t.IsAbstract))
             {
@@ -144,9 +147,19 @@ namespace IntellaQuest.Migrations
                 }
 
                 var migration = (Migration)Activator.CreateInstance(type);
+
+                Version version;
+                if (!Version.TryParse(migration.Version, out version))
+                {
+                    throw new InvalidOperationException(
+                        "Invalid version '" + migration.Version + "' on " + type.Name +
+                        " (expected e.g. 0.0.0.1).");
+                }
+
                 entries.Add(new MigrationEntry
                 {
-                    Order = migration.Id,
+                    Version = version,
+                    Timestamp = migration.Timestamp,
                     Key = migration.Key,
                     DisplayName = migration.DisplayName,
                     SupportsDown = migration.HasDown(),
@@ -155,7 +168,8 @@ namespace IntellaQuest.Migrations
                 });
             }
 
-            // Legacy flat scripts: Migrations\*.sql (forward only, keyed by file name).
+            // Legacy flat scripts: Migrations\*.sql — run before the versioned ones.
+            var legacyVersion = new Version(0, 0, 0, 0);
             if (Directory.Exists(scriptsPath))
             {
                 foreach (var file in Directory.GetFiles(scriptsPath, "*.sql"))
@@ -164,7 +178,8 @@ namespace IntellaQuest.Migrations
                     string name = Path.GetFileName(file);
                     entries.Add(new MigrationEntry
                     {
-                        Order = ParseOrder(name),
+                        Version = legacyVersion,
+                        Timestamp = ParseOrder(name).ToString("D12"),
                         Key = name,
                         DisplayName = name,
                         SupportsDown = false,
@@ -182,8 +197,8 @@ namespace IntellaQuest.Migrations
             }
 
             return entries
-                .OrderBy(e => e.Order)
-                .ThenBy(e => e.Key, StringComparer.OrdinalIgnoreCase)
+                .OrderBy(e => e.Version)
+                .ThenBy(e => e.Timestamp, StringComparer.OrdinalIgnoreCase)
                 .ToList();
         }
 

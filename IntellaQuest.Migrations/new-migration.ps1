@@ -1,35 +1,53 @@
 #Requires -Version 5.1
 <#
 .SYNOPSIS
-    Scaffolds a new folder-based SQL migration.
+    Scaffolds a new versioned, dated SQL migration.
 
 .DESCRIPTION
-    Creates Migrations\<yyyyMMddHHmmss>_<Name>\ containing:
+    Creates Migrations\<Version>\<yyyyMMddHHmm>\ containing:
 
-        <yyyyMMddHHmmss>_<Name>.cs   migration class (Id + Name)
-        up.sql                       forward script  (run by "up", the default)
-        down.sql                     rollback script (run by "down")
+        <Version>_<Timestamp>[_Name].cs   migration class (Version + Timestamp)
+        up.sql                            create script (run by "up", the default)
+        down.sql                          remove script (run by "down")
+
+    Example: -Version 0.0.0.1 with the default timestamp on 2026-10-12 20:30 gives
+
+        Migrations\0.0.0.1\202610122030\
+            0.0.0.1_202610122030.cs
+            up.sql
+            down.sql
 
     The class is discovered automatically by the IntellaQuest.Migrations runner —
     no registration is needed.
 
+.PARAMETER Version
+    Version folder, e.g. 0.0.0.1.
+
 .PARAMETER Name
-    PascalCase migration name, e.g. AddOrdersTable.
+    Optional PascalCase label added to the class/file name (does not affect the
+    migration's identity, which is Version + Timestamp).
 
-.PARAMETER Root
-    Project folder to scaffold into. Defaults to the folder holding this script.
-
-.EXAMPLE
-    .\new-migration.ps1 AddOrdersTable
+.PARAMETER Timestamp
+    Optional yyyyMMddHHmm timestamp. Defaults to now.
 
 .EXAMPLE
-    .\new-migration.cmd AddOrdersTable
+    .\new-migration.ps1 -Version 0.0.0.1 -Name AddOrdersTable
+
+.EXAMPLE
+    .\new-migration.cmd 0.0.0.1 AddOrdersTable
 #>
 [CmdletBinding()]
 param(
     [Parameter(Mandatory = $true, Position = 0)]
+    [ValidatePattern('^\d+(\.\d+){1,3}$')]
+    [string]$Version,
+
+    [Parameter(Position = 1)]
     [ValidatePattern('^[A-Za-z][A-Za-z0-9]*$')]
-    [string]$Name,
+    [string]$Name = '',
+
+    [ValidatePattern('^\d{12}$')]
+    [string]$Timestamp = (Get-Date -Format 'yyyyMMddHHmm'),
 
     [string]$Root = $PSScriptRoot
 )
@@ -37,68 +55,69 @@ param(
 $ErrorActionPreference = 'Stop'
 
 $migrationsRoot = Join-Path $Root 'Migrations'
-if (-not (Test-Path -LiteralPath $migrationsRoot)) {
-    New-Item -ItemType Directory -Path $migrationsRoot | Out-Null
+$versionRoot = Join-Path $migrationsRoot $Version
+if (-not (Test-Path -LiteralPath $versionRoot)) {
+    New-Item -ItemType Directory -Path $versionRoot | Out-Null
 }
 
-# Dated id; bump by one second if two migrations are scaffolded in the same second.
-$id = [long](Get-Date -Format 'yyyyMMddHHmmss')
-$folderName = "${id}_$Name"
-$folder = Join-Path $migrationsRoot $folderName
+# Bump by one minute if that timestamp is already taken.
+$folder = Join-Path $versionRoot $Timestamp
 while (Test-Path -LiteralPath $folder) {
-    $id = $id + 1
-    $folderName = "${id}_$Name"
-    $folder = Join-Path $migrationsRoot $folderName
+    $Timestamp = ([datetime]::ParseExact($Timestamp, 'yyyyMMddHHmm', $null)).AddMinutes(1).ToString('yyyyMMddHHmm')
+    $folder = Join-Path $versionRoot $Timestamp
 }
 
 New-Item -ItemType Directory -Path $folder | Out-Null
 
-$className = "_${id}_$Name"
+$safeVersion = $Version -replace '\.', '_'
+$suffix = if ($Name) { "_$Name" } else { '' }
+$className = "_${safeVersion}_${Timestamp}${suffix}"
+$fileName = "${Version}_${Timestamp}${suffix}.cs"
 
 $classContent = @"
 namespace IntellaQuest.Migrations
 {
     /// <summary>
-    /// Migration $folderName.
-    /// Forward script:  up.sql
-    /// Rollback script: down.sql
+    /// Migration $Version / $Timestamp.
+    /// up.sql   - create
+    /// down.sql - remove
     /// </summary>
     public sealed class $className : Migration
     {
-        public override long Id => $id;
+        public override string Version => "$Version";
 
-        public override string Name => "$Name";
+        public override string Timestamp => "$Timestamp";
     }
 }
 "@
 
 $upContent = @"
--- Migration $folderName  (forward)
+-- Migration $Version / $Timestamp  (up = create)
 -- Applied by:  dotnet run --project IntellaQuest.Migrations
 --
--- Add the forward DDL/DML below. Separate batches with a line containing GO.
+-- Add the CREATE statements below. Separate batches with a line containing GO.
 
 "@
 
 $downContent = @"
--- Migration $folderName  (rollback)
+-- Migration $Version / $Timestamp  (down = remove)
 -- Applied by:  dotnet run --project IntellaQuest.Migrations -- down
 --
--- Undo everything up.sql does. Separate batches with a line containing GO.
+-- Add the DROP/undo statements below. Separate batches with a line containing GO.
 
 "@
 
 $utf8 = New-Object System.Text.UTF8Encoding($false)
-[System.IO.File]::WriteAllText((Join-Path $folder "$className.cs"), $classContent, $utf8)
+[System.IO.File]::WriteAllText((Join-Path $folder $fileName), $classContent, $utf8)
 [System.IO.File]::WriteAllText((Join-Path $folder 'up.sql'), $upContent, $utf8)
 [System.IO.File]::WriteAllText((Join-Path $folder 'down.sql'), $downContent, $utf8)
 
 Write-Host ''
-Write-Host "Created migration $folderName" -ForegroundColor Green
-Write-Host "  $folderName\$className.cs"
-Write-Host "  $folderName\up.sql"
-Write-Host "  $folderName\down.sql"
+Write-Host "Created migration $Version\$Timestamp" -ForegroundColor Green
+Write-Host "  $Version\$Timestamp\$fileName"
+Write-Host "  $Version\$Timestamp\up.sql"
+Write-Host "  $Version\$Timestamp\down.sql"
 Write-Host ''
 Write-Host 'Next:'
-Write-Host '  1. Put the forward SQL in up.sql and the rollback SQL in down.sql'
+Write-Host '  1. Put the CREATE SQL in up.sql and the DROP/undo SQL in down.sql'
 Write-Host '  2. dotnet run --project IntellaQuest.Migrations'
