@@ -20,6 +20,7 @@ export class AdminToolComponent implements OnInit {
 
     if(this.authService.getRole() != 'admin'){
       this.router.navigate(['error-404']);
+      return;
     }
 
     if(this.activeAdminTool===''){

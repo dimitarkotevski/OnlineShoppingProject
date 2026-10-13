@@ -52,6 +52,7 @@ export class AdminToolProductsComponent implements OnInit {
 
     if(this.authService.getRole() != 'admin'){
       this.router.navigate(['error-404']);
+      return;
     }
 
     this.request = {
@@ -65,6 +66,8 @@ export class AdminToolProductsComponent implements OnInit {
   getData(){
     this.adminToolProductService.getTable(this.request).subscribe((response: ResponseModel<ProductGridModel>)=>{
       this.response = response;
+    }, ()=>{
+      this.toastr.error("Failed to load products");
     })
   }
 
@@ -113,7 +116,7 @@ export class AdminToolProductsComponent implements OnInit {
   deleteProduct(id:string | undefined){
     if(id){
       const dialogRef = this.dialog.open(YesNoDialogComponent, {
-        data: { id },
+        data: { text: 'Do you want to delete this product?' },
         width: '500px', // Set the width of the modal
         panelClass: 'custom-modalbox'
       });

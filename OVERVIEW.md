@@ -8,7 +8,7 @@
 **IntellaQuest** — an online shopping web site with an ASP.NET Core backend and an Angular SPA frontend.
 
 - **Backend:** .NET 10 / ASP.NET Core (MVC + attribute-routed API controllers), NHibernate + FluentNHibernate (`Microsoft.Data.SqlClient` driver), SQL Server, Autofac DI, FluentValidation
-- **Frontend:** Angular 20 SPA (lives inside `IntellaQuest.Web/my-app/`), Angular Material, Bootstrap 5, ngx-datatable, @auth0/angular-jwt
+- **Frontend:** Angular 20 SPA (lives inside `IntellaQuest.Web/my-app/`), Angular Material, Bootstrap 5, @auth0/angular-jwt
 - **Solution:** `IntellaQuestProject.sln` (5 projects)
 
 ## Solution Structure

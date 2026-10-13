@@ -26,7 +26,14 @@ export class AddPaymentComponent implements OnInit {
 
   makeCardNumber(){
     this.model.CardNumber = this.firstFourDigit+this.secondFourDigit+this.thirdFourDigit+this.fourthFourDigit
-    this.model.ExpirationDate = new Date(this.dateString).toISOString();
+    // `type="month"` inputs are only "YYYY-MM", and an empty value yields an
+    // Invalid Date whose toISOString() throws. Guard against that.
+    if(this.dateString){
+      const parsed = new Date(this.dateString);
+      if(!isNaN(parsed.getTime())){
+        this.model.ExpirationDate = parsed.toISOString();
+      }
+    }
   }
 }
 

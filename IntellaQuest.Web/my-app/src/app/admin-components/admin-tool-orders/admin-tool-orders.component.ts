@@ -40,6 +40,7 @@ export class AdminToolOrdersComponent implements OnInit {
 
     if(this.authService.getRole() != 'admin'){
       this.router.navigate(['error-404']);
+      return;
     }
 
     this.request = {
@@ -61,12 +62,12 @@ export class AdminToolOrdersComponent implements OnInit {
       if(result!= null){
         if(result.Id){
           this.adminToolOrderService.update(result).subscribe(()=>{
-            this.toastr.success("Success changed product")
+            this.toastr.success("Success changed order")
             this.getData();
           })
         }else{
           this.adminToolOrderService.create(result).subscribe(()=>{
-            this.toastr.success("Success added product")
+            this.toastr.success("Success added order")
             this.getData();
           })
         }
@@ -81,14 +82,14 @@ export class AdminToolOrdersComponent implements OnInit {
   deleteOrder(id:string | undefined){
     if(id){
       const dialogRef = this.dialog.open(YesNoDialogComponent, {
-        data: { id },
+        data: { text: 'Do you want to delete this order?' },
         width: '500px', // Set the width of the modal
         panelClass: 'custom-modalbox'
       });
       dialogRef.afterClosed().subscribe((result : OrderViewModel) => {
         if(result){
           this.adminToolOrderService.delete(id).subscribe(()=>{
-            this.toastr.success("Success deleted product")
+            this.toastr.success("Success deleted order")
             this.getData()
           })
         }
@@ -99,6 +100,8 @@ export class AdminToolOrdersComponent implements OnInit {
   getData(){
     this.adminToolOrderService.getTable(this.request).subscribe((response: ResponseModel<OrderGridViewModel>)=>{
       this.response = response
+    }, ()=>{
+      this.toastr.error("Failed to load orders");
     })
   }
 

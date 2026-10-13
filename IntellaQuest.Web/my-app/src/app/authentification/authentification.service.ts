@@ -73,19 +73,9 @@ export class AuthentificationService {
     return null;
   }
 
-  registerUser(userRegister: UserRegister){
-    return this.http.post<any>(this.baseApi+"/Registration", {model:userRegister}).pipe(
-      map((response : UserTokenInfo) => {
-        if (response.Id && response.Token && response.Username && response.Role) {
-          localStorage.setItem('id', response.Id);
-          localStorage.setItem('username', response.Username);
-          localStorage.setItem('token', response.Token);
-          localStorage.setItem('role',response.Role);
-          return true;
-        }
-        return false;
-      })
-    );
+  registerUser(userRegister: UserRegister): Observable<boolean> {
+    // Registration only returns a boolean on success (no token is issued here).
+    return this.http.post<boolean>(this.baseApi+"/Registration", {model:userRegister});
   }
 
   getAmountMoneyOfUser(userId: string | null){

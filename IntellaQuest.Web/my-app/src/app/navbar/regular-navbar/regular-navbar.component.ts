@@ -11,7 +11,7 @@ import { CategoryService } from 'src/app/category-products/category.service';
 export class RegularNavbarComponent implements OnInit {
 
   @Input() isUserAuthenticated?: boolean;
-  @Input() refreshState: EventEmitter<any>;
+  @Output() refreshState = new EventEmitter<any>();
   @Output() changeCategoryNavBar = new EventEmitter<any>();
   @Input() categoryNavBar?: boolean ;
   
@@ -24,9 +24,7 @@ export class RegularNavbarComponent implements OnInit {
   constructor(
     private authService: AuthentificationService,
     private categoryService: CategoryService,
-  ) { 
-    this.refreshState = new EventEmitter();
-  }
+  ) { }
 
   ngOnInit(): void {
     this.username = this.authService.getLoggedUsername();

@@ -36,10 +36,12 @@ export class CartGridComponent implements OnInit {
   handleMinus(i:number){
     if(this.shoppingCart.ShoppingCartDetails[i].Quantity>1){
       this.shoppingCart.ShoppingCartDetails[i].Quantity--;
+      this.shoppingCartService.MinusQuantity(this.shoppingCart.ShoppingCartDetails[i].Id)?.subscribe();
     }
   }
   handlePlus(i:number){
     this.shoppingCart.ShoppingCartDetails[i].Quantity++;
+    this.shoppingCartService.PlusQuantity(this.shoppingCart.ShoppingCartDetails[i].Id)?.subscribe();
   }
 
   deleteProductCartDetail(id:string){

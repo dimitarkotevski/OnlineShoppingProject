@@ -13,7 +13,7 @@ A full-stack online shopping application: **ASP.NET Core (.NET 10) backend** wit
 
 **Frontend** (`IntellaQuest.Web/my-app/`)
 - Angular 20 SPA, Angular Material, Bootstrap 5
-- ngx-datatable (admin grids), @auth0/angular-jwt
+- @auth0/angular-jwt for JWT handling (admin grids use plain HTML tables)
 
 **Solution:** `IntellaQuestProject.sln` (5 projects)
 

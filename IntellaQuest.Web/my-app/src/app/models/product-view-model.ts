@@ -7,5 +7,5 @@ export class ProductViewModel{
     Price?: number
     Description?: string
     Category?: LookupViewModel
-    Created?: string
+    DateCreated?: string
 }

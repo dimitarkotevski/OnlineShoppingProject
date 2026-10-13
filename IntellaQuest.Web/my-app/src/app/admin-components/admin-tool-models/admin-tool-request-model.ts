@@ -1,7 +1,7 @@
 export class RequestModel{
     SearchString?: string
     SortName?: string
-    isAscending?: boolean
+    isAscending?: string
     PageNeeded?: number
     Size?: number
 }

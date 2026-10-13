@@ -12,7 +12,7 @@ import { ProductsGridComponent } from '../customer-components/product-components
   templateUrl: './favourite.component.html',
   styleUrls: ['./favourite.component.css']
 })
-export class FavouriteComponent implements OnInit, OnChanges {
+export class FavouriteComponent implements OnInit {
   responseModel?: ResponseListModel<ProductGridModel>;
 
   isLoading: boolean = true;
@@ -23,9 +23,6 @@ export class FavouriteComponent implements OnInit, OnChanges {
     private toastr: ToastrService,
     private router: Router,
     ) { }
-  ngOnChanges(changes: SimpleChanges): void {
-    this.refreshState();
-  }
 
   ngOnInit(): void {
     if(!this.authService.isAuthenticated()){

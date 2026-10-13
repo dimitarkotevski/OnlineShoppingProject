@@ -20,6 +20,7 @@ export class CategoryProductsComponent implements OnInit {
   brands?: any;
   isLoading: boolean = true;
   filterCategory:RequestModel = new RequestModel();
+  categoryUrl?: string;
 
   constructor(
     private route: ActivatedRoute,
@@ -28,27 +29,42 @@ export class CategoryProductsComponent implements OnInit {
     ) { }
 
   ngOnInit(): void {
-    this.refreshState(this.filterCategory);
+    // Subscribe to the route exactly once; changing the side filter afterwards
+    // only reloads the products (previously each filter change created a new
+    // route subscription that was never unsubscribed).
+    this.route.paramMap.subscribe(params => {
+      const categoryUrl = params.get('category');
+      if(!categoryUrl){
+        return;
+      }
+
+      this.categoryUrl = categoryUrl;
+
+      this.categoryService.GetCategoryByUrl(categoryUrl).subscribe((res:any)=>{
+        this.category = res;
+        this.productService.GetAllBrands(res.Id)?.subscribe((brands)=>{
+          this.brands = brands;
+        })
+      });
+
+      this.loadProducts(this.filterCategory);
+    });
   }
 
   refreshState(filter: RequestModel): void{
+    this.loadProducts(filter);
+  }
+
+  private loadProducts(filter: RequestModel): void{
+    if(!this.categoryUrl){
+      return;
+    }
+
     this.isLoading = true;
-    this.route.paramMap.subscribe(params => {
-      const categoryUrl = params.get('category');
-      if(categoryUrl){
-        this.categoryService.GetCategoryByUrl(categoryUrl).subscribe((res:any)=>{
-          this.category = res;
-          this.productService.GetAllBrands(res.Id)?.subscribe((res)=>{
-            this.brands = res;
-          })
-        })
-        
-        this.categoryService.getProductsByCategoryUrl(categoryUrl,filter).subscribe((res : ResponseListModel<ProductGridModel>)=>{
-          this.products = res;
-          this.isLoading=false;
-        })
-      }
-    });
+    this.categoryService.getProductsByCategoryUrl(this.categoryUrl,filter).subscribe((res : ResponseListModel<ProductGridModel>)=>{
+      this.products = res;
+      this.isLoading=false;
+    })
   }
 
 }

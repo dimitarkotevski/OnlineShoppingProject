@@ -80,7 +80,7 @@ namespace IntellaQuest.Web.Infrastructure
             var body = await GetBodyAsync(httpContext);
             if (body != null && body.RootElement.ValueKind == JsonValueKind.Object)
             {
-                if (!string.IsNullOrEmpty(name) && body.RootElement.TryGetProperty(name, out var property))
+                if (!string.IsNullOrEmpty(name) && TryGetPropertyIgnoreCase(body.RootElement, name, out var property))
                 {
                     bindingContext.Result = ModelBindingResult.Success(Deserialize(property, modelType));
                     return;
@@ -96,6 +96,31 @@ namespace IntellaQuest.Web.Infrastructure
             // Nothing matched: leave the parameter at its default value (supports optional
             // parameters such as int quality = 1).
             bindingContext.Result = ModelBindingResult.Failed();
+        }
+
+        /// <summary>
+        /// Looks up a JSON property by name, ignoring case. ASP.NET MVC 5's JSON value
+        /// provider matched property names case-insensitively, so requests that send
+        /// <c>{ "Id": ... }</c> must bind to an action parameter named <c>id</c>.
+        /// </summary>
+        private static bool TryGetPropertyIgnoreCase(JsonElement element, string name, out JsonElement value)
+        {
+            if (element.TryGetProperty(name, out value))
+            {
+                return true;
+            }
+
+            foreach (var property in element.EnumerateObject())
+            {
+                if (string.Equals(property.Name, name, StringComparison.OrdinalIgnoreCase))
+                {
+                    value = property.Value;
+                    return true;
+                }
+            }
+
+            value = default;
+            return false;
         }
 
         private static object Deserialize(JsonElement element, Type type)

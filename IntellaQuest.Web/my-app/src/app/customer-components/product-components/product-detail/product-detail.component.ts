@@ -3,6 +3,10 @@ import { ActivatedRoute } from '@angular/router';
 import { ProductService } from '../product.service';
 import { ProductGridModel } from '../../../models/product-grid';
 import { ProductViewModel } from 'src/app/models/product-view-model';
+import { AuthentificationService } from '../../../authentification/authentification.service';
+import { FavouriteProductService } from 'src/app/favourite/favourite-product.service';
+import { ShoppingCartService } from 'src/app/customer-components/cart-components/shopping-cart.service';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({ standalone: false,
   selector: 'app-product-detail',
@@ -13,12 +17,13 @@ export class ProductDetailComponent implements OnInit {
 
   productDetail?: ProductViewModel
 
-  message?: string="";
-  type?: any="";
-
   constructor(
     private route: ActivatedRoute,
-    private productService: ProductService
+    private productService: ProductService,
+    private favouriteProductService: FavouriteProductService,
+    private shoppingCartService: ShoppingCartService,
+    private authService: AuthentificationService,
+    private toastr: ToastrService
     ) { }
 
   ngOnInit(): void {
@@ -33,9 +38,29 @@ export class ProductDetailComponent implements OnInit {
   }
 
   addToFavourite(Id:string | undefined){
-    this.message = 'Success message';
-    this.type = 'success';
+    const userId = this.authService.getLoggedUserId();
+    if(!userId){
+      window.location.replace('/login');
+      return;
+    }
+    if(!Id){
+      this.toastr.error("Product can't be added to favourite");
+      return;
+    }
+    this.favouriteProductService.addFavouriteProducts(userId, Id).subscribe(
+      () => this.toastr.success("Product added to favourite"),
+      () => this.toastr.warning("Product is already in favourite")
+    );
   }
 
+  addToCart(Id:string | undefined){
+    const userId = this.authService.getLoggedUserId();
+    if(!userId || !Id){
+      window.location.replace('/login');
+      return;
+    }
+    this.shoppingCartService.AddProductToCart(userId, Id)?.subscribe(
+      () => this.toastr.success("Product added to cart")
+    );
+  }
 }
-

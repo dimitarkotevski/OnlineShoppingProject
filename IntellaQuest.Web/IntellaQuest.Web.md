@@ -69,8 +69,9 @@ Top-level `WebApplication` bootstrap:
 - Dev: `npm install` → `ng serve` at `http://localhost:4200`; build: `npm run build` → outputs to `my-app/bundles/browser`, which the host serves statically. (When using `ng serve`, the CORS default policy allows the dev origin.)
 - Auth: `authentification/` (login, register) + `authentification.service.ts` (JWT via `@auth0/angular-jwt`).
 - Customer: `home`, `category-products`, `product-components/` (grid + detail), `cart`, `order` + `order-components/` (grid + detail), `favourite`, `profile`, `settings`, `side-filter`.
-- Admin: `admin-components/` — `admin-tool` shell + tools for **users / products / orders** (CRUD dialogs, ngx-datatable grids).
+- Admin: `admin-components/` — `admin-tool` shell + tools for **users / products / orders** (CRUD dialogs, plain HTML tables).
 - Routing: `app-routing.module.ts` — `/`, `/sort/:sort`, `/category/:category`, `/register`, `/login`, `/profile/:id`, `/cart`, `/favourite`, `/settings`, `/product-detail/:id`, `/my-order`, `/order-grid`, `/orders/:id/details`, `/admin-tool[/products|/orders|/users]`, `**` → `/error-404`.
+- **Review & fixes:** see `my-app/FRONTEND-FIXES.md` for the list of defects found during the Angular 20 review, what was fixed, and what was intentionally left alone.
 
 ## Quirks
 

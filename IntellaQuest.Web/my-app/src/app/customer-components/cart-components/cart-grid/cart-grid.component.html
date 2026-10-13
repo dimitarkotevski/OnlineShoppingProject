@@ -1,7 +1,7 @@
 <div class="container">
   <app-breadcrumb [isItem]="false" [itemDetail]="'Cart'"></app-breadcrumb>
 
-  <div *ngIf="!isLoading">
+  <div *ngIf="!isLoading && shoppingCart">
     <div *ngFor="let detail of shoppingCart.ShoppingCartDetails; let i = index;" class="card">
       <div class="card-body">
         <div class="col-lg-12">
@@ -23,7 +23,7 @@
               <p>{{detail.Product?.Description}}</p>
             </div>
             <div class="col-lg-3 col-sm-12 text-center">
-              <div>${{detail.Product?.Price.toFixed(2)}}</div>
+              <div>${{detail.Product?.Price?.toFixed(2) || '0.00'}}</div>
               <hr />
               <div class="text-center">
                 <div class="wrapper">
@@ -48,7 +48,7 @@
 
 
   </div>
-  <div *ngIf="shoppingCart.ShoppingCartDetails.length==0" class="container">
+  <div *ngIf="shoppingCart && shoppingCart.ShoppingCartDetails.length==0" class="container">
     <div class="text-center">
       <div class="card" style="text-align: -webkit-center;">
         <div class="card-body">

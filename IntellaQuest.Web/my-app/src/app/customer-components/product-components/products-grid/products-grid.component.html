@@ -95,7 +95,7 @@
             </div>
             <div class="col-lg-3 col-sm-12 text-center">
               <div>
-                ${{ detail.Product?.Price.toFixed(2) * detail.Quantity }}
+                ${{ ((detail.Product?.Price || 0) * (detail.Quantity || 0)).toFixed(2) }}
               </div>
               <hr />
               <div class="text-center">
@@ -142,7 +142,7 @@
             <a class="solid-color solid-color-a" [routerLink]="['/product-detail',product.Product.Id]">{{product.Product?.Name}}</a>
           </td>
           <td class="solid-color">
-            {{product.Product.Price.toFixed(2) }}
+            {{ (product.Product?.Price || 0).toFixed(2) }}
           </td>
           <td class="solid-color">
             {{product.Quantity}}

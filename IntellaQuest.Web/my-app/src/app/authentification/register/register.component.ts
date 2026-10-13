@@ -40,12 +40,20 @@ export class RegisterComponent implements OnInit {
       return;
     }
 
-    this.authService.registerUser(this.registerUserModel).subscribe(()=>{
+    this.authService.registerUser(this.registerUserModel).subscribe((result)=>{
+       if(result === false){
+         this.errorMessage = ["Registration failed"];
+         return;
+       }
        window.location.replace('/login')
       },
       (error) => {
         this.errorMessage = [];
-        this.errorMessage.push(error.error.exception);
+        if(error?.error?.Errors){
+          this.errorMessage = error.error.Errors;
+        }else{
+          this.errorMessage.push(error?.error?.exception || "Registration failed");
+        }
       }
     )
   }

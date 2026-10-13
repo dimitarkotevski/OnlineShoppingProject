@@ -36,10 +36,8 @@ export class SideFilterComponent implements OnInit {
         this.filter.splice(index, 1);
       }
     }
-    if (this.filterProducts) {
-      this.filterProducts = new RequestModel();
-    }
-    
+
+    // Keep the other filter values (price range, etc.); only the brand list changes.
     this.filterProducts.SearchBrands = this.filter
     this.refreshState.emit(this.filterProducts);
   }

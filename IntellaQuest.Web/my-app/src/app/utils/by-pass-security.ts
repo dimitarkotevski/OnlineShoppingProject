@@ -1,5 +1,5 @@
-import { Pipe, PipeTransform, SecurityContext } from "@angular/core";
-import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { Pipe, PipeTransform } from "@angular/core";
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
 @Pipe({ standalone: false,
     name: 'byPassSecurity'
@@ -11,7 +11,7 @@ export class ByPassSecurityPipe implements PipeTransform {
         ) 
     {}
 
-    transform (value: string): SafeHtml {
+    transform (value: string): SafeResourceUrl {
         return this.sanitizer.bypassSecurityTrustResourceUrl('data:image/png;base64, '+value);
     }
 }

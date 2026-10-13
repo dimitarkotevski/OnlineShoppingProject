@@ -41,6 +41,7 @@ export class AdminToolUsersComponent implements OnInit {
 
     if(this.authService.getRole() != 'admin'){
       this.router.navigate(['error-404']);
+      return;
     }
 
     this.request = {
@@ -54,6 +55,8 @@ export class AdminToolUsersComponent implements OnInit {
   getData(){
     this.adminToolUserService.getTable(this.request).subscribe((res: ResponseModel<UserGridModel>)=>{
       this.response = res;
+    }, ()=>{
+      this.toastr.error("Failed to load users");
     })
   }
 
@@ -97,7 +100,7 @@ export class AdminToolUsersComponent implements OnInit {
   deleteUser(id:string | undefined){
     if(id){
       const dialogRef = this.dialog.open(YesNoDialogComponent, {
-        data: { id },
+        data: { text: 'Do you want to delete this user?' },
         width: '500px', // Set the width of the modal
         panelClass: 'custom-modalbox'
       });

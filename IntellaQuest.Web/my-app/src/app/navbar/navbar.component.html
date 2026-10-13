@@ -2,7 +2,7 @@
 
   <app-regular-navbar 
     [isUserAuthenticated]="isUserAuthenticated" 
-    [refreshState]="refreshState"
+    (refreshState)="refreshState.emit()"
     [categoryNavBar] = "categoryNavBar"
     (changeCategoryNavBar) = "changeCategoryNavBar()"></app-regular-navbar>
   

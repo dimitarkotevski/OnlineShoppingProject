@@ -18,15 +18,15 @@
   
     <div *ngIf="model.Category != null">
       <label for="description" class="form-label" >Pick category</label>
-      <select [selectedIndex]="model.Category" class="form-select form-control" [(ngModel)]="model.Category.Id">
-        <option *ngFor="let item of categories" [value]="item.Id" [ngValue]="item.Id">{{ item.Name }}</option>
+      <select class="form-select form-control" [(ngModel)]="model.Category.Id">
+        <option *ngFor="let item of categories" [ngValue]="item.Id">{{ item.Name }}</option>
       </select>
     </div>
 
     <div *ngIf="model.Category == null">
       <label for="description" class="form-label" >Pick category</label>
-      <select [selectedIndex]="model.Category" class="form-select form-control" [(ngModel)]="model.Category">
-        <option *ngFor="let item of categories" [value]="item" [ngValue]="item">{{ item.Name }}</option>
+      <select class="form-select form-control" [(ngModel)]="model.Category">
+        <option *ngFor="let item of categories" [ngValue]="item">{{ item.Name }}</option>
       </select>
     </div>
 

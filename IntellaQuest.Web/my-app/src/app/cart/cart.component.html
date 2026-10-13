@@ -16,7 +16,7 @@
   <app-loading-grid *ngIf="isLoading" [isGridLoading]="false"></app-loading-grid>
 
 </div>
-<div *ngIf="error || shoppingCart.ShoppingCartDetails.length == 0" class="container">
+<div *ngIf="error || (shoppingCart && shoppingCart.ShoppingCartDetails.length == 0)" class="container">
   <div class="text-center">
     <div class="card" style="text-align: -webkit-center;">
       <div class="card-body">

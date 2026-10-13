@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, Input, OnInit } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { AuthentificationService } from '../authentification/authentification.service';
 import { CategoryService } from '../category-products/category.service';
 import { ResponseListModel } from '../models/response';
@@ -14,7 +14,7 @@ import { ToastrService } from 'ngx-toastr';
 export class NavbarComponent implements OnInit {
 
   @Input() isUserAuthenticated?: boolean;
-  @Input() refreshState: EventEmitter<any>;
+  @Output() refreshState = new EventEmitter<any>();
 
   categories?: CategoryViewModel[] | null | undefined;
   categoryNavBar = true;
@@ -25,9 +25,7 @@ export class NavbarComponent implements OnInit {
       private authService: AuthentificationService,
       private categoryService: CategoryService,
       private toastr: ToastrService,
-    ){
-      this.refreshState = new EventEmitter();
-    }
+    ){ }
 
   ngOnInit(): void {
     this.id = this.authService.getLoggedUserId();

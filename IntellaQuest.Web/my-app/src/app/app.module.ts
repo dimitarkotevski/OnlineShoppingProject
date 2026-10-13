@@ -3,7 +3,6 @@ import { BrowserModule } from '@angular/platform-browser';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { Routes } from '@angular/router';
 import { HomeComponent } from './home/home.component';
 import { NavbarComponent } from './navbar/navbar.component';
 import { HttpClientModule } from '@angular/common/http';
@@ -50,16 +49,12 @@ import { PhotoDialogComponent } from './admin-components/admin-tool-products/pho
 import { YesNoDialogComponent } from './customer-components/yes-no-dialog/yes-no-dialog.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { MatSelectModule } from '@angular/material/select';
-import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 import { PaymentStatusPipe } from './utils/payment-status.pipe';
 import { AddEditOrderComponent } from './admin-components/admin-tool-orders/add-edit-order/add-edit-order.component';
 import { AddEditUserComponent } from './admin-components/admin-tool-users/add-edit-user/add-edit-user.component';
 import { MakeOrderConfirmationComponent } from './customer-components/order-components/order-detail/make-order-confirmation/make-order-confirmation.component';
 import { AddPaymentComponent } from './profile/add-payment/add-payment.component';
 
-
-const routes: Routes = [
-];
 
 @NgModule({
   declarations: [
@@ -117,11 +112,7 @@ const routes: Routes = [
     BrowserAnimationsModule,
     MatDialogModule,
     NgbModule,
-    MatSelectModule,
-    NgxDatatableModule
-  ],
-  exports:[
-    MatDialogModule
+    MatSelectModule
   ],
   providers: [
     AuthentificationService,

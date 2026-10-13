@@ -61,7 +61,7 @@ export class ProductsGridComponent implements OnInit {
 
   addToCart(productId: string | undefined){
     var userId = this.authService.getLoggedUserId();
-    if(!userId && !productId){
+    if(!userId || !productId){
       window.location.replace('/login')
     }else{
       this.shoppingCartService.AddProductToCart(this.authService.getLoggedUserId(),productId || null)?.subscribe(()=>{

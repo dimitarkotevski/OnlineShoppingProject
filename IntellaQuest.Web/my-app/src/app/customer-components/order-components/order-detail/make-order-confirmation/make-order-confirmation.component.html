@@ -18,18 +18,18 @@
             <div class="col-6">
                 <label for="order_status" class="form-label">Order status:</label>
                 <select disabled name="order_status" class="form-select form-control" [(ngModel)]="orderViewModel.OrderStatus">
-                  <option value="0">Canceled</option>
-                  <option value="1">OnHold</option>
-                  <option value="2">PendingPayment</option>
-                  <option value="3">Completed</option>
+                  <option [ngValue]="0">Canceled</option>
+                  <option [ngValue]="1">OnHold</option>
+                  <option [ngValue]="2">PendingPayment</option>
+                  <option [ngValue]="3">Completed</option>
                 </select>
             </div>
 
             <div class="col-6">
                 <label for="payment_type" class="form-label">Payment type:</label>
                 <select name="payment_type" class="form-select form-control" [(ngModel)]="orderViewModel.PaymentType">
-                  <option value="0">Cash</option>
-                  <option value="1">Card</option>
+                  <option [ngValue]="0">Cash</option>
+                  <option [ngValue]="1">Card</option>
                 </select>
             </div>
         </div>

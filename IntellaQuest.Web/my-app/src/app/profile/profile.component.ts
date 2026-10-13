@@ -41,7 +41,7 @@ export class ProfileComponent implements OnInit {
     dialogRef.afterClosed().subscribe((result : PaymentInfoViewModel) => {
       if(result){
         this.authService.addPayment(result).subscribe(()=>{
-          this.toastr.success("Success deleted payment")
+          this.toastr.success("Success added payment")
           window.location.reload();
         })
       }else{
