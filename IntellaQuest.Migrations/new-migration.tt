@@ -16,10 +16,10 @@
     //
     // It creates one folder per migration:
     //
-    //     Migrations\<version>\<timestamp>_<gitUser>\
-    //         1_class.cs      the FluentMigrator migration class
-    //         up.sql          CREATE   (run by "up")
-    //         down.sql        REMOVE   (run by "down")
+    //     Migrations\<version>\<timestamp>-<gitUser>\
+    //         sqlmigration.cs   the FluentMigrator migration class
+    //         up.sql            CREATE   (run by "up")
+    //         down.sql          REMOVE   (run by "down")
     //
     // <version>   comes from appsettings.json ("Migrations:Version").
     // <gitUser>   is `git config user.name` (falls back to the Windows user).
@@ -40,14 +40,14 @@
 
     // One migration per second; keep bumping until the timestamp is free.
     string timestamp = DateTime.UtcNow.ToString("yyyyMMddHHmmss", CultureInfo.InvariantCulture);
-    while (Directory.GetDirectories(versionDir, timestamp + "_*").Length > 0)
+    while (Directory.GetDirectories(versionDir, timestamp + "-*").Length > 0)
     {
         timestamp = DateTime.ParseExact(timestamp, "yyyyMMddHHmmss", CultureInfo.InvariantCulture)
             .AddSeconds(1)
             .ToString("yyyyMMddHHmmss", CultureInfo.InvariantCulture);
     }
 
-    string id = timestamp + "_" + gitUser;
+    string id = timestamp + "-" + gitUser;
     string folder = Path.Combine(versionDir, id);
     Directory.CreateDirectory(folder);
 
@@ -55,12 +55,12 @@
     string scriptFolder = "Migrations\\" + version + "\\" + id;
 
     var utf8 = new UTF8Encoding(false);
-    File.WriteAllText(Path.Combine(folder, "1_class.cs"), ClassContent(id, timestamp, scriptFolder), utf8);
+    File.WriteAllText(Path.Combine(folder, "sqlmigration.cs"), ClassContent(id, timestamp, scriptFolder), utf8);
     File.WriteAllText(Path.Combine(folder, "up.sql"), UpContent(id), utf8);
     File.WriteAllText(Path.Combine(folder, "down.sql"), DownContent(id), utf8);
 #>
 Scaffolded migration <#= id #>:
-    Migrations\<#= version #>\<#= id #>\1_class.cs
+    Migrations\<#= version #>\<#= id #>\sqlmigration.cs
     Migrations\<#= version #>\<#= id #>\up.sql
     Migrations\<#= version #>\<#= id #>\down.sql
 
@@ -81,7 +81,7 @@ This file itself is only the template's output and is not used.
         return "0.0.0.1";
     }
 
-    // The migration author, e.g. "kotev". Falls back to the Windows user name.
+    // The migration author, e.g. "dimitarkotevski". Falls back to the Windows user name.
     private string GetGitUserName(string workingDirectory)
     {
         try
@@ -138,7 +138,7 @@ namespace IntellaQuest.Migrations
     /// down.sql - remove
     /// </summary>
     [Migration({1}, ""{0}"")]
-    public sealed class Migration_{0} : Migration
+    public sealed class Migration_{1} : Migration
     {{
         public override void Up()
         {{
