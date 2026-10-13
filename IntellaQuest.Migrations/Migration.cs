@@ -55,6 +55,18 @@ namespace IntellaQuest.Migrations
             get { return Version + "/" + Timestamp; }
         }
 
+        /// <summary>
+        /// Older keys this migration may already be recorded under — for example the
+        /// flat file name it had before it was moved into a version folder. The runner
+        /// treats any of these as "already applied" and rewrites the history row onto
+        /// the canonical <see cref="Key"/>, so scripts converted from the old layout
+        /// are never run twice and keys normalise automatically.
+        /// </summary>
+        public virtual IEnumerable<string> LegacyKeys
+        {
+            get { return Array.Empty<string>(); }
+        }
+
         /// <summary>Human-readable label used in console output.</summary>
         public string DisplayName
         {

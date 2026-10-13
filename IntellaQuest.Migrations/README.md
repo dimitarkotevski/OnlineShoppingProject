@@ -15,14 +15,17 @@ IntellaQuest.Migrations/
     new-migration.ps1       scaffolder (PowerShell)
     new-migration.cmd       scaffolder (double-click friendly wrapper)
     Migrations/
-        001_Role.sql                        legacy flat script (forward only)
-        ...
-        009_FavouriteProducts.sql
         0.0.0.1/                            <- version
-            202610122030/                   <- 2026-10-12 20:30
-                0.0.0.1_202610122030.cs
+            202601010000/                   <- 2026-01-01 00:00 — db baseline (Roles)
+                0.0.0.1_202601010000_Role.cs
                 up.sql                      <- CREATE
                 down.sql                    <- REMOVE
+            ...
+            202601010008/                   <- db baseline (FavouriteProducts)
+            202610122030/                   <- 2026-10-12 20:30 — a later change
+                0.0.0.1_202610122030_AddOrdersTable.cs
+                up.sql
+                down.sql
 ```
 
 Each versioned migration folder holds:
@@ -33,8 +36,24 @@ Each versioned migration folder holds:
 | `up.sql` | the **create** script, run by `up` (the default) |
 | `down.sql` | the **remove** script, run by `down` |
 
-Ordering is by version, then timestamp. Legacy flat scripts (`001`…`009`) always run
-first (they are treated as version `0.0.0.0`).
+Ordering is by version, then timestamp. Legacy flat scripts (`Migrations\*.sql`) are
+still supported and always run first (as version `0.0.0.0`), but the original `001`…`009`
+scripts have been converted into the version/timestamp layout — see **Baseline** below.
+
+## Baseline (`0.0.0.1`)
+
+The nine original flat scripts (`001_Role.sql` … `009_FavouriteProducts.sql`) now live as
+normal versioned migrations under `Migrations\0.0.0.1\<timestamp>\` (one folder each, in
+dependency order, with a matching `down.sql` that drops the table). Each class also
+declares its old file name via `LegacyKeys`:
+
+```csharp
+public override IEnumerable<string> LegacyKeys => new[] { "001_Role.sql" };
+```
+
+So a database that already recorded `001_Role.sql` is **not** re-run: the runner treats the
+legacy name as "already applied" and rewrites the history row onto the canonical key
+(`0.0.0.1/202601010000`). Fresh databases simply record the canonical key from the start.
 
 ## Creating a migration
 
@@ -96,6 +115,8 @@ F5/Ctrl+F5 (runs `up`). For `down`/`list`, pass the argument under
 3. Discovers migrations:
    - every concrete `Migration` class in the assembly (keyed by `<Version>/<Timestamp>`), and
    - every `Migrations\*.sql` legacy script (keyed by file name);
+   a migration recorded under a `LegacyKeys` name counts as applied and its history row is
+   moved onto the canonical key;
 4. sorts them (version, then timestamp) and runs the pending ones **inside a
    transaction**, recording each in the history table.
 

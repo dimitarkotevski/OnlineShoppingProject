@@ -126,6 +126,7 @@ namespace IntellaQuest.Migrations
             public Version Version;
             public string Timestamp;
             public string Key;
+            public string[] LegacyKeys;
             public string DisplayName;
             public bool SupportsDown;
             public Func<IEnumerable<string>> Up;
@@ -161,6 +162,7 @@ namespace IntellaQuest.Migrations
                     Version = version,
                     Timestamp = migration.Timestamp,
                     Key = migration.Key,
+                    LegacyKeys = migration.LegacyKeys.ToArray(),
                     DisplayName = migration.DisplayName,
                     SupportsDown = migration.HasDown(),
                     Up = migration.UpBatches,
@@ -181,6 +183,7 @@ namespace IntellaQuest.Migrations
                         Version = legacyVersion,
                         Timestamp = ParseOrder(name).ToString("D12"),
                         Key = name,
+                        LegacyKeys = Array.Empty<string>(),
                         DisplayName = name,
                         SupportsDown = false,
                         Up = () => SqlScript.SplitBatches(File.ReadAllText(captured)),
@@ -223,7 +226,7 @@ namespace IntellaQuest.Migrations
 
         private static int RunUp(SqlConnection connection, List<MigrationEntry> migrations)
         {
-            var applied = GetAppliedMigrations(connection);
+            var applied = GetAppliedMigrations(connection, migrations);
             int appliedCount = 0;
 
             foreach (var migration in migrations)
@@ -246,7 +249,7 @@ namespace IntellaQuest.Migrations
 
         private static int RunDown(SqlConnection connection, List<MigrationEntry> migrations)
         {
-            var applied = GetAppliedMigrations(connection);
+            var applied = GetAppliedMigrations(connection, migrations);
             var last = migrations.LastOrDefault(m => applied.Contains(m.Key));
 
             if (last == null)
@@ -276,7 +279,7 @@ namespace IntellaQuest.Migrations
 
         private static int RunList(SqlConnection connection, List<MigrationEntry> migrations)
         {
-            var applied = GetAppliedMigrations(connection);
+            var applied = GetAppliedMigrations(connection, migrations);
             foreach (var migration in migrations)
             {
                 Console.WriteLine("{0} {1}",
@@ -376,7 +379,45 @@ END";
             }
         }
 
-        private static HashSet<string> GetAppliedMigrations(SqlConnection connection)
+        private static HashSet<string> GetAppliedMigrations(
+            SqlConnection connection, List<MigrationEntry> migrations)
+        {
+            var applied = ReadAppliedNames(connection);
+
+            // A migration converted from a flat script may still be recorded under its
+            // old name. Treat any legacy key as "already applied" and rewrite the row
+            // onto the canonical key so the change is never run a second time.
+            foreach (var migration in migrations)
+            {
+                foreach (var legacy in migration.LegacyKeys)
+                {
+                    if (!applied.Contains(legacy))
+                    {
+                        continue;
+                    }
+
+                    if (applied.Contains(migration.Key))
+                    {
+                        ExecuteNonQuery(connection,
+                            "DELETE FROM " + HistoryTable + " WHERE Name = @name",
+                            ("@name", legacy));
+                        applied.Remove(legacy);
+                    }
+                    else
+                    {
+                        ExecuteNonQuery(connection,
+                            "UPDATE " + HistoryTable + " SET Name = @key WHERE Name = @legacy",
+                            ("@key", migration.Key), ("@legacy", legacy));
+                        applied.Remove(legacy);
+                        applied.Add(migration.Key);
+                    }
+                }
+            }
+
+            return applied;
+        }
+
+        private static HashSet<string> ReadAppliedNames(SqlConnection connection)
         {
             var applied = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             using (var command = connection.CreateCommand())
@@ -391,6 +432,20 @@ END";
                 }
             }
             return applied;
+        }
+
+        private static void ExecuteNonQuery(
+            SqlConnection connection, string sql, params (string Name, object Value)[] parameters)
+        {
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandText = sql;
+                foreach (var parameter in parameters)
+                {
+                    command.Parameters.AddWithValue(parameter.Name, parameter.Value);
+                }
+                command.ExecuteNonQuery();
+            }
         }
     }
 }

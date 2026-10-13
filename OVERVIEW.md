@@ -59,7 +59,7 @@ Configured in `IntellaQuest.Web/Program.cs`:
 - SQL Server, connection string **hardcoded** in `NHibernateContext.cs`: `Data Source=localhost;Initial Catalog=ShopDb;Integrated Security=SSPI;TrustServerCertificate=True;` ⚠️
 - Driver: `MicrosoftDataSqlClientDriver` (NHibernate) over `Microsoft.Data.SqlClient`; MS SQL 2005 dialect.
 - Mappings: `IntellaQuest.Repository/Mapping/*Map.cs` (FluentNHibernate, auto-discovered from `CategoryMap` assembly).
-- **SQL migrations:** `IntellaQuest.Migrations/` — one `.sql` file per entity (`Migrations/001_Role.sql` … `009_FavouriteProducts.sql`) plus a console runner that creates `ShopDb` if needed and applies all pending migrations in order (tracked in `dbo.__SqlMigrations`). Run with `dotnet run --project IntellaQuest.Migrations`. See `IntellaQuest.Migrations/README.md`.
+- **SQL migrations:** `IntellaQuest.Migrations/` — migrations live in `<version>/<timestamp>/` folders (e.g. `Migrations/0.0.0.1/202601010000/`, the original per-entity `001_Role.sql`…`009_FavouriteProducts.sql` schema as version `0.0.0.1`), each with a `.cs` class plus `up.sql` (create) and `down.sql` (remove). A console runner creates `ShopDb` if needed and applies all pending migrations in order (tracked in `dbo.__SqlMigrations`). Run with `dotnet run --project IntellaQuest.Migrations`. See `IntellaQuest.Migrations/README.md`.
 - ⚠️ `UnitOfWork` ctor calls `BuildSessionFactory()` each time — a new session factory per request/unit-of-work (inefficient; should be a singleton). NHibernate also opens a connection during this call (`SchemaMetadataUpdater`), so a reachable `ShopDb` is required.
 
 ## Frontend (Angular 20) — `IntellaQuest.Web/my-app/`
