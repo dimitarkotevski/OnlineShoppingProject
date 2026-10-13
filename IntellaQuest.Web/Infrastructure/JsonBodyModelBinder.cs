@@ -29,10 +29,20 @@ namespace IntellaQuest.Web.Infrastructure
     {
         private const string BodyCacheKey = "__intellaquest.json.body";
 
-        private static readonly JsonSerializerOptions SerializerOptions = new JsonSerializerOptions
+        private static readonly JsonSerializerOptions SerializerOptions = CreateSerializerOptions();
+
+        private static JsonSerializerOptions CreateSerializerOptions()
         {
-            PropertyNameCaseInsensitive = true
-        };
+            var options = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            };
+
+            // Match Newtonsoft.Json's forgiving number handling (quoted numbers, empty strings).
+            options.Converters.Add(new LenientNumberConverterFactory());
+
+            return options;
+        }
 
         public async Task BindModelAsync(ModelBindingContext bindingContext)
         {
