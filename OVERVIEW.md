@@ -21,7 +21,7 @@ Each project also has its own detailed doc inside its folder:
 | `IntellaQeust.Business` ⚠️ | `IntellaQeust.BusinessLogic/` | [`IntellaQeust.BusinessLogic/IntellaQeust.BusinessLogic.md`](IntellaQeust.BusinessLogic/IntellaQeust.BusinessLogic.md) |
 | `IntellaQuest.Data.NHibernate` | `IntellaQuest.Repository/` | [`IntellaQuest.Repository/IntellaQuest.Repository.md`](IntellaQuest.Repository/IntellaQuest.Repository.md) |
 | `IntellaQuest.Web` | `IntellaQuest.Web/` | [`IntellaQuest.Web/IntellaQuest.Web.md`](IntellaQuest.Web/IntellaQuest.Web.md) |
-| `IntellaQuest.Migrations` | `IntellaQuest.Migrations/` | SQL migrations (one `.sql` file per entity) + a console runner that applies them all to `ShopDb` — see [`IntellaQuest.Migrations/README.md`](IntellaQuest.Migrations/README.md) |
+| `IntellaQuest.Migrations` | `IntellaQuest.Migrations/` | FluentMigrator migrations + a console runner that applies them all to `ShopDb` — see [`IntellaQuest.Migrations/README.md`](IntellaQuest.Migrations/README.md) |
 
 ⚠️ Note the typo: the BusinessLogic folder/project is **IntellaQeust** (Q-e-u-e-s-t), and namespaces are inconsistently `IntellaQeust.BusinessLogic.*` vs `IntellaQuest.BusinessLogic.*` — both appear in the code.
 
@@ -59,7 +59,7 @@ Configured in `IntellaQuest.Web/Program.cs`:
 - SQL Server, connection string **hardcoded** in `NHibernateContext.cs`: `Data Source=localhost;Initial Catalog=ShopDb;Integrated Security=SSPI;TrustServerCertificate=True;` ⚠️
 - Driver: `MicrosoftDataSqlClientDriver` (NHibernate) over `Microsoft.Data.SqlClient`; MS SQL 2005 dialect.
 - Mappings: `IntellaQuest.Repository/Mapping/*Map.cs` (FluentNHibernate, auto-discovered from `CategoryMap` assembly).
-- **SQL migrations:** `IntellaQuest.Migrations/` — migrations live in `<version>/<timestamp>/` folders (e.g. `Migrations/0.0.0.1/202601010000/`, the original per-entity `001_Role.sql`…`009_FavouriteProducts.sql` schema as version `0.0.0.1`), each with a `.cs` class plus `up.sql` (create) and `down.sql` (remove). A console runner creates `ShopDb` if needed and applies all pending migrations in order (tracked in `dbo.__SqlMigrations`). Run with `dotnet run --project IntellaQuest.Migrations`. See `IntellaQuest.Migrations/README.md`.
+- **SQL migrations:** `IntellaQuest.Migrations/` — [FluentMigrator](https://fluentmigrator.github.io/) (`FluentMigrator`/`FluentMigrator.Runner`/`FluentMigrator.Runner.SqlServer` 8.0.1). The original per-entity schema (`001_Role.sql`…`009_FavouriteProducts.sql`) is defined inline in `Migrations/*_2026010100000X.cs` (`Execute.Sql`, guarded by `IF OBJECT_ID`). New changes are scaffolded with the `new-migration.tt` T4 template into `Migrations/<version>/<timestamp>_<gitUser>/{1_class.cs, up.sql, down.sql}` (`Execute.Script`); the version lives in `IntellaQuest.Migrations/appsettings.json` (`Migrations:Version`). A console runner creates `ShopDb` if needed and applies pending migrations in order; FluentMigrator tracks them in `dbo.VersionInfo`. Run with `dotnet run --project IntellaQuest.Migrations` (`-- down` / `-- list`). See `IntellaQuest.Migrations/README.md`.
 - ⚠️ `UnitOfWork` ctor calls `BuildSessionFactory()` each time — a new session factory per request/unit-of-work (inefficient; should be a singleton). NHibernate also opens a connection during this call (`SchemaMetadataUpdater`), so a reachable `ShopDb` is required.
 
 ## Frontend (Angular 20) — `IntellaQuest.Web/my-app/`

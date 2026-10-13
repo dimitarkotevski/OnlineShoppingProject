@@ -1,14 +1,14 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Reflection;
+using System.Text.Json;
+using FluentMigrator.Runner;
 using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace IntellaQuest.Migrations
 {
     /// <summary>
-    /// Applies and rolls back SQL migrations against ShopDb.
+    /// Applies and rolls back the ShopDb schema with FluentMigrator.
     ///
     /// <code>
     /// dotnet run --project IntellaQuest.Migrations                 # up   (default)
@@ -17,18 +17,12 @@ namespace IntellaQuest.Migrations
     /// dotnet run --project IntellaQuest.Migrations -- up "Data Source=.;..."
     /// </code>
     ///
-    /// Two kinds of migration are supported and can be mixed:
+    /// Migrations are plain FluentMigrator classes: the original schema is defined
+    /// inline in <c>Migrations\*_&lt;id&gt;.cs</c>, and new changes are scaffolded with
+    /// <c>new-migration.tt</c> into <c>Migrations\&lt;version&gt;\&lt;id&gt;_&lt;gitUser&gt;\</c>
+    /// as a class plus <c>up.sql</c>/<c>down.sql</c>.
     ///
-    /// <list type="bullet">
-    /// <item><b>Versioned migrations</b> —
-    /// <c>Migrations\&lt;version&gt;\&lt;timestamp&gt;\{up.sql,down.sql}</c> driven by a
-    /// <see cref="Migration"/> class. Create one with <c>new-migration.ps1</c>.</item>
-    /// <item><b>Legacy flat scripts</b> — <c>Migrations\001_Role.sql</c> (forward only).
-    /// They always run before the versioned migrations.</item>
-    /// </list>
-    ///
-    /// Every applied migration is recorded in <c>dbo.__SqlMigrations</c> by a stable
-    /// key, so each runs only once.
+    /// Applied migrations are tracked by FluentMigrator itself in <c>dbo.VersionInfo</c>.
     /// </summary>
     public static class Program
     {
@@ -36,48 +30,39 @@ namespace IntellaQuest.Migrations
         private const string DefaultConnectionString =
             "Data Source=localhost;Initial Catalog=ShopDb;Integrated Security=SSPI;TrustServerCertificate=True;";
 
-        private const string HistoryTable = "dbo.__SqlMigrations";
-
         public static int Main(string[] args)
         {
             string command = GetCommand(args);
             string connectionString = GetConnectionString(args);
-            string scriptsPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Migrations");
 
             try
             {
-                string databaseName = new SqlConnectionStringBuilder(connectionString).InitialCatalog;
+                // Execute.Script(...) resolves its relative path against the current
+                // directory, so run from the folder that holds the copied *.sql files.
+                Directory.SetCurrentDirectory(AppContext.BaseDirectory);
 
-                // The CREATE DATABASE statement must run against master, outside any transaction.
-                var masterBuilder = new SqlConnectionStringBuilder(connectionString) { InitialCatalog = "master" };
-                using (var masterConnection = new SqlConnection(masterBuilder.ConnectionString))
+                EnsureDatabaseExists(connectionString);
+
+                using (var serviceProvider = CreateServices(connectionString))
+                using (var scope = serviceProvider.CreateScope())
                 {
-                    masterConnection.Open();
-                    EnsureDatabaseExists(masterConnection, databaseName);
-                }
-
-                using (var connection = new SqlConnection(connectionString))
-                {
-                    connection.Open();
-                    EnsureHistoryTable(connection);
-
-                    var migrations = DiscoverMigrations(scriptsPath);
-                    if (migrations.Count == 0)
-                    {
-                        Console.WriteLine("No migrations found in {0}", scriptsPath);
-                        return 1;
-                    }
+                    var runner = scope.ServiceProvider.GetRequiredService<IMigrationRunner>();
 
                     switch (command)
                     {
                         case "down":
-                            return RunDown(connection, migrations);
+                            runner.Rollback(1);
+                            break;
                         case "list":
-                            return RunList(connection, migrations);
+                            runner.ListMigrations();
+                            break;
                         default:
-                            return RunUp(connection, migrations);
+                            runner.MigrateUp();
+                            break;
                     }
                 }
+
+                return 0;
             }
             catch (Exception ex)
             {
@@ -114,338 +99,102 @@ namespace IntellaQuest.Migrations
                 {
                     continue;
                 }
-                return arg;
-            }
-            return DefaultConnectionString;
-        }
-
-        // -------------------------------------------------------------- discovery
-
-        private sealed class MigrationEntry
-        {
-            public Version Version;
-            public string Timestamp;
-            public string Key;
-            public string[] LegacyKeys;
-            public string DisplayName;
-            public bool SupportsDown;
-            public Func<IEnumerable<string>> Up;
-            public Func<IEnumerable<string>> Down;
-        }
-
-        private static List<MigrationEntry> DiscoverMigrations(string scriptsPath)
-        {
-            var entries = new List<MigrationEntry>();
-
-            // Versioned migrations: every concrete Migration in this assembly.
-            foreach (var type in Assembly.GetExecutingAssembly().GetTypes()
-                .Where(t => typeof(Migration).IsAssignableFrom(t) && !t.IsAbstract))
-            {
-                if (type.GetConstructor(Type.EmptyTypes) == null)
-                {
-                    Console.Error.WriteLine("Skipping {0}: no parameterless constructor.", type.FullName);
-                    continue;
-                }
-
-                var migration = (Migration)Activator.CreateInstance(type);
-
-                Version version;
-                if (!Version.TryParse(migration.Version, out version))
-                {
-                    throw new InvalidOperationException(
-                        "Invalid version '" + migration.Version + "' on " + type.Name +
-                        " (expected e.g. 0.0.0.1).");
-                }
-
-                entries.Add(new MigrationEntry
-                {
-                    Version = version,
-                    Timestamp = migration.Timestamp,
-                    Key = migration.Key,
-                    LegacyKeys = migration.LegacyKeys.ToArray(),
-                    DisplayName = migration.DisplayName,
-                    SupportsDown = migration.HasDown(),
-                    Up = migration.UpBatches,
-                    Down = migration.DownBatches
-                });
-            }
-
-            // Legacy flat scripts: Migrations\*.sql — run before the versioned ones.
-            var legacyVersion = new Version(0, 0, 0, 0);
-            if (Directory.Exists(scriptsPath))
-            {
-                foreach (var file in Directory.GetFiles(scriptsPath, "*.sql"))
-                {
-                    string captured = file;
-                    string name = Path.GetFileName(file);
-                    entries.Add(new MigrationEntry
-                    {
-                        Version = legacyVersion,
-                        Timestamp = ParseOrder(name).ToString("D12"),
-                        Key = name,
-                        LegacyKeys = Array.Empty<string>(),
-                        DisplayName = name,
-                        SupportsDown = false,
-                        Up = () => SqlScript.SplitBatches(File.ReadAllText(captured)),
-                        Down = () => Array.Empty<string>()
-                    });
-                }
-            }
-
-            var duplicate = entries.GroupBy(e => e.Key, StringComparer.OrdinalIgnoreCase)
-                .FirstOrDefault(g => g.Count() > 1);
-            if (duplicate != null)
-            {
-                throw new InvalidOperationException("Duplicate migration key: " + duplicate.Key);
-            }
-
-            return entries
-                .OrderBy(e => e.Version)
-                .ThenBy(e => e.Timestamp, StringComparer.OrdinalIgnoreCase)
-                .ToList();
-        }
-
-        /// <summary>Leading digits of a file name ("001_Role.sql" -> 1); else long.MaxValue.</summary>
-        private static long ParseOrder(string fileName)
-        {
-            int i = 0;
-            while (i < fileName.Length && char.IsDigit(fileName[i]))
-            {
-                i++;
-            }
-
-            long value;
-            if (i > 0 && long.TryParse(fileName.Substring(0, i), out value))
-            {
                 return value;
             }
-            return long.MaxValue;
+
+            return ReadConfiguredConnectionString() ?? DefaultConnectionString;
         }
 
-        // ---------------------------------------------------------------- commands
+        // ------------------------------------------------------------------- runner
 
-        private static int RunUp(SqlConnection connection, List<MigrationEntry> migrations)
+        private static ServiceProvider CreateServices(string connectionString)
         {
-            var applied = GetAppliedMigrations(connection, migrations);
-            int appliedCount = 0;
-
-            foreach (var migration in migrations)
-            {
-                if (applied.Contains(migration.Key))
-                {
-                    Console.WriteLine("[skip]    {0} (already applied)", migration.DisplayName);
-                    continue;
-                }
-
-                ExecuteForward(connection, migration.Key, migration.Up());
-                appliedCount++;
-                Console.WriteLine("[applied] {0}", migration.DisplayName);
-            }
-
-            Console.WriteLine();
-            Console.WriteLine("Done. {0} of {1} migration(s) applied.", appliedCount, migrations.Count);
-            return 0;
+            return new ServiceCollection()
+                // Registers the FluentMigrator services.
+                .AddFluentMigratorCore()
+                .ConfigureRunner(runner => runner
+                    .AddSqlServer()
+                    .WithGlobalConnectionString(connectionString)
+                    // Every FluentMigrator Migration in this assembly, ordered by id.
+                    .ScanIn(typeof(Program).Assembly).For.Migrations())
+                // Writes the [....] progress lines to the console.
+                .AddLogging(logging => logging.AddFluentMigratorConsole())
+                .BuildServiceProvider(false);
         }
 
-        private static int RunDown(SqlConnection connection, List<MigrationEntry> migrations)
+        // ---------------------------------------------------------------- database
+
+        /// <summary>
+        /// Creates the target database when it does not exist yet. The CREATE DATABASE
+        /// statement has to run against master, outside any FluentMigrator transaction.
+        /// </summary>
+        private static void EnsureDatabaseExists(string connectionString)
         {
-            var applied = GetAppliedMigrations(connection, migrations);
-            var last = migrations.LastOrDefault(m => applied.Contains(m.Key));
+            string databaseName = new SqlConnectionStringBuilder(connectionString).InitialCatalog;
 
-            if (last == null)
+            var masterBuilder = new SqlConnectionStringBuilder(connectionString) { InitialCatalog = "master" };
+            using (var connection = new SqlConnection(masterBuilder.ConnectionString))
             {
-                Console.WriteLine("Nothing to roll back.");
-                return 0;
-            }
+                connection.Open();
 
-            if (!last.SupportsDown)
-            {
-                Console.Error.WriteLine(
-                    "{0} has no down.sql, so it cannot be rolled back.", last.DisplayName);
-                return 1;
-            }
-
-            var batches = last.Down().ToList();
-            if (batches.Count == 0)
-            {
-                Console.Error.WriteLine("{0} has an empty down.sql; nothing to roll back.", last.DisplayName);
-                return 1;
-            }
-
-            ExecuteRollback(connection, last.Key, batches);
-            Console.WriteLine("[reverted] {0}", last.DisplayName);
-            return 0;
-        }
-
-        private static int RunList(SqlConnection connection, List<MigrationEntry> migrations)
-        {
-            var applied = GetAppliedMigrations(connection, migrations);
-            foreach (var migration in migrations)
-            {
-                Console.WriteLine("{0} {1}",
-                    applied.Contains(migration.Key) ? "[x]" : "[ ]",
-                    migration.DisplayName);
-            }
-            return 0;
-        }
-
-        // ------------------------------------------------------------- execution
-
-        private static void ExecuteForward(SqlConnection connection, string key, IEnumerable<string> batches)
-        {
-            using (var transaction = connection.BeginTransaction())
-            {
-                ExecuteBatches(connection, transaction, batches);
-
-                using (var record = connection.CreateCommand())
-                {
-                    record.Transaction = transaction;
-                    record.CommandText = "INSERT INTO " + HistoryTable + " (Name) VALUES (@name)";
-                    record.Parameters.AddWithValue("@name", key);
-                    record.ExecuteNonQuery();
-                }
-
-                transaction.Commit();
-            }
-        }
-
-        private static void ExecuteRollback(SqlConnection connection, string key, IEnumerable<string> batches)
-        {
-            using (var transaction = connection.BeginTransaction())
-            {
-                ExecuteBatches(connection, transaction, batches);
-
-                using (var record = connection.CreateCommand())
-                {
-                    record.Transaction = transaction;
-                    record.CommandText = "DELETE FROM " + HistoryTable + " WHERE Name = @name";
-                    record.Parameters.AddWithValue("@name", key);
-                    record.ExecuteNonQuery();
-                }
-
-                transaction.Commit();
-            }
-        }
-
-        private static void ExecuteBatches(SqlConnection connection, SqlTransaction transaction, IEnumerable<string> batches)
-        {
-            foreach (var batch in batches)
-            {
                 using (var command = connection.CreateCommand())
                 {
-                    command.Transaction = transaction;
-                    command.CommandText = batch;
-                    command.ExecuteNonQuery();
+                    command.CommandText = "SELECT COUNT(*) FROM sys.databases WHERE name = @name";
+                    command.Parameters.AddWithValue("@name", databaseName);
+
+                    if ((int)command.ExecuteScalar() != 0)
+                    {
+                        return;
+                    }
                 }
-            }
-        }
 
-        // -------------------------------------------------------------- database
-
-        private static void EnsureDatabaseExists(SqlConnection masterConnection, string databaseName)
-        {
-            using (var command = masterConnection.CreateCommand())
-            {
-                command.CommandText = "SELECT COUNT(*) FROM sys.databases WHERE name = @name";
-                command.Parameters.AddWithValue("@name", databaseName);
-
-                if ((int)command.ExecuteScalar() == 0)
+                Console.WriteLine("Creating database {0}...", databaseName);
+                using (var create = connection.CreateCommand())
                 {
-                    Console.WriteLine("Creating database {0}...", databaseName);
-                    using (var create = masterConnection.CreateCommand())
-                    {
-                        create.CommandText = "CREATE DATABASE [" + databaseName.Replace("]", "]]") + "]";
-                        create.ExecuteNonQuery();
-                    }
+                    create.CommandText = "CREATE DATABASE [" + databaseName.Replace("]", "]]") + "]";
+                    create.ExecuteNonQuery();
                 }
             }
         }
 
-        private static void EnsureHistoryTable(SqlConnection connection)
+        // ---------------------------------------------------------------- settings
+
+        /// <summary>
+        /// Reads ConnectionStrings:ShopDb from appsettings.json (next to the assembly),
+        /// falling back to the built-in default when it is missing.
+        /// </summary>
+        private static string ReadConfiguredConnectionString()
         {
-            using (var command = connection.CreateCommand())
+            string path = Path.Combine(AppContext.BaseDirectory, "appsettings.json");
+            if (!File.Exists(path))
             {
-                command.CommandText = @"
-IF OBJECT_ID('dbo.__SqlMigrations', 'U') IS NULL
-BEGIN
-    CREATE TABLE dbo.__SqlMigrations (
-        Id INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
-        Name NVARCHAR(500) NOT NULL,
-        AppliedOn DATETIME NOT NULL DEFAULT GETUTCDATE()
-    );
-    CREATE UNIQUE INDEX UX___SqlMigrations_Name ON dbo.__SqlMigrations (Name);
-END";
-                command.ExecuteNonQuery();
+                return null;
             }
-        }
 
-        private static HashSet<string> GetAppliedMigrations(
-            SqlConnection connection, List<MigrationEntry> migrations)
-        {
-            var applied = ReadAppliedNames(connection);
-
-            // A migration converted from a flat script may still be recorded under its
-            // old name. Treat any legacy key as "already applied" and rewrite the row
-            // onto the canonical key so the change is never run a second time.
-            foreach (var migration in migrations)
+            try
             {
-                foreach (var legacy in migration.LegacyKeys)
+                using (var document = JsonDocument.Parse(File.ReadAllText(path)))
                 {
-                    if (!applied.Contains(legacy))
+                    JsonElement connectionStrings;
+                    JsonElement shopDb;
+                    if (document.RootElement.TryGetProperty("ConnectionStrings", out connectionStrings) &&
+                        connectionStrings.TryGetProperty("ShopDb", out shopDb) &&
+                        shopDb.ValueKind == JsonValueKind.String)
                     {
-                        continue;
-                    }
-
-                    if (applied.Contains(migration.Key))
-                    {
-                        ExecuteNonQuery(connection,
-                            "DELETE FROM " + HistoryTable + " WHERE Name = @name",
-                            ("@name", legacy));
-                        applied.Remove(legacy);
-                    }
-                    else
-                    {
-                        ExecuteNonQuery(connection,
-                            "UPDATE " + HistoryTable + " SET Name = @key WHERE Name = @legacy",
-                            ("@key", migration.Key), ("@legacy", legacy));
-                        applied.Remove(legacy);
-                        applied.Add(migration.Key);
+                        string value = shopDb.GetString();
+                        if (!string.IsNullOrWhiteSpace(value))
+                        {
+                            return value;
+                        }
                     }
                 }
             }
-
-            return applied;
-        }
-
-        private static HashSet<string> ReadAppliedNames(SqlConnection connection)
-        {
-            var applied = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            using (var command = connection.CreateCommand())
+            catch (JsonException)
             {
-                command.CommandText = "SELECT Name FROM " + HistoryTable;
-                using (var reader = command.ExecuteReader())
-                {
-                    while (reader.Read())
-                    {
-                        applied.Add(reader.GetString(0));
-                    }
-                }
+                Console.Error.WriteLine("Could not parse {0}.", path);
             }
-            return applied;
-        }
 
-        private static void ExecuteNonQuery(
-            SqlConnection connection, string sql, params (string Name, object Value)[] parameters)
-        {
-            using (var command = connection.CreateCommand())
-            {
-                command.CommandText = sql;
-                foreach (var parameter in parameters)
-                {
-                    command.Parameters.AddWithValue(parameter.Name, parameter.Value);
-                }
-                command.ExecuteNonQuery();
-            }
+            return null;
         }
     }
 }

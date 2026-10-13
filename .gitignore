@@ -389,3 +389,6 @@ IntellaQuest.Web/my-app/bundles/main.js
 IntellaQuest.Web/my-app/bundles/styles.css
 IntellaQuest.Web/my-app/bundles/main.js
 IntellaQuest.Web/my-app/bundles/styles.css
+
+# T4 scaffolder output (IntellaQuest.Migrations/new-migration.tt)
+IntellaQuest.Migrations/new-migration.txt
