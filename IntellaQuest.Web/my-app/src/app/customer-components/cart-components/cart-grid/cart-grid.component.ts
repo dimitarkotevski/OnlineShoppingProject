@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { ShoppingCartService } from 'src/app/customer-components/cart-components/shopping-cart.service';
 
-@Component({
+@Component({ standalone: false,
   selector: 'app-cart-grid',
   templateUrl: './cart-grid.component.html',
   styleUrls: ['./cart-grid.component.css']
@@ -58,3 +58,4 @@ export class CartGridComponent implements OnInit {
   }
 
 }
+

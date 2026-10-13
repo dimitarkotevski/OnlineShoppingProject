@@ -14,7 +14,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import { Router } from '@angular/router';
 import { AuthentificationService } from 'src/app/authentification/authentification.service';
 
-@Component({
+@Component({ standalone: false,
   selector: 'app-admin-tool-products',
   templateUrl: './admin-tool-products.component.html',
   styleUrls: ['./admin-tool-products.component.css']
@@ -142,3 +142,4 @@ export class AdminToolProductsComponent implements OnInit {
     this.getData();
   }
 }
+

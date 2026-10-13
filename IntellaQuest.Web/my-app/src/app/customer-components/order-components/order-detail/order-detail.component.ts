@@ -9,7 +9,7 @@ import { LookupViewModel } from 'src/app/models/lookup-view-model';
 import { AuthentificationService } from 'src/app/authentification/authentification.service';
 import { ToastrService } from 'ngx-toastr';
 
-@Component({
+@Component({ standalone: false,
   selector: 'app-order-detail',
   templateUrl: './order-detail.component.html',
   styleUrls: ['./order-detail.component.css']
@@ -61,3 +61,4 @@ export class OrderDetailComponent implements OnInit {
     });
   }
 }
+

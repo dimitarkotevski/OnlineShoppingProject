@@ -7,7 +7,7 @@ import { ToastrService } from 'ngx-toastr';
 import { MatDialog } from '@angular/material/dialog';
 import { YesNoDialogComponent } from '../customer-components/yes-no-dialog/yes-no-dialog.component';
 
-@Component({
+@Component({ standalone: false,
   selector: 'app-cart',
   templateUrl: './cart.component.html',
   styleUrls: ['./cart.component.css']
@@ -80,3 +80,4 @@ export class CartComponent implements OnInit {
   }
 
 }
+

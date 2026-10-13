@@ -8,7 +8,7 @@ import { AddPaymentComponent } from './add-payment/add-payment.component';
 import { PaymentInfoViewModel } from '../models/payment-info-view-model';
 
 
-@Component({
+@Component({ standalone: false,
   selector: 'app-profile',
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.css']
@@ -71,3 +71,4 @@ export class ProfileComponent implements OnInit {
   }
 
 }
+

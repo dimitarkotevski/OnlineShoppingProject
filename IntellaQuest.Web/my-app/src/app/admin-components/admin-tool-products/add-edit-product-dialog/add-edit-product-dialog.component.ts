@@ -6,7 +6,7 @@ import { ProductViewModel } from 'src/app/models/product-view-model';
 import { ResponseModel } from '../../admin-tool-models/admin-tool-response-model';
 import { LookupViewModel } from 'src/app/models/lookup-view-model';
 
-@Component({
+@Component({ standalone: false,
   selector: 'app-add-edit-product-dialog',
   templateUrl: './add-edit-product-dialog.component.html',
   styleUrls: ['./add-edit-product-dialog.component.css']
@@ -40,3 +40,4 @@ export class AddEditProductDialogComponent implements OnInit {
   }
 
 }
+

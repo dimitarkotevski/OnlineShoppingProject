@@ -8,11 +8,10 @@ import { ToastrService } from 'ngx-toastr';
 
 
 
-@Component({
+@Component({ standalone: false,
   selector: 'app-photo-dialog',
   templateUrl: './photo-dialog.component.html',
   styleUrls: ['./photo-dialog.component.css'],
-  entryComponents: [MatButtonModule, MatDialogModule],
 })
 export class PhotoDialogComponent implements OnInit {
 
@@ -60,3 +59,4 @@ export class PhotoDialogComponent implements OnInit {
     })
   }
 }
+

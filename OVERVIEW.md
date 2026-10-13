@@ -9,7 +9,7 @@
 
 - **Backend:** .NET Framework 4.7.2, ASP.NET MVC (`System.Web.Mvc`), NHibernate + FluentNHibernate, SQL Server, Autofac DI, FluentValidation
 - **Frontend:** Angular 13 SPA (lives inside `IntellaQuest.Web/my-app/`), Angular Material, Bootstrap 5, ngx-datatable, @auth0/angular-jwt
-- **Solution:** `IntellaQuestProject.sln` (Visual Studio 2022, 4 projects)
+- **Solution:** `IntellaQuestProject.sln` (Visual Studio 2022, 5 projects)
 
 ## Solution Structure
 
@@ -21,6 +21,7 @@ Each project also has its own detailed doc inside its folder:
 | `IntellaQeust.Business` ⚠️ | `IntellaQeust.BusinessLogic/` | [`IntellaQeust.BusinessLogic/IntellaQeust.BusinessLogic.md`](IntellaQeust.BusinessLogic/IntellaQeust.BusinessLogic.md) |
 | `IntellaQuest.Data.NHibernate` | `IntellaQuest.Repository/` | [`IntellaQuest.Repository/IntellaQuest.Repository.md`](IntellaQuest.Repository/IntellaQuest.Repository.md) |
 | `IntellaQuest.Web` | `IntellaQuest.Web/` | [`IntellaQuest.Web/IntellaQuest.Web.md`](IntellaQuest.Web/IntellaQuest.Web.md) |
+| `IntellaQuest.Migrations` | `IntellaQuest.Migrations/` | SQL migrations (one `.sql` file per entity) + a console runner that applies them all to `ShopDb` — see [`IntellaQuest.Migrations/README.md`](IntellaQuest.Migrations/README.md) |
 
 ⚠️ Note the typo: the BusinessLogic folder/project is **IntellaQeust** (Q-e-u-e-s-t), and namespaces are inconsistently `IntellaQeust.BusinessLogic.*` vs `IntellaQuest.BusinessLogic.*` — both appear in the code.
 
@@ -55,6 +56,7 @@ Route config (`App_Start/RouteConfig.cs`):
 
 - SQL Server, connection string **hardcoded** in `NHibernateContext.cs`: `Data Source=localhost;Initial Catalog=ShopDb;Integrated Security=SSPI;` ⚠️
 - Mappings: `IntellaQuest.Repository/Mapping/*Map.cs` (FluentNHibernate, auto-discovered from `CategoryMap` assembly).
+- **SQL migrations:** `IntellaQuest.Migrations/` — one `.sql` file per entity (`Migrations/001_Role.sql` … `009_FavouriteProducts.sql`) plus a console runner that creates `ShopDb` if needed and applies all pending migrations in order (tracked in `dbo.__SqlMigrations`). Run it from VS or execute `IntellaQuest.Migrations.exe`. See `IntellaQuest.Migrations/README.md`.
 - ⚠️ `UnitOfWork` ctor calls `BuildSessionFactory()` each time — a new session factory per request/unit-of-work (inefficient; should be a singleton).
 
 ## Frontend (Angular 13) — `IntellaQuest.Web/my-app/`

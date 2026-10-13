@@ -7,7 +7,7 @@ import { CategoryViewModel } from '../models/category';
 import { RequestModel } from '../models/request';
 import { ProductService } from '../customer-components/product-components/product.service';
 
-@Component({
+@Component({ standalone: false,
   selector: 'app-category-products',
   templateUrl: './category-products.component.html',
   styleUrls: ['./category-products.component.css']
@@ -52,3 +52,4 @@ export class CategoryProductsComponent implements OnInit {
   }
 
 }
+

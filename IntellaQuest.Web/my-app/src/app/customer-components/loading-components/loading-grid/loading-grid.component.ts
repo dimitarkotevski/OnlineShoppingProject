@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 
-@Component({
+@Component({ standalone: false,
   selector: 'app-loading-grid',
   templateUrl: './loading-grid.component.html',
   styleUrls: ['./loading-grid.component.css']
@@ -15,3 +15,4 @@ export class LoadingGridComponent implements OnInit {
   }
 
 }
+

@@ -4,7 +4,7 @@ import { ResponseListModel } from '../../../models/response';
 import { OrderGridViewModel } from '../../../models/order-grid';
 import { OrderService } from '../order.service';
 
-@Component({
+@Component({ standalone: false,
   selector: 'app-order-grid',
   templateUrl: './order-grid.component.html',
   styleUrls: ['./order-grid.component.css']
@@ -23,3 +23,4 @@ export class OrderGridComponent implements OnInit {
   }
 
 }
+

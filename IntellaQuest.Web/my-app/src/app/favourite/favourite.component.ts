@@ -7,7 +7,7 @@ import { Router } from '@angular/router';
 import { FavouriteProductService } from './favourite-product.service';
 import { ProductsGridComponent } from '../customer-components/product-components/products-grid/products-grid.component';
 
-@Component({
+@Component({ standalone: false,
   selector: 'app-favourite',
   templateUrl: './favourite.component.html',
   styleUrls: ['./favourite.component.css']
@@ -58,3 +58,4 @@ export class FavouriteComponent implements OnInit, OnChanges {
     }
   }
 }
+

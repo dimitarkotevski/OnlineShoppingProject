@@ -1,7 +1,7 @@
 import { Pipe, PipeTransform, SecurityContext } from "@angular/core";
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
-@Pipe({
+@Pipe({ standalone: false,
     name: 'byPassSecurity'
 })
 export class ByPassSecurityPipe implements PipeTransform {

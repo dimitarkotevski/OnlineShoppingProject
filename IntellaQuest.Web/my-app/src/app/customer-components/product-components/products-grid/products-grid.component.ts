@@ -9,7 +9,7 @@ import { FavouriteComponent } from 'src/app/favourite/favourite.component';
 import { Router } from '@angular/router';
 
 
-@Component({
+@Component({ standalone: false,
   selector: 'app-products-grid',
   templateUrl: './products-grid.component.html',
   styleUrls: ['./products-grid.component.css']
@@ -117,3 +117,4 @@ export class ProductsGridComponent implements OnInit {
     }
   }
 }
+

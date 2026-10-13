@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthentificationService } from './authentification/authentification.service';
 
-@Component({
+@Component({ standalone: false,
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
@@ -19,3 +19,4 @@ export class AppComponent implements OnInit {
     this.isUserAuthenticated = this.authService.isAuthenticated();
   }
 }
+

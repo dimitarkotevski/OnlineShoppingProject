@@ -2,7 +2,7 @@ import { Component, Inject, Input, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { UserGridModel } from 'src/app/models/user-grid-model';
 
-@Component({
+@Component({ standalone: false,
   selector: 'app-add-edit-user',
   templateUrl: './add-edit-user.component.html',
   styleUrls: ['./add-edit-user.component.css']
@@ -28,3 +28,4 @@ export class AddEditUserComponent implements OnInit {
   }
 
 }
+

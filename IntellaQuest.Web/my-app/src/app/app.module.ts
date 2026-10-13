@@ -123,9 +123,6 @@ const routes: Routes = [
   exports:[
     MatDialogModule
   ],
-  entryComponents:[
-    PhotoDialogComponent
-  ],
   providers: [
     AuthentificationService,
     ProductService,

@@ -5,7 +5,7 @@ import { UserDetails } from '../models/login/user-details';
 import { AuthentificationService } from '../authentification/authentification.service';
 import { ChangePasswordViewModel } from '../models/change-password-view-model';
 
-@Component({
+@Component({ standalone: false,
   selector: 'app-settings',
   templateUrl: './settings.component.html',
   styleUrls: ['./settings.component.css']
@@ -46,3 +46,4 @@ export class SettingsComponent implements OnInit {
     }
   }
 }
+

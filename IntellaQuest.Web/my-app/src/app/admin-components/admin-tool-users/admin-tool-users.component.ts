@@ -10,7 +10,7 @@ import { AddEditUserComponent } from './add-edit-user/add-edit-user.component';
 import { AuthentificationService } from 'src/app/authentification/authentification.service';
 import { Router } from '@angular/router';
 
-@Component({
+@Component({ standalone: false,
   selector: 'app-admin-tool-users',
   templateUrl: './admin-tool-users.component.html',
   styleUrls: ['./admin-tool-users.component.css']
@@ -126,3 +126,4 @@ export class AdminToolUsersComponent implements OnInit {
     this.getData();
   }
 }
+

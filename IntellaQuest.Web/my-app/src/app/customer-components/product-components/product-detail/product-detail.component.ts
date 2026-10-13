@@ -4,7 +4,7 @@ import { ProductService } from '../product.service';
 import { ProductGridModel } from '../../../models/product-grid';
 import { ProductViewModel } from 'src/app/models/product-view-model';
 
-@Component({
+@Component({ standalone: false,
   selector: 'app-product-detail',
   templateUrl: './product-detail.component.html',
   styleUrls: ['./product-detail.component.css']
@@ -38,3 +38,4 @@ export class ProductDetailComponent implements OnInit {
   }
 
 }
+

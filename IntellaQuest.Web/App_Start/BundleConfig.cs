@@ -34,14 +34,13 @@ namespace IntellaQuest.Web
                      ));
 
             bundles.Add(new Bundle("~/bundles/clientapp").Include(
-                "~/my-app/bundles/runtime.*",
-                "~/my-app/bundles/polyfills.*",
-                "~/my-app/bundles/main.*",
-                "~/my-app/bundles/vendor.*",
-                "~/my-app/bundles/style.*"));
+                "~/my-app/bundles/browser/runtime*",
+                "~/my-app/bundles/browser/polyfills*",
+                "~/my-app/bundles/browser/main*",
+                "~/my-app/bundles/browser/vendor*"));
 
             bundles.Add(new StyleBundle("~/Content/clientapp").Include(
-                      "~/my-app/bundles/styles.*"));
+                      "~/my-app/bundles/browser/styles*"));
         }
     }
 }

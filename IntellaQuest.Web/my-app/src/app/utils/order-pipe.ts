@@ -1,7 +1,7 @@
 import { Pipe, PipeTransform } from '@angular/core';
 import { OrderStatus } from '../models/enum/order-status';
 
-@Pipe({
+@Pipe({ standalone: false,
   name: 'orderStatus'
 })
 export class OrderStatusPipe implements PipeTransform {

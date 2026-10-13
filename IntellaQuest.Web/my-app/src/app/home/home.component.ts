@@ -8,7 +8,7 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { CategoryViewModel } from '../models/category';
 
 
-@Component({
+@Component({ standalone: false,
   selector: 'app-home',
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css']
@@ -78,3 +78,4 @@ export class HomeComponent implements OnInit {
     this.type = 'success';
   }
 }
+

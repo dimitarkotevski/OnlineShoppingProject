@@ -3,7 +3,7 @@ import { CategoryViewModel } from 'src/app/models/category';
 import { ResponseListModel } from 'src/app/models/response';
 import { CategoryService } from 'src/app/category-products/category.service';
 
-@Component({
+@Component({ standalone: false,
   selector: 'app-categories-navbar',
   templateUrl: './categories-navbar.component.html',
   styleUrls: ['./categories-navbar.component.css']
@@ -30,3 +30,4 @@ export class CategoriesNavbarComponent implements OnInit {
   }
 
 }
+

@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthentificationService } from 'src/app/authentification/authentification.service';
 
-@Component({
+@Component({ standalone: false,
   selector: 'app-admin-tool',
   templateUrl: './admin-tool.component.html',
   styleUrls: ['./admin-tool.component.css']
@@ -28,3 +28,4 @@ export class AdminToolComponent implements OnInit {
   }
 
 }
+

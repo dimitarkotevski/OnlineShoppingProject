@@ -2,7 +2,7 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { ProductService } from '../product-components/product.service';
 import { RequestModel } from 'src/app/models/request';
 
-@Component({
+@Component({ standalone: false,
   selector: 'app-side-filter',
   templateUrl: './side-filter.component.html',
   styleUrls: ['./side-filter.component.css']
@@ -62,3 +62,4 @@ export class SideFilterComponent implements OnInit {
   }
 
 }
+

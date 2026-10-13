@@ -1,7 +1,7 @@
 import { Pipe, PipeTransform } from '@angular/core';
 import { PaymentType } from '../models/enum/payment-type';
 
-@Pipe({
+@Pipe({ standalone: false,
   name: 'paymentType'
 })
 export class PaymentStatusPipe implements PipeTransform {
@@ -18,3 +18,4 @@ export class PaymentStatusPipe implements PipeTransform {
   }
 
 }
+

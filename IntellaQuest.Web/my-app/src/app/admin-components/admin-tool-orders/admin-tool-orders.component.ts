@@ -11,7 +11,7 @@ import { AddEditOrderComponent } from './add-edit-order/add-edit-order.component
 import { Router } from '@angular/router';
 import { AuthentificationService } from 'src/app/authentification/authentification.service';
 
-@Component({
+@Component({ standalone: false,
   selector: 'app-admin-tool-orders',
   templateUrl: './admin-tool-orders.component.html',
   styleUrls: ['./admin-tool-orders.component.css']
@@ -116,3 +116,4 @@ export class AdminToolOrdersComponent implements OnInit {
     this.getData();
   }
 }
+

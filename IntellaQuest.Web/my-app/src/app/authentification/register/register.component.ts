@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { AuthentificationService } from '../authentification.service';
 import { UserRegister } from 'src/app/models/register/register-user';
 
-@Component({
+@Component({ standalone: false,
   selector: 'app-register',
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.css']
@@ -50,3 +50,4 @@ export class RegisterComponent implements OnInit {
     )
   }
 }
+

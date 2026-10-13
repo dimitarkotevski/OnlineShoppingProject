@@ -3,7 +3,7 @@ import { CategoryViewModel } from 'src/app/models/category';
 import { AuthentificationService } from 'src/app/authentification/authentification.service';
 import { CategoryService } from 'src/app/category-products/category.service';
 
-@Component({
+@Component({ standalone: false,
   selector: 'app-regular-navbar',
   templateUrl: './regular-navbar.component.html',
   styleUrls: ['./regular-navbar.component.css']
@@ -55,3 +55,4 @@ export class RegularNavbarComponent implements OnInit {
     this.changeCategoryNavBar.emit();
   }
 }
+

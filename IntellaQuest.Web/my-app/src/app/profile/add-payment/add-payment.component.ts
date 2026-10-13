@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { PaymentInfoViewModel } from 'src/app/models/payment-info-view-model';
 
-@Component({
+@Component({ standalone: false,
   selector: 'app-add-payment',
   templateUrl: './add-payment.component.html',
   styleUrls: ['./add-payment.component.css']
@@ -29,3 +29,4 @@ export class AddPaymentComponent implements OnInit {
     this.model.ExpirationDate = new Date(this.dateString).toISOString();
   }
 }
+

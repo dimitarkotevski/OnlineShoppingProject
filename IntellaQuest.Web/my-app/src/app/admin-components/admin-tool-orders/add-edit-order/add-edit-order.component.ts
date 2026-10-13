@@ -9,7 +9,7 @@ import { LookupViewModel } from 'src/app/models/lookup-view-model';
 import { OrderStatus } from 'src/app/models/enum/order-status';
 
 
-@Component({
+@Component({ standalone: false,
   selector: 'app-add-edit-order',
   templateUrl: './add-edit-order.component.html',
   styleUrls: ['./add-edit-order.component.css']
@@ -46,3 +46,4 @@ export class AddEditOrderComponent implements OnInit {
   }
 
 }
+
