@@ -49,6 +49,7 @@ namespace IntellaQuest.BusinessLogic.Services
         private readonly IProductRepository _productRepository;
         private readonly IShoppingCartRepository _shoppingCartRepository;
         private readonly IShoppingCartDetailRepository _shoppingCartDetailRepository;
+        private readonly JwtSettings _jwtSettings;
 
         public UserService(
                     IUnitOfWork unitOfWork,
@@ -58,7 +59,8 @@ namespace IntellaQuest.BusinessLogic.Services
                     IPaymentRepository paymentRepository,
                     IProductRepository productRepository,
                     IShoppingCartRepository shoppingCartRepository,
-                    IShoppingCartDetailRepository shoppingCartDetailRepository
+                    IShoppingCartDetailRepository shoppingCartDetailRepository,
+                    JwtSettings jwtSettings
             )
         {
             _unitOfWork = unitOfWork;
@@ -69,12 +71,23 @@ namespace IntellaQuest.BusinessLogic.Services
             _productRepository = productRepository;
             _shoppingCartRepository = shoppingCartRepository;
             _shoppingCartDetailRepository = shoppingCartDetailRepository;
+            _jwtSettings = jwtSettings;
         }
         
         #region User Authentification
 
         public void Registration(UserRegistrationViewModel model)
         {
+            if (model == null || string.IsNullOrWhiteSpace(model.Username) || string.IsNullOrWhiteSpace(model.Email))
+            {
+                throw new BllException("Username and email are required.");
+            }
+
+            if (!PasswordHasher.MeetsPolicy(model.Password))
+            {
+                throw new BllException($"Password must be at least {PasswordHasher.MinimumLength} characters long.");
+            }
+
             if (_userRepository.CheckExist(x=>x.Username == model.Username))
                 throw new BllException(string.Format(ShopExceptionMassages.UserExceptionMassages.USERNAME_ALREADY_EXIST, model.Username));
 
@@ -90,7 +103,7 @@ namespace IntellaQuest.BusinessLogic.Services
                     Email = model.Email,
                     Username = model.Username,
                     Role = _roleRepository.GetUserRole(),
-                    Password =PasswordEncryption.Encryption( model.Password ),
+                    Password = PasswordHasher.Hash(model.Password),
                 };
                 _userRepository.Add(userEntity);
                 _unitOfWork.Commit();
@@ -113,29 +126,40 @@ namespace IntellaQuest.BusinessLogic.Services
         }
         public UserTokenInformation Login(UserLoginViewModel loginModel)
         {
-            /*if (loginModel.Password.IsNullOrEmpty())
-                throw new BllException(ShopExceptionMassages.UserExceptionMassages.PASSWORD_IS_REQUIRED);
-
-            if (loginModel.Username.IsNullOrEmpty())
-                throw new BllException(ShopExceptionMassages.UserExceptionMassages.USERNAME_IS_REQUIRED);*/
-
-            loginModel.Password = PasswordEncryption.Encryption(loginModel.Password);
+            if (string.IsNullOrWhiteSpace(loginModel.Username) || string.IsNullOrWhiteSpace(loginModel.Password))
+            {
+                throw new BllException(ShopExceptionMassages.UserExceptionMassages.USERNAME_PASSWORD_INCORRECT);
+            }
 
             using (_unitOfWork.BeginTransaction())
             {
-                if(_userRepository.CheckExist(x=> x.Username.Equals(loginModel.Username) && x.Password.Equals(loginModel.Password)))
-                {
-                    var user = _userRepository.FindBy(x => x.Username.Equals(loginModel.Username) && x.Password.Equals(loginModel.Password));
+                var user = _userRepository
+                    .FilterBy(x => x.Username == loginModel.Username)
+                    .FirstOrDefault();
 
-                    return new UserTokenInformation
-                    {
-                        Id = user.Id,
-                        Username = user.Username,
-                        Role = user.Role.Name,
-                        Token = CreateToken(user)
-                    };
+                // The same error is returned whether the user exists or not, so the endpoint
+                // cannot be used to enumerate accounts.
+                if (user == null || !PasswordHasher.Verify(loginModel.Password, user.Password))
+                {
+                    throw new BllException(ShopExceptionMassages.UserExceptionMassages.USERNAME_PASSWORD_INCORRECT);
                 }
-                throw new BllException(ShopExceptionMassages.UserExceptionMassages.USERNAME_PASSWORD_INCORRECT);
+
+                // Transparently upgrade legacy (reversible-AES) hashes to salted PBKDF2.
+                if (PasswordHasher.NeedsRehash(user.Password))
+                {
+                    user.Password = PasswordHasher.Hash(loginModel.Password);
+                    _userRepository.Update(user);
+                }
+
+                _unitOfWork.Commit();
+
+                return new UserTokenInformation
+                {
+                    Id = user.Id,
+                    Username = user.Username,
+                    Role = user.Role.Name,
+                    Token = CreateToken(user)
+                };
             }
         }
         private string CreateToken(User user)
@@ -143,39 +167,43 @@ namespace IntellaQuest.BusinessLogic.Services
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.Name, user.Username),
-                new Claim(ClaimTypes.NameIdentifier, Guid.NewGuid().ToString()),
+                // The real user id (not a random value) so endpoints can bind resources to the caller.
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim(ClaimTypes.Role, user.Role.Name)
             };
-            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(TokenConstant.KEY));
-            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256Signature);
+            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Key));
+            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
             var tokenDescriptor = new JwtSecurityToken(
-                                        TokenConstant.ISSUER_CUSTOMERs, 
-                                        TokenConstant.AUDIENCE_CUSTOMERS, 
+                                        _jwtSettings.Issuer, 
+                                        _jwtSettings.Audience, 
                                         claims,
-                                        expires: DateTime.Now.AddDays(10), 
+                                        expires: DateTime.UtcNow.AddDays(_jwtSettings.ExpiryDays <= 0 ? 1 : _jwtSettings.ExpiryDays), 
                                         signingCredentials: credentials);
 
             return new JwtSecurityTokenHandler().WriteToken(tokenDescriptor);
         }
         public void UpdatePassword(ChangePasswordUserViewModel model)
         {
+            if (!PasswordHasher.MeetsPolicy(model.NewPassword))
+            {
+                throw new BllException($"Password must be at least {PasswordHasher.MinimumLength} characters long.");
+            }
+
             using (_unitOfWork.BeginTransaction())
             {
                 var user = _userRepository.FindBy(model.Id)
                     ?? throw new BllException(ShopExceptionMassages.UserExceptionMassages.NOT_FOUND_EXCEPTION);
 
-                var oldPassword = PasswordEncryption.Encryption(model.OldPassword);
-                var newPassword = PasswordEncryption.Encryption(model.NewPassword);
-                if (user.Password != oldPassword)
+                if (!PasswordHasher.Verify(model.OldPassword, user.Password))
                 {
                     throw new BllException(ShopExceptionMassages.UserExceptionMassages.PASSWORD_IS_INCORRECT);
                 }
-                if (oldPassword == newPassword)
+                if (PasswordHasher.Verify(model.NewPassword, user.Password))
                 {
                     throw new BllException(ShopExceptionMassages.UserExceptionMassages.SAME_OLD_AND_NEW_PASWORD);
                 }
 
-                user.Password = newPassword;
+                user.Password = PasswordHasher.Hash(model.NewPassword);
                 _userRepository.Update(user);
                 _unitOfWork.Commit();
             }
@@ -236,9 +264,10 @@ namespace IntellaQuest.BusinessLogic.Services
                     var payment = new Payment
                     {
                         CardHolder = model.CardHolder,
-                        CardNumber = model.CardNumber,
+                        // Only the last four digits are retained; the full card number and the
+                        // security code (CVV) must never be stored.
+                        CardNumber = LastFourDigits(model.CardNumber),
                         ExpirationDate = model.ExpirationDate,
-                        SecurityCode = model.SecurityCode,
                     };
 
                     user.Payment = payment;
@@ -249,6 +278,18 @@ namespace IntellaQuest.BusinessLogic.Services
                     _unitOfWork.Commit();
                 }
             }
+        }
+
+        /// <summary>Returns the last four digits of a card number (digits only).</summary>
+        private static string LastFourDigits(string cardNumber)
+        {
+            if (string.IsNullOrWhiteSpace(cardNumber))
+            {
+                return null;
+            }
+
+            var digits = new string(cardNumber.Where(char.IsDigit).ToArray());
+            return digits.Length <= 4 ? digits : digits.Substring(digits.Length - 4);
         }
 
         #endregion
@@ -376,6 +417,11 @@ namespace IntellaQuest.BusinessLogic.Services
         }
         public bool Create(UserViewModel model)
         {
+            if (!PasswordHasher.MeetsPolicy(model.Password))
+            {
+                throw new BllException($"Password must be at least {PasswordHasher.MinimumLength} characters long.");
+            }
+
             if (_userRepository.CheckExist(x => x.Email == model.Email))
                 throw new BllException(string.Format(ShopExceptionMassages.UserExceptionMassages.EMAIL_ALREADY_EXIST, model.Email));
             
@@ -403,7 +449,7 @@ namespace IntellaQuest.BusinessLogic.Services
                     LastName = model.LastName,
                     Email = model.Email,
                     Username = model.Username,
-                    Password = PasswordEncryption.Encryption(model.Password),
+                    Password = PasswordHasher.Hash(model.Password),
                     State = model.State,
                     ZipCode = model.ZipCode,
                     Address = model.Address,
@@ -460,7 +506,12 @@ namespace IntellaQuest.BusinessLogic.Services
 
                 if(model.Password != null)
                 {
-                    user.Password = PasswordEncryption.Encryption(model.Password);
+                    if (!PasswordHasher.MeetsPolicy(model.Password))
+                    {
+                        throw new BllException($"Password must be at least {PasswordHasher.MinimumLength} characters long.");
+                    }
+
+                    user.Password = PasswordHasher.Hash(model.Password);
                 }
 
                 if(model.Role != null)

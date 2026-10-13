@@ -8,10 +8,7 @@ namespace IntellaQuest.Data.NHibernate.Repositories
     public interface IShoppingCartRepository : IRepository<ShoppingCart>
     {
     }
-    public class ShoppingCartRepository : Repository<ShoppingCart>, IShoppingCartRepository
+    public class ShoppingCartRepository(IUnitOfWork unitOfWork) : Repository<ShoppingCart>(unitOfWork), IShoppingCartRepository
     {
-        public ShoppingCartRepository(IUnitOfWork unitOfWork) : base(unitOfWork)
-        {
-        }
     }
 }

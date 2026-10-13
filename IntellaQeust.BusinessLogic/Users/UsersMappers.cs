@@ -56,7 +56,7 @@ namespace IntellaQuest.BusinessLogic.Mappers
                 {
                     Id = user.Payment.Id,
                     CardHolder = user.Payment.CardHolder,
-                    CardNumber = "**** **** **** " + user.Payment.CardNumber.Substring(user.Payment.CardNumber.Length - 4).ToString(),
+                    CardNumber = MaskCardNumber(user.Payment.CardNumber),
                     ExpirationDate = user.Payment.ExpirationDate.Month + "/" + user.Payment.ExpirationDate.Year % 2000,
 
                 } : null,
@@ -85,6 +85,22 @@ namespace IntellaQuest.BusinessLogic.Mappers
                 Name = user.Username,
                 Status = true
             };
+        }
+
+        /// <summary>
+        /// Masks a card number, exposing at most the last four digits. Handles both legacy
+        /// records that hold a full number and new records that only store the last four.
+        /// </summary>
+        private static string MaskCardNumber(string cardNumber)
+        {
+            if (string.IsNullOrWhiteSpace(cardNumber))
+            {
+                return string.Empty;
+            }
+
+            var digits = new string(cardNumber.Where(char.IsDigit).ToArray());
+            var last4 = digits.Length <= 4 ? digits : digits.Substring(digits.Length - 4);
+            return "**** **** **** " + last4;
         }
     }
 }

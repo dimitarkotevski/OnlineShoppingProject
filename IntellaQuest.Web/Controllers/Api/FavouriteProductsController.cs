@@ -1,11 +1,13 @@
 ﻿using System;
 using IntellaQuest.BusinessLogic.Services;
 using IntellaQuest.Web.Controllers.Api;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace IntellaQuest.Web.Controllers
 {
     [Route("api/[controller]/[action]/{id?}")]
+    [Authorize]
     public class FavouriteProductsController : BaseController
     {
         private readonly IFavouriteProductService _favouriteProductService;
@@ -20,6 +22,11 @@ namespace IntellaQuest.Web.Controllers
         [HttpPost]
         public IActionResult UserAddFavouriteProduct(Guid userId, Guid productId)
         {
+            if (!IsAdmin)
+            {
+                userId = CurrentUserId;
+            }
+
             _favouriteProductService.AddProductToFavouriteProduct(userId, productId);
             return Json(true);
         }
@@ -27,6 +34,11 @@ namespace IntellaQuest.Web.Controllers
         [HttpPost]
         public IActionResult GetUserFavouriteProducts(Guid userId)
         {
+            if (!IsAdmin)
+            {
+                userId = CurrentUserId;
+            }
+
             var gridProducts = _favouriteProductService.GetUserFavouriteProducts(userId);
             return Json(gridProducts);
         }
@@ -34,6 +46,11 @@ namespace IntellaQuest.Web.Controllers
         [HttpPost]
         public IActionResult RemoveFavouriteProduct(Guid userId, Guid productId)
         {
+            if (!IsAdmin)
+            {
+                userId = CurrentUserId;
+            }
+
             _favouriteProductService.RemoveProductFromFavuriteProduct(userId, productId);
             return Json(true);
         }

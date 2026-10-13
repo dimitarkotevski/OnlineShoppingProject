@@ -3,6 +3,7 @@ using IntellaQeust.BusinessLogic.Requests;
 using IntellaQeust.BusinessLogic.ViewModels;
 using IntellaQuest.BusinessLogic.Services;
 using IntellaQuest.Web.Controllers.Api;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace IntellaQuest.Web.Controllers
@@ -54,6 +55,7 @@ namespace IntellaQuest.Web.Controllers
         }
 
         [HttpPost]
+        [Authorize(Policy = "AdminOnly")]
         public IActionResult Create(CategoryViewModel model)
         {
             if (!ModelState.IsValid)
@@ -66,6 +68,7 @@ namespace IntellaQuest.Web.Controllers
         }
 
         [HttpPost]
+        [Authorize(Policy = "AdminOnly")]
         public IActionResult Edit(CategoryViewModel model)
         {
             if (!ModelState.IsValid)
@@ -78,6 +81,7 @@ namespace IntellaQuest.Web.Controllers
         }
 
         [HttpPost]
+        [Authorize(Policy = "AdminOnly")]
         public IActionResult DeleteById(Guid id)
         {
             _categoriesService.DeleteById(id);

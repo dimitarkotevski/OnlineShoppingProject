@@ -8,12 +8,8 @@ namespace IntellaQuest.Data.NHibernate.Repositories
     {
         IQueryable<Product> GetProductsByCategory(Category category);
     }
-    public class CategoryRepository : Repository<Category>, ICategoryRepository
+    public class CategoryRepository(IUnitOfWork unitOfWork) : Repository<Category>(unitOfWork), ICategoryRepository
     {
-        public CategoryRepository(IUnitOfWork unitOfWork) : base(unitOfWork)
-        {
-        }
-
         public IQueryable<Product> GetProductsByCategory(Category category)
         {
             return All().Where(x => x == category).SelectMany(y=>y.Products);

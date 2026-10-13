@@ -7,10 +7,7 @@ namespace IntellaQuest.Repository.Repositories
     {
 
     }
-    public class ShoppingCartDetailRepository : Repository<ShoppingCartDetail> , IShoppingCartDetailRepository
+    public class ShoppingCartDetailRepository(IUnitOfWork unitOfWork) : Repository<ShoppingCartDetail>(unitOfWork), IShoppingCartDetailRepository
     {
-        public ShoppingCartDetailRepository(IUnitOfWork unitOfWork) : base(unitOfWork)
-        {
-        }
     }
 }

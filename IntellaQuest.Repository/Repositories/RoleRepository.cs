@@ -13,12 +13,8 @@ namespace IntellaQuest.Data.NHibernate.Repositories
         Role GetAdminRole();
         Role GetUserRole();
     }
-    public class RoleRepository : Repository<Role>, IRoleRepository
+    public class RoleRepository(IUnitOfWork unitOfWork) : Repository<Role>(unitOfWork), IRoleRepository
     {
-        public RoleRepository(IUnitOfWork unitOfWork) : base(unitOfWork)
-        {
-        }
-
         public Role GetAdminRole()
         {
             return All().Where(x => x.Name.ToLower().Contains("admin")).FirstOrDefault();

@@ -7,10 +7,7 @@ namespace IntellaQuest.Data.NHibernate.Repositories
     {
 
     }
-    public class PaymentRepository : Repository<Payment>, IPaymentRepository
+    public class PaymentRepository(IUnitOfWork unitOfWork) : Repository<Payment>(unitOfWork), IPaymentRepository
     {
-        public PaymentRepository(IUnitOfWork unitOfWork) : base(unitOfWork)
-        {
-        }
     }
 }

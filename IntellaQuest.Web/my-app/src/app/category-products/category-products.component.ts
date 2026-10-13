@@ -42,9 +42,12 @@ export class CategoryProductsComponent implements OnInit {
 
       this.categoryService.GetCategoryById(categoryId).subscribe((res:any)=>{
         this.category = res;
-        this.productService.GetAllBrands(res.Id)?.subscribe((brands)=>{
-          this.brands = brands;
-        })
+      });
+
+      // Brands depend only on the category id, so load them immediately instead of
+      // waiting for the category lookup.
+      this.productService.GetAllBrands(categoryId)?.subscribe((brands)=>{
+        this.brands = brands;
       });
 
       this.loadProducts(this.filterCategory);

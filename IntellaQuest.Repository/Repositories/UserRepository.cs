@@ -7,11 +7,7 @@ namespace IntellaQuest.Data.NHibernate.Repositories
     public interface IUserRepository : IRepository<User>
     {
     }
-    public class UserRepository : Repository<User>, IUserRepository
+    public class UserRepository(IUnitOfWork unitOfWork) : Repository<User>(unitOfWork), IUserRepository
     {
-        public UserRepository(IUnitOfWork unitOfWork) : base(unitOfWork)
-        {
-        }
-
     }
 }

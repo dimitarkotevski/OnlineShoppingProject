@@ -3,11 +3,13 @@ using IntellaQeust.BusinessLogic.Requests;
 using IntellaQuest.BusinessLogic.Services;
 using IntellaQuest.BusinessLogic.ViewModels;
 using IntellaQuest.Web.Controllers.Api;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace IntellaQuest.Web.Controllers
 {
     [Route("api/[controller]/[action]/{id?}")]
+    [Authorize(Policy = "AdminOnly")]
     public class UsersController : BaseController
     {
         private readonly IUserService _usersService;

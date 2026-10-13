@@ -1,0 +1,1 @@
+-- Irreversible: the removed CVV values cannot (and must not) be restored.

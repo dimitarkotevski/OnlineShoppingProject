@@ -6,10 +6,7 @@ namespace IntellaQuest.Data.NHibernate.Repositories
     public interface IProductRepository : IRepository<Product>
     {
     }
-    public class ProductRepository : Repository<Product>, IProductRepository
+    public class ProductRepository(IUnitOfWork unitOfWork) : Repository<Product>(unitOfWork), IProductRepository
     {
-        public ProductRepository(IUnitOfWork unitOfWork) : base(unitOfWork)
-        {
-        }
     }
 }

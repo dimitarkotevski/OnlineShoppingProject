@@ -30,6 +30,7 @@ namespace IntellaQuest.BusinessLogic.Services
         List<OrderViewModelWithProducts> GetUserOtherOrders(Guid userId);
         void MakeAnOrder(Guid shoppingCartId,Guid userId);
         void MakeAPay(OrderViewModel order);
+        bool DoesOrderBelongToUser(Guid orderId, Guid userId);
 
     }
     public class OrderService : IOrderService
@@ -65,10 +66,10 @@ namespace IntellaQuest.BusinessLogic.Services
                 {
                     throw new BllException(ShopExceptionMassages.UserExceptionMassages.NOT_FOUND_EXCEPTION);
                 }
-                var shoppingCart = _productRepository.FindBy(model.ShoppingCart.Id);
+                var shoppingCart = _shoppingCartRepository.FindBy(model.ShoppingCart.Id);
                 if(shoppingCart == null)
                 {
-                    throw new BllException(ShopExceptionMassages.ProductsExceptionMassages.NOT_FOUND_EXCEPTION);
+                    throw new BllException(ShopExceptionMassages.ShoppingCartExceptionMassages.NOT_FOUNG);
                 }
                 var order = new Order
                 {
@@ -269,6 +270,15 @@ namespace IntellaQuest.BusinessLogic.Services
             }
         }
 
+        /// <summary>True when the order exists and belongs to the given user.</summary>
+        public bool DoesOrderBelongToUser(Guid orderId, Guid userId)
+        {
+            using (_unitOfWork.BeginTransaction())
+            {
+                return _orderRepository.CheckExist(x => x.Id == orderId && x.User.Id == userId);
+            }
+        }
+
         public void CancelActiveOrder(Guid orderId)
         {
             using (_unitOfWork.BeginTransaction())
@@ -285,7 +295,6 @@ namespace IntellaQuest.BusinessLogic.Services
         {
             using (_unitOfWork.BeginTransaction())
             {
-                Random random = new Random();
                 var shoppingCart = _shoppingCartRepository.FindBy(shoppingCartId)
                     ?? throw new BllException(ShopExceptionMassages.ShoppingCartExceptionMassages.DETAIL_NOT_FOUND_EXCEPTION);
 
@@ -312,8 +321,7 @@ namespace IntellaQuest.BusinessLogic.Services
                 }
                 else
                 {
-                    int randomNumber = random.Next();
-                    string number = randomNumber.ToString();
+                    string number = Guid.NewGuid().ToString("N").Substring(0, 8);
                     Order order = new Order
                     {
                         ShoppingCart = shoppingCart,
@@ -351,8 +359,6 @@ namespace IntellaQuest.BusinessLogic.Services
         {
             using (_unitOfWork.BeginTransaction())
             {
-                Random random = new Random();
-
                 var order = _orderRepository.FindBy(model.Id);
                 if(order == null)
                 {
@@ -378,13 +384,11 @@ namespace IntellaQuest.BusinessLogic.Services
 
                     shoppingCart.Active = false;
 
-                    int randomNumber = random.Next();
-
                     var newShoppingCartForUser = new ShoppingCart
                     {
                         User = user,
                         Active = true,
-                        Name = "Cart#" + randomNumber.ToString()
+                        Name = "Cart#" + Guid.NewGuid().ToString("N").Substring(0, 8)
                     };
 
                     _shoppingCartRepository.Add(newShoppingCartForUser);
@@ -411,13 +415,11 @@ namespace IntellaQuest.BusinessLogic.Services
                     
                         shoppingCart.Active = false;
 
-                        int randomNumber = random.Next();
-
                         var newShoppingCartForUser = new ShoppingCart
                         {
                             User = user,
                             Active = true,
-                            Name = "Cart#" + randomNumber.ToString()
+                            Name = "Cart#" + Guid.NewGuid().ToString("N").Substring(0, 8)
                         };
 
                         _shoppingCartRepository.Add(newShoppingCartForUser);

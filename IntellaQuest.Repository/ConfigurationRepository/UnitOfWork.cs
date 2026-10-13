@@ -18,16 +18,21 @@ namespace IntellaQuest.Data.NHibernate.ConfigurationRepository
 
         public ISession Session { get; set; }
 
-        public UnitOfWork()
+        public UnitOfWork(ISessionFactoryProvider sessionFactoryProvider)
         {
-            _sessionFactory = NHibernateContext.BuildSessionFactory();
+            if (sessionFactoryProvider == null)
+            {
+                throw new ArgumentNullException(nameof(sessionFactoryProvider));
+            }
+
+            _sessionFactory = sessionFactoryProvider.Get();
             Session = _sessionFactory.OpenSession();
             Session.FlushMode = FlushMode.Auto;
         }
 
         public void Dispose()
         {
-            if (Session.IsOpen)
+            if (Session != null && Session.IsOpen)
             {
                 Session.Close();
             }

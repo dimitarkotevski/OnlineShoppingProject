@@ -29,6 +29,9 @@ namespace IntellaQuest.Web.Infrastructure
     {
         private const string BodyCacheKey = "__intellaquest.json.body";
 
+        /// <summary>Upper bound on the request body the binder will buffer (4 MB).</summary>
+        private const long MaxBodyBytes = 4 * 1024 * 1024;
+
         private static readonly JsonSerializerOptions SerializerOptions = CreateSerializerOptions();
 
         private static JsonSerializerOptions CreateSerializerOptions()
@@ -204,6 +207,15 @@ namespace IntellaQuest.Web.Infrastructure
             {
                 httpContext.Request.EnableBuffering();
 
+                if ((httpContext.Request.ContentLength.GetValueOrDefault() > MaxBodyBytes)
+                    || (httpContext.Request.Headers.TryGetValue("Content-Length", out var declared)
+                        && long.TryParse(declared.ToString(), out var declaredLength)
+                        && declaredLength > MaxBodyBytes))
+                {
+                    throw new BadHttpRequestException(
+                        "Request body is too large.", StatusCodes.Status413PayloadTooLarge);
+                }
+
                 if (httpContext.Request.ContentLength.GetValueOrDefault() > 0
                     || httpContext.Request.Headers.ContainsKey("Transfer-Encoding"))
                 {
@@ -214,7 +226,7 @@ namespace IntellaQuest.Web.Infrastructure
                         bufferSize: 1024,
                         leaveOpen: true);
 
-                    var text = await reader.ReadToEndAsync();
+                    var text = await ReadBodyWithLimitAsync(reader);
                     httpContext.Request.Body.Position = 0;
 
                     if (!string.IsNullOrWhiteSpace(text))
@@ -230,6 +242,11 @@ namespace IntellaQuest.Web.Infrastructure
                     }
                 }
             }
+            catch (BadHttpRequestException)
+            {
+                // Propagate the payload-too-large signal to the request pipeline.
+                throw;
+            }
             catch
             {
                 document = null;
@@ -237,6 +254,29 @@ namespace IntellaQuest.Web.Infrastructure
 
             httpContext.Items[BodyCacheKey] = document;
             return document;
+        }
+
+        /// <summary>Reads a text body, refusing to buffer more than <see cref="MaxBodyBytes"/>.</summary>
+        private static async Task<string> ReadBodyWithLimitAsync(StreamReader reader)
+        {
+            var buffer = new char[8192];
+            var builder = new StringBuilder();
+            long totalBytes = 0;
+
+            int read;
+            while ((read = await reader.ReadAsync(buffer, 0, buffer.Length)) > 0)
+            {
+                totalBytes += Encoding.UTF8.GetByteCount(buffer, 0, read);
+                if (totalBytes > MaxBodyBytes)
+                {
+                    throw new BadHttpRequestException(
+                        "Request body is too large.", StatusCodes.Status413PayloadTooLarge);
+                }
+
+                builder.Append(buffer, 0, read);
+            }
+
+            return builder.ToString();
         }
     }
 }

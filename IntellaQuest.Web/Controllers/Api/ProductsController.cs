@@ -3,6 +3,7 @@ using IntellaQeust.BusinessLogic.Requests;
 using IntellaQeust.BusinessLogic.ViewModels;
 using IntellaQuest.BusinessLogic.Services;
 using IntellaQuest.Web.Controllers.Api;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace IntellaQuest.Web.Controllers
@@ -47,6 +48,7 @@ namespace IntellaQuest.Web.Controllers
         #region ADMIN ACTION
 
         [HttpPost]
+        [Authorize(Policy = "AdminOnly")]
         public IActionResult Create(ProductViewModel model)
         {
             if (!ModelState.IsValid)
@@ -59,6 +61,7 @@ namespace IntellaQuest.Web.Controllers
         }
 
         [HttpPost]
+        [Authorize(Policy = "AdminOnly")]
         public IActionResult Edit(ProductViewModel model)
         {
             _productsService.Update(model);
@@ -66,12 +69,14 @@ namespace IntellaQuest.Web.Controllers
         }
 
         [HttpPost]
+        [Authorize(Policy = "AdminOnly")]
         public IActionResult Delete(Guid Id)
         {
             return Json(new { success = _productsService.Delete(Id) });
         }
 
         [HttpPost]
+        [Authorize(Policy = "AdminOnly")]
         public IActionResult AddImageToProduct(Guid id, string image)
         {
             _productsService.UploadImage(id, image);

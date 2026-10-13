@@ -28,7 +28,7 @@ export class ProductService {
   }
   GetAllBrands(categoryId:string){
     if(categoryId){
-      return this.http.post<string | boolean>(this.baseApi+"GetAllBrands", {categoryId: categoryId});
+      return this.http.post<string[]>(this.baseApi+"GetAllBrands?categoryId="+categoryId, null);
     }else{
       return null;
     }

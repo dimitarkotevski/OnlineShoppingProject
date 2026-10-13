@@ -1,5 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { ProductService } from '../product-components/product.service';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { RequestModel } from 'src/app/models/request';
 
 @Component({ standalone: false,
@@ -7,24 +6,15 @@ import { RequestModel } from 'src/app/models/request';
   templateUrl: './side-filter.component.html',
   styleUrls: ['./side-filter.component.css']
 })
-export class SideFilterComponent implements OnInit {
+export class SideFilterComponent {
 
-  @Input() category:any
-  @Output() refreshState: EventEmitter<RequestModel> = new EventEmitter<RequestModel>();;
+  @Output() refreshState: EventEmitter<RequestModel> = new EventEmitter<RequestModel>();
   filterProducts: RequestModel;
   @Input() brands:any;
   filter: string[] = [];
 
-  constructor(
-    private productService: ProductService
-  ) { 
+  constructor() { 
     this.filterProducts = new RequestModel();
-  }
-
-  ngOnInit(): void {
-    this.productService.GetAllBrands(this.category)?.subscribe((res)=>{
-      this.brands = res;
-    })
   }
 
   onChangeBrands(event: any) {

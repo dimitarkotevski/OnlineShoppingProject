@@ -17,9 +17,11 @@ namespace IntellaQuest.BusinessLogic.Services
         #region ShoppingCart
         ShoppingCartViewModel GetUserShoppingCartWithProducts(Guid userId);
         void AddProductToShoppingCart(Guid userId, Guid productId, int quality);
+        bool DoesCartBelongToUser(Guid shoppingCartId, Guid userId);
         #endregion
         #region ShoppingCartDetails Action
         void RemoveProductFromShoppingCart(Guid shoppingCartDetailId);
+        bool DoesDetailBelongToUser(Guid shoppingCartDetailId, Guid userId);
         #endregion
         void PlusQuantity(Guid detailId);
         void MinusQuantity(Guid detailId);
@@ -66,9 +68,18 @@ namespace IntellaQuest.BusinessLogic.Services
 
         public void AddProductToShoppingCart(Guid userId, Guid productId, int quality)
         {
+            // Never trust a client-supplied quantity: it must be a positive, sane value.
+            if (quality < 1)
+            {
+                quality = 1;
+            }
+            else if (quality > MaxQuantityPerLine)
+            {
+                quality = MaxQuantityPerLine;
+            }
+
             using (_unitOfWork.BeginTransaction())
             {
-                Random random = new Random();
                 var user = _userRepository.FindBy(userId);
                 if (user == null)
                     throw new BllException(ShopExceptionMassages.UserExceptionMassages.NOT_FOUND_EXCEPTION);
@@ -81,13 +92,11 @@ namespace IntellaQuest.BusinessLogic.Services
                 shoppingCart = _shoppingCartRepository.FindBy(x => x.User == user && x.Active == true);
                 if (shoppingCart == null)
                 {
-                    int randomNumber = random.Next();
-
                     shoppingCart = new ShoppingCart
                     {
                         User = user,
                         Active = true,
-                        Name = "Cart#" + randomNumber.ToString()
+                        Name = "Cart#" + Guid.NewGuid().ToString("N").Substring(0, 8)
                     };
 
                     _shoppingCartRepository.Add(shoppingCart);
@@ -117,7 +126,10 @@ namespace IntellaQuest.BusinessLogic.Services
                                     x.ShoppingCart == shoppingCart &&
                                     x.ShoppingCart.User == user);
 
-                        shoppingDetail.Quantity++;
+                        if (shoppingDetail.Quantity < MaxQuantityPerLine)
+                        {
+                            shoppingDetail.Quantity++;
+                        }
 
                         _shoppingCartDetailRepository.Update(shoppingDetail);
                         _unitOfWork.Commit();
@@ -161,7 +173,10 @@ namespace IntellaQuest.BusinessLogic.Services
                 var shoppingCardDetail = _shoppingCartDetailRepository.FindBy(detailId)
                     ?? throw new BllException(ShopExceptionMassages.ShoppingCartExceptionMassages.DETAIL_NOT_FOUND_EXCEPTION);
 
-                shoppingCardDetail.Quantity++;
+                if (shoppingCardDetail.Quantity < MaxQuantityPerLine)
+                {
+                    shoppingCardDetail.Quantity++;
+                }
 
                 _shoppingCartDetailRepository.Update(shoppingCardDetail);
 
@@ -176,12 +191,37 @@ namespace IntellaQuest.BusinessLogic.Services
                 var shoppingCardDetail = _shoppingCartDetailRepository.FindBy(detailId)
                     ?? throw new BllException(ShopExceptionMassages.ShoppingCartExceptionMassages.DETAIL_NOT_FOUND_EXCEPTION);
 
-                shoppingCardDetail.Quantity--;
+                // Never let the quantity drop to zero or below (previously this could underflow).
+                if (shoppingCardDetail.Quantity > 1)
+                {
+                    shoppingCardDetail.Quantity--;
+                }
 
                 _shoppingCartDetailRepository.Update(shoppingCardDetail);
 
                 _unitOfWork.Commit();
             }
         }
+
+        /// <summary>True when the shopping cart exists and belongs to the given user.</summary>
+        public bool DoesCartBelongToUser(Guid shoppingCartId, Guid userId)
+        {
+            using (_unitOfWork.BeginTransaction())
+            {
+                return _shoppingCartRepository.CheckExist(x => x.Id == shoppingCartId && x.User.Id == userId);
+            }
+        }
+
+        /// <summary>True when the cart detail exists and belongs to the given user's cart.</summary>
+        public bool DoesDetailBelongToUser(Guid shoppingCartDetailId, Guid userId)
+        {
+            using (_unitOfWork.BeginTransaction())
+            {
+                return _shoppingCartDetailRepository.CheckExist(x =>
+                    x.Id == shoppingCartDetailId && x.ShoppingCart.User.Id == userId);
+            }
+        }
+
+        private const int MaxQuantityPerLine = 999;
     }
 }

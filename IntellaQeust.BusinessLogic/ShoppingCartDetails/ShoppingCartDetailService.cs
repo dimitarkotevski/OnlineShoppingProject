@@ -46,7 +46,7 @@ namespace IntellaQuest.BusinessLogic.Services
                 var product = _productRepository.FindBy(productId)
                     ?? throw new BllException(ShopExceptionMassages.ProductsExceptionMassages.NOT_FOUND_EXCEPTION);
 
-                var shoppingCart = _shoppingCartRepository.FindBy(x => x.User.Id == userId == x.Active == true);
+                var shoppingCart = _shoppingCartRepository.FindBy(x => x.User.Id == userId && x.Active == true);
 
                 var exist = _shoppingCartDetailRepository.CheckExist(x =>
                     x.Product == product &&

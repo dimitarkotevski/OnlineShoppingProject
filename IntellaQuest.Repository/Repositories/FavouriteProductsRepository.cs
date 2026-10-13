@@ -12,12 +12,8 @@ namespace IntellaQuest.Repository.Repositories
     {
         IQueryable<FavouriteProducts> GetUserFavouriteProducts(User userId);
     }
-    public class FavouriteProductsRepository : Repository<FavouriteProducts>, IFavouriteProductsRepository
+    public class FavouriteProductsRepository(IUnitOfWork unitOfWork) : Repository<FavouriteProducts>(unitOfWork), IFavouriteProductsRepository
     {
-        public FavouriteProductsRepository(IUnitOfWork unitOfWork) : base(unitOfWork)
-        {
-        }
-
         public IQueryable<FavouriteProducts> GetUserFavouriteProducts(User user)
         {
             return All().Where(x=>x.User == user).AsQueryable();

@@ -15,9 +15,10 @@ namespace IntellaQuest.Data.NHibernate.Mapping
 
             #region Attribute
 
+            // NOTE: card security codes (CVV) are deliberately not mapped, so they are never
+            // persisted. Only the card holder and the last four digits of the number are stored.
             Map(p => p.CardNumber);
             Map(p => p.ExpirationDate);
-            Map(p => p.SecurityCode);
             Map(p => p.CardHolder);
             Map(p => p.City);
             Map(p => p.BillingAdress);
