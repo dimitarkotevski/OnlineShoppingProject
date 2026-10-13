@@ -1,22 +1,13 @@
-﻿using IntellaQeust.BusinessLogic.Requests;
+﻿using System;
+using IntellaQeust.BusinessLogic.Requests;
 using IntellaQeust.BusinessLogic.ViewModels;
 using IntellaQuest.BusinessLogic.Services;
 using IntellaQuest.Web.Controllers.Api;
-using System;
-using System.IO;
-using System.Net.Http;
-using System.Net;
-using System.Web.Mvc;
-using Microsoft.AspNetCore.Http;
-using System.Drawing;
-using System.Web.ModelBinding;
-using System.Web.Http;
-using HttpPostAttribute = System.Web.Http.HttpPostAttribute;
 using Microsoft.AspNetCore.Mvc;
-using ActionResult = System.Web.Mvc.ActionResult;
 
 namespace IntellaQuest.Web.Controllers
 {
+    [Route("api/[controller]/[action]/{id?}")]
     public class ProductsController : BaseController
     {
         private readonly IProductService _productsService;
@@ -25,72 +16,74 @@ namespace IntellaQuest.Web.Controllers
         {
             _productsService = productsService;
         }
+
         [HttpPost]
-        public ActionResult All(RequestModel request)
+        public IActionResult All(RequestModel request)
         {
-            var gridProducts = _productsService.GetAll(request);
-            var json = Json(gridProducts);
-            json.MaxJsonLength = int.MaxValue;
-            return json;
+            return Json(_productsService.GetAll(request));
         }
+
         [HttpPost]
-        public ActionResult GetTable()
+        public IActionResult GetTable()
         {
             var data = _productsService.GetAllTable();
             var recordsTotal = data.Count;
-            return Json( new {data, recordsTotal }, JsonRequestBehavior.AllowGet);
+            return Json(new { data, recordsTotal });
         }
+
         [HttpPost]
-        public ActionResult Get(Guid Id)
+        public IActionResult Get(Guid Id)
         {
             return Json(_productsService.Get(Id));
         }
-        [HttpPost]
-        public ActionResult GetProductImage(Guid id)
-        {
 
+        [HttpPost]
+        public IActionResult GetProductImage(Guid id)
+        {
             var image = _productsService.GetProductImage(id);
             return Json(image);
         }
+
         #region ADMIN ACTION
+
         [HttpPost]
-        public ActionResult Create(ProductViewModel model)
+        public IActionResult Create(ProductViewModel model)
         {
             if (!ModelState.IsValid)
             {
                 return Json(ModelState.Values);
             }
+
             _productsService.Create(model);
-            return Json(new { success = true});
+            return Json(new { success = true });
         }
+
         [HttpPost]
-        public ActionResult Edit(ProductViewModel model)
+        public IActionResult Edit(ProductViewModel model)
         {
-            /*if (!ModelState.IsValid)
-            {
-                return Json(ModelState.Values);
-            }*/
             _productsService.Update(model);
-            return Json(new {success= true});
+            return Json(new { success = true });
         }
+
         [HttpPost]
-        public ActionResult Delete(Guid Id)
+        public IActionResult Delete(Guid Id)
         {
-            
-            return Json(new {success= _productsService.Delete(Id)});
+            return Json(new { success = _productsService.Delete(Id) });
         }
+
         [HttpPost]
-        public ActionResult AddImageToProduct(Guid id,string image)
+        public IActionResult AddImageToProduct(Guid id, string image)
         {
-            _productsService.UploadImage(id,image);
+            _productsService.UploadImage(id, image);
             return Json(true);
         }
+
         [HttpPost]
-        public ActionResult GetAllBrands(Guid categoryId)
+        public IActionResult GetAllBrands(Guid categoryId)
         {
             return Json(_productsService.GetAllBrands(categoryId));
         }
-        
+
         #endregion
     }
 }

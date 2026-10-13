@@ -1,11 +1,11 @@
 ﻿using FluentValidation;
-using FluentValidation.Attributes;
+using IntellaQeust.BusinessLogic.Validation;
 using IntellaQuest.Domain.Enum;
 using System;
 
 namespace IntellaQeust.BusinessLogic.ViewModels
 {
-    [Validator(typeof(PaymentViewModelValidator))]
+    [FluentValidator(typeof(PaymentViewModelValidator))]
     public class PaymentsViewModel
     {
         public Guid Id { get; set; }

@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -15,7 +15,7 @@ namespace IntellaQuest.Migrations
     {
         // Same connection string the app uses (NHibernateContext.cs).
         private const string DefaultConnectionString =
-            "Data Source=localhost;Initial Catalog=ShopDb;Integrated Security=SSPI;";
+            "Data Source=localhost;Initial Catalog=ShopDb;Integrated Security=SSPI;TrustServerCertificate=True;";
 
         private const string HistoryTable = "dbo.__SqlMigrations";
 

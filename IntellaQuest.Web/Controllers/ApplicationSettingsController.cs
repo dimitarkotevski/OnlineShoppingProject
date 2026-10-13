@@ -1,10 +1,13 @@
 ﻿using System;
-using System.Web.Mvc;
-namespace ShopApp.Web.Controllers
+using Microsoft.AspNetCore.Mvc;
+
+namespace IntellaQuest.Web.Controllers
 {
+    [Route("api/[controller]/[action]")]
     public class ApplicationSettingsController : Controller
     {
-        public ActionResult GetApplicationContext()
+        [HttpPost]
+        public IActionResult GetApplicationContext()
         {
             var model = new
             {
@@ -26,7 +29,9 @@ namespace ShopApp.Web.Controllers
                 AllApps = new { },
                 OrderedApps = new { },
                 CollaborationPortalUrl = ""
-            }; return Json(model);
+            };
+
+            return Json(model);
         }
     }
 }

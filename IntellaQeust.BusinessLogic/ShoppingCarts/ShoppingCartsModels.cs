@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using FluentValidation.Attributes;
+using IntellaQeust.BusinessLogic.Validation;
 using IntellaQuest.BusinessLogic.ViewModels;
 using NHibernate.Mapping;
 using System;
@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace IntellaQeust.BusinessLogic.ViewModels
 {
-    [Validator(typeof(ShoppingCartsViewModelValidator))]
+    [FluentValidator(typeof(ShoppingCartsViewModelValidator))]
     public class ShoppingCartViewModel
     {
         public Guid Id { get; set; }

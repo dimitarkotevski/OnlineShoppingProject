@@ -22,7 +22,7 @@ SQL migrations for the **ShopDb** database — one migration file per entity, in
 2. Creates a `dbo.__SqlMigrations` history table.
 3. Runs every `Migrations\*.sql` file in name order, each inside a transaction, and records it in the history table — so **each migration runs only once**. Re-running the app executes only new migrations.
 
-The `.sql` files are copied to `bin\Debug\Migrations\` on build.
+The `.sql` files are copied to `bin\Debug\net10.0\Migrations\` on build.
 
 ## How to run
 
@@ -31,14 +31,14 @@ The `.sql` files are copied to `bin\Debug\Migrations\` on build.
 **Command line:**
 
 ```powershell
-# build (requires MSBuild / Visual Studio Build Tools)
-msbuild IntellaQuest.Migrations.csproj
+# build
+dotnet build IntellaQuest.Migrations
 
 # run — uses the default ShopDb connection string
-IntellaQuest.Migrations\bin\Debug\IntellaQuest.Migrations.exe
+dotnet run --project IntellaQuest.Migrations
 
 # run with an explicit connection string
-IntellaQuest.Migrations\bin\Debug\IntellaQuest.Migrations.exe "Data Source=.;Initial Catalog=ShopDb;Integrated Security=SSPI;"
+dotnet run --project IntellaQuest.Migrations -- "Data Source=.;Initial Catalog=ShopDb;Integrated Security=SSPI;TrustServerCertificate=True;"
 ```
 
 ## Adding a new migration

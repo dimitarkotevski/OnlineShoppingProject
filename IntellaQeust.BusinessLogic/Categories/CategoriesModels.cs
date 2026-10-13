@@ -1,11 +1,11 @@
 ﻿using FluentValidation;
-using FluentValidation.Attributes;
+using IntellaQeust.BusinessLogic.Validation;
 using System;
 using System.Collections.Generic;
 
 namespace IntellaQeust.BusinessLogic.ViewModels
 {
-    [Validator(typeof(CategoriesViewModelValidator))]
+    [FluentValidator(typeof(CategoriesViewModelValidator))]
     public class CategoryViewModel
     {
         public Guid Id { get; set; }

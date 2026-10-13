@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
-using FluentValidation.Attributes;
 using IntellaQeust.BusinessLogic;
+using IntellaQeust.BusinessLogic.Validation;
 using IntellaQeust.BusinessLogic.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -16,7 +16,7 @@ namespace IntellaQuest.BusinessLogic.ViewModels
         public string FirstName { get; set; }
         public string LastName { get; set; }
     }
-    [Validator(typeof(UserLoginViewModelValidator))]
+    [FluentValidator(typeof(UserLoginViewModelValidator))]
     public class UserLoginViewModel
     {
         public string Username { get; set; }

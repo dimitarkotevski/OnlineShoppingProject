@@ -1,38 +1,42 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Net;
-using System.Web.Mvc;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace IntellaQuest.Web.Controllers.Api
 {
-    public class BaseController : Controller
+    [ApiController]
+    public class BaseController : Controller, IExceptionFilter
     {
-        protected override void OnException(ExceptionContext filterContext)
+        /// <summary>
+        /// Mirrors the old MVC 5 OnException override: unhandled exceptions become a
+        /// 409 Conflict carrying { success: false, exception: "..." }.
+        /// </summary>
+        [NonAction]
+        public void OnException(ExceptionContext context)
         {
-            if (!filterContext.ExceptionHandled)
+            if (context.ExceptionHandled)
             {
-                filterContext.HttpContext.Response.StatusCode = (int)HttpStatusCode.Conflict;
-                filterContext.Result = new JsonResult
-                {
-                    Data = new { success = false, exception = filterContext.Exception.Message }
-                };
-                filterContext.ExceptionHandled = true;
+                return;
             }
-            else
-            {
-                base.OnException(filterContext);
-            }
+
+            context.HttpContext.Response.StatusCode = (int)HttpStatusCode.Conflict;
+            context.Result = new JsonResult(new { success = false, exception = context.Exception.Message });
+            context.ExceptionHandled = true;
         }
-        public ActionResult ErrorNotAcceptable()
+
+        [NonAction]
+        public IActionResult ErrorNotAcceptable()
         {
             Response.StatusCode = (int)HttpStatusCode.BadRequest;
-            var errors = ModelState.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).ToArray());
 
-            return new JsonResult
-            {
-                Data = new { Success = false, Errors = errors },
-                JsonRequestBehavior = JsonRequestBehavior.AllowGet
-            };
+            var errors = ModelState.ToDictionary(
+                kvp => kvp.Key,
+                kvp => kvp.Value.Errors
+                    .Select(e => string.IsNullOrEmpty(e.ErrorMessage) ? e.Exception?.Message : e.ErrorMessage)
+                    .ToArray());
+
+            return new JsonResult(new { Success = false, Errors = errors });
         }
     }
 }

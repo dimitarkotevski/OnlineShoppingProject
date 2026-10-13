@@ -1,5 +1,4 @@
 ﻿using FluentValidation;
-using FluentValidation.Attributes;
 using IntellaQuest.Domain;
 using IntellaQuest.Domain.Enum;
 using IntellaQuest.Domain.Enums;

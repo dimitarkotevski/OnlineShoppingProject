@@ -15,7 +15,10 @@ Properties/                AssemblyInfo.cs
 
 **`NHibernateContext`**
 - `BuildSessionFactory()` — FluentNHibernate config, MS SQL 2005 dialect, loads all `Mapping/*Map` classes from the assembly.
-- ⚠️ Connection string **hardcoded**: `Data Source=localhost;Initial Catalog=ShopDb;Integrated Security=SSPI;`
+- Driver: `NHibernate.Driver.MicrosoftDataSqlClientDriver` over `Microsoft.Data.SqlClient` (`System.Data.SqlClient` is not available on .NET).
+- Uses **NHibernate 5.5.x** + **FluentNHibernate 3.5.x** (≥ NHibernate 5.5.2 is required — earlier versions fail proxy validation on modern .NET with *"method MemberwiseClone should be 'public/protected virtual'"*).
+- ⚠️ Connection string **hardcoded**: `Data Source=localhost;Initial Catalog=ShopDb;Integrated Security=SSPI;TrustServerCertificate=True;`
+- Note: `SchemaMetadataUpdater` opens a connection at build time, so a reachable `ShopDb` is required even before the first query.
 
 **`Repository<T> : NHibernateContext, IRepository<T>`** — generic CRUD:
 `Add` / `Update` / `Delete` (entity, `IEnumerable`, or `Guid`), `All()`, `FindBy(Guid)`, `FindBy(expression)`, `FilterBy(expression)`, `CheckExist(expression)`. All operations go through `_unitOfWork.Session`.
@@ -38,7 +41,7 @@ Properties/                AssemblyInfo.cs
 | `ShoppingCartDetailRepository` | — |
 | `FavouriteProductsRepository` | `GetUserFavouriteProducts(User)` |
 
-All take `IUnitOfWork` in the constructor. Registered in Autofac by name convention (`*Repository` → `AsImplementedInterfaces()`, `InstancePerRequest`) — see `IntellaQuest.Web/Global.asax.cs`.
+All take `IUnitOfWork` in the constructor. Registered in Autofac by name convention (`*Repository` → `AsImplementedInterfaces()`, `InstancePerLifetimeScope`) — see `IntellaQuest.Web/Program.cs`.
 
 ## Mappings (`Mapping/`)
 
@@ -54,4 +57,4 @@ Conventions (see `UserMap`):
 
 - `Repository<T>` inherits `NHibernateContext` (static-member inheritance — unusual but works).
 - Namespaces are `IntellaQuest.Data.NHibernate.*` while the folder is `IntellaQuest.Repository/`.
-- No migrations — schema is presumably created/managed manually against `ShopDb`.
+- **SQL migrations:** `IntellaQuest.Migrations/` creates `ShopDb` and applies `001..009` scripts (see its `README.md`); the schema is otherwise managed by those scripts.

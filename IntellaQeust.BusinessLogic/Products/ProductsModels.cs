@@ -1,5 +1,4 @@
 ﻿using FluentValidation;
-using FluentValidation.Attributes;
 using System;
 using System.Collections.Generic;
 

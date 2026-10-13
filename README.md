@@ -1,22 +1,21 @@
 # IntellaQuest — Online Shopping Web Site
 
-A full-stack online shopping application: **.NET Framework backend** (ASP.NET MVC + Web API) with an **Angular SPA** frontend.
+A full-stack online shopping application: **ASP.NET Core (.NET 10) backend** with an **Angular 20 SPA** frontend.
 
 ## Technology Used
 
 **Backend**
-- .NET Framework 4.7.2, ASP.NET MVC (`System.Web.Mvc`)
-- NHibernate + FluentNHibernate (ORM)
-- SQL Server (database)
+- .NET 10 / ASP.NET Core (MVC + attribute-routed API controllers)
+- NHibernate 5.5 + FluentNHibernate (ORM) over SQL Server via `Microsoft.Data.SqlClient`
 - Autofac (Dependency Injection)
 - FluentValidation (model validation)
 - JWT (HMAC-SHA256) for authentication
 
 **Frontend** (`IntellaQuest.Web/my-app/`)
-- Angular 13 SPA, Angular Material, Bootstrap 5
+- Angular 20 SPA, Angular Material, Bootstrap 5
 - ngx-datatable (admin grids), @auth0/angular-jwt
 
-**Solution:** `IntellaQuestProject.sln` (Visual Studio 2022, 4 projects)
+**Solution:** `IntellaQuestProject.sln` (5 projects)
 
 ## Solution Structure
 
@@ -25,7 +24,8 @@ A full-stack online shopping application: **.NET Framework backend** (ASP.NET MV
 | `IntellaQuest.Domain` | `IntellaQuest.Domain/` | Domain entities + enums. No dependencies. |
 | `IntellaQeust.BusinessLogic` ⚠️ | `IntellaQeust.BusinessLogic/` | Services, view models, mappers, security, exceptions |
 | `IntellaQuest.Data.NHibernate` | `IntellaQuest.Repository/` | Generic `Repository<T>`, `IUnitOfWork`, `NHibernateContext`, mappings |
-| `IntellaQuest.Web` | `IntellaQuest.Web/` | ASP.NET MVC host, API controllers, Autofac wiring, Angular app |
+| `IntellaQuest.Migrations` | `IntellaQuest.Migrations/` | SQL migration scripts + console runner that applies them to `ShopDb` |
+| `IntellaQuest.Web` | `IntellaQuest.Web/` | ASP.NET Core host, API controllers, Autofac wiring, Angular app |
 
 > ⚠️ The BusinessLogic project/folder is spelled **IntellaQeust** (Q-e-u-e-s-t); namespaces mix `IntellaQeust.*` and `IntellaQuest.*` in the code.
 
@@ -33,7 +33,7 @@ A full-stack online shopping application: **.NET Framework backend** (ASP.NET MV
 - **Services** (`I*Service` + `*Service`): business rules, transactions via `IUnitOfWork`, throw `BllException`
 - **Repositories** (`IRepository<T>` + `Repository<T>`): generic CRUD over NHibernate `ISession`
 - **Mappers**: extension methods converting entities ↔ view models
-- **DI:** Autofac, convention-based registration in `Global.asax.cs` (`InstancePerRequest`)
+- **DI:** Autofac, convention-based registration in `IntellaQuest.Web/Program.cs` (`InstancePerLifetimeScope`)
 
 ## Domain Model
 
@@ -41,14 +41,16 @@ A full-stack online shopping application: **.NET Framework backend** (ASP.NET MV
 
 ## How the App Works
 
-**Routing** (`App_Start/RouteConfig.cs`):
-1. `api/{controller}/{action}/{id}` — the API (e.g. `POST /api/Identity/Login`)
-2. `{*pathInfo}` → `Home/Home` — catch-all serving the Angular SPA
+**Routing** (`Program.cs`):
+1. API controllers are attribute-routed: `[Route("api/[controller]/[action]/{id?}")]` (e.g. `POST /api/Identity/Login`)
+2. `{*path}` → `Home/Home` — catch-all serving the Angular SPA, constrained by `SpaFallbackConstraint` so unknown `/api/...` URLs return 404 instead of the shell
 
 **API controllers** (`Controllers/Api/`, all extend `BaseController`):
 `Identity` (auth, profile, payments), `Users`, `Products`, `Categories`, `Orders`, `ShoppingCarts`, `FavouriteProducts`, `ApplicationSettings`.
 
-- **Error handling:** unhandled exceptions → HTTP 409 + `{success, exception}`; validation errors → HTTP 400 + `{Success, Errors}`
+- **Request binding:** a custom `JsonBodyModelBinderProvider` reproduces the old MVC 5 behaviour — action values are resolved from the route, then the query string, then a matching JSON body property, and finally the whole body (so flat bodies, `{model: ...}` wrappers, and route ids all bind).
+- **Error handling:** unhandled exceptions → HTTP 409 + `{success, exception}` (controller `IExceptionFilter`, plus `ApiExceptionMiddleware` for failures that happen before an action runs, e.g. database errors); validation errors → HTTP 400 + `{Success, Errors}`
+- **Validation:** `ValidationFilter` runs the `[FluentValidator(typeof(...))]` validators into `ModelState`.
 - **Authentication:** `UserService.Login` verifies username + encrypted password, then issues a JWT (10-day expiry, claims: name / nameidentifier / role) created in `CreateToken`. Passwords are transformed via `PasswordEncryption.Encryption` before storage/comparison.
 - **Registration:** checks unique username/email, creates the user with the default customer role, then creates an empty active shopping cart.
 - **Customer features:** browse categories/products, product detail, shopping cart, orders, favourite products, profile, payment methods, settings.
@@ -58,13 +60,28 @@ A full-stack online shopping application: **.NET Framework backend** (ASP.NET MV
 
 ## How to Run
 
-**Backend:** open `IntellaQuestProject.sln` in Visual Studio 2022 → IIS Express. Requires SQL Server with a `ShopDb` database (connection string uses Integrated Security — see "Known Issues").
+**Database (once):** requires SQL Server reachable at `localhost` with a `ShopDb` database. Create it and apply the schema with the migrations runner:
 
-**Frontend:**
+```bash
+dotnet run --project IntellaQuest.Migrations
+```
+
+**Backend:**
+
+```bash
+dotnet run --project IntellaQuest.Web
+```
+
+Serves the API and the already-built Angular bundle from `IntellaQuest.Web/my-app/bundles/browser`
+(override the URL with `--urls`, e.g. `dotnet run --project IntellaQuest.Web --urls http://localhost:5080`).
+
+**Frontend** (only needed when changing the Angular code):
+
 ```bash
 cd IntellaQuest.Web/my-app
 npm install
-ng serve    # runs on port 4200
+npm run build    # outputs to bundles/browser, which IntellaQuest.Web serves
+# or: ng serve   # dev server on port 4200
 ```
 
 ## Known Issues
@@ -74,5 +91,5 @@ ng serve    # runs on port 4200
 3. JWT authorization not enforced (`MyJwtTokenCustomAuthorize` is incomplete; endpoints are effectively unauthenticated)
 4. `UnitOfWork` builds a new NHibernate session factory per unit-of-work (should be a singleton)
 5. `UserService.AddPayment` silently does nothing if the user already has a payment method
-6. Lots of commented-out code; frontend dep mismatch (`@angular/localize` v16 vs Angular 13)
+6. Lots of commented-out code
 7. Git: `.idea/` (Rider/ReSharper) is committed

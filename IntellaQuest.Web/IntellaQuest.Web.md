@@ -1,23 +1,43 @@
 # IntellaQuest.Web — Project Doc
 
-> Assembly: **IntellaQuest.Web**. ASP.NET MVC (System.Web.Mvc) host on .NET Framework 4.7.2 — API controllers, Autofac DI, and the Angular SPA (`my-app/`).
+> Assembly: **IntellaQuest.Web**. ASP.NET Core (.NET 10) host — API controllers, Autofac DI, and the Angular SPA (`my-app/`).
 
-## Startup (`Global.asax.cs`)
+## Startup (`Program.cs`)
 
-`Application_Start`:
-1. Autofac `ContainerBuilder`: registers controllers, `UnitOfWork` as `IUnitOfWork` (`InstancePerRequest`), and **all types ending in `Repository` / `Service`** via `RegisterAssemblyTypes(...).AsImplementedInterfaces()`.
-2. `FluentValidationModelValidatorProvider.Configure()` + `RegisterModelBinderProvider()`.
-3. `AreaRegistration`, `FilterConfig`, `RouteConfig`, `BundleConfig`.
-4. `DependencyResolver.SetResolver(new AutofacDependencyResolver(container))`.
+Top-level `WebApplication` bootstrap:
 
-## Routing (`App_Start/RouteConfig.cs`)
+1. **Autofac** via `builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory())`; `ConfigureContainer` registers:
+   - `UnitOfWork` as `IUnitOfWork` (`InstancePerLifetimeScope`)
+   - **all types ending in `Repository` / `Service`** via `RegisterAssemblyTypes(...).AsImplementedInterfaces()`
+   - FluentValidation `IValidator<>` implementations
+2. **MVC:** `AddControllersWithViews`
+   - `options.ModelBinderProviders.Insert(0, new JsonBodyModelBinderProvider())`
+   - `options.Filters.Add<ValidationFilter>()`
+   - `AddJsonOptions`: `PropertyNamingPolicy = null`, `DictionaryKeyPolicy = null`, `PropertyNameCaseInsensitive = true` (keeps the PascalCase JSON, and numeric enums, that the Angular client expects)
+3. **`ApiBehaviorOptions`:** `SuppressModelStateInvalidFilter = true` and `SuppressInferBindingSourcesForParameters = true` — controllers validate `ModelState` themselves.
+4. **CORS:** default policy allowing any origin/header/method.
+5. **JWT bearer** authentication; `TokenValidationParameters` from `TokenConstant` (issuer/audience/key).
+6. `SpaAssets` registered as a singleton.
+7. Pipeline: `ApiExceptionMiddleware` → `UseCors` → static files (`my-app/bundles/browser`) → `UseStaticFiles` → `UseRouting` → auth → `MapControllers` → SPA catch-all.
+
+## Routing
 
 | Route | Purpose |
 |---|---|
-| `api/{controller}/{action}/{id}` | The API — e.g. `POST /api/Identity/Login` |
-| `{*pathInfo}` → `Home/Home` | Catch-all: serves the Angular SPA host page |
+| `[Route("api/[controller]/[action]/{id?}")]` | Attribute routes on every API controller — e.g. `POST /api/Identity/Login` |
+| `{*path}` → `Home/Home` | Catch-all: serves the Angular SPA shell, constrained by `SpaFallbackConstraint` |
 
-⚠️ No route constraint is actually applied (there's an unused `ServerRouteConstraint` in `App_Start/`), so the API prefix is by convention only.
+`Infrastructure/SpaFallbackConstraint.cs` rejects API paths and file-like paths, so unknown `/api/...` URLs return **404** instead of the SPA shell.
+
+## Infrastructure (`Infrastructure/`)
+
+| File | Role |
+|---|---|
+| `JsonBodyModelBinder.cs` | `JsonBodyModelBinderProvider`/`JsonBodyModelBinder`: MVC 5-style body binding (route → query → matching JSON property → whole body) |
+| `ValidationFilter.cs` | Global `IAsyncActionFilter` that runs `[FluentValidator]` validators into `ModelState` |
+| `ApiExceptionMiddleware.cs` | Converts unhandled exceptions (including pre-action/database failures) on `/api/*` into HTTP 409 + `{success, exception}` |
+| `SpaAssets.cs` | Resolves the hashed Angular filenames (`styles*`, `polyfills*`, `main*`) for the layout |
+| `SpaFallbackConstraint.cs` | Route constraint excluding `/api` and files from the SPA fallback |
 
 ## Controllers
 
@@ -25,8 +45,8 @@
 **`Controllers/ApplicationSettingsController.cs`** — `GetApplicationContext()`.
 
 **`Controllers/Api/BaseController.cs`** — all API controllers extend it:
-- `OnException` → HTTP **409 Conflict** with JSON `{ success = false, exception = message }`
-- `ErrorNotAcceptable()` → HTTP 400 with ModelState errors
+- `OnException` (`IExceptionFilter`, marked `[NonAction]`) → HTTP **409 Conflict** with JSON `{ success = false, exception = message }`
+- `ErrorNotAcceptable()` (`[NonAction]`) → HTTP 400 with ModelState errors
 
 | Controller | Actions |
 |---|---|
@@ -40,13 +60,13 @@
 
 ## Other pieces
 
-- `Cors/AllowCrossSiteAttribute.cs` — `ActionFilterAttribute` adding CORS headers for `http://localhost:4200` (Angular dev server). ⚠️ Check whether it's applied anywhere.
-- `App_Start/`: `BundleConfig`, `FilterConfig`, `FluentValidationConfig` (body commented out — configured in `Global.asax` instead), `ServerRouteConstraint` (unused).
-- `Views/`: `Home/Home.cshtml` (SPA host), `Shared/_Layout.cshtml`, `Shared/Error.cshtml`.
+- `Views/`: `Home/Home.cshtml` (SPA host), `Shared/_Layout.cshtml` (loads the hashed bundle via `SpaAssets`), `_ViewImports.cshtml`, `_ViewStart.cshtml`.
+- `appsettings.json` / `appsettings.Development.json` — host configuration.
+- `Properties/launchSettings.json` — `dotnet run` profile.
 
-## Frontend — `my-app/` (Angular 13 SPA)
+## Frontend — `my-app/` (Angular 20 SPA)
 
-- Dev: `npm install` → `ng serve` at `http://localhost:4200`; build: `ng build`.
+- Dev: `npm install` → `ng serve` at `http://localhost:4200`; build: `npm run build` → outputs to `my-app/bundles/browser`, which the host serves statically. (When using `ng serve`, the CORS default policy allows the dev origin.)
 - Auth: `authentification/` (login, register) + `authentification.service.ts` (JWT via `@auth0/angular-jwt`).
 - Customer: `home`, `category-products`, `product-components/` (grid + detail), `cart`, `order` + `order-components/` (grid + detail), `favourite`, `profile`, `settings`, `side-filter`.
 - Admin: `admin-components/` — `admin-tool` shell + tools for **users / products / orders** (CRUD dialogs, ngx-datatable grids).
@@ -55,5 +75,5 @@
 ## Quirks
 
 - **`MyJwtTokenCustomAuthorize`** (`IdentityController.cs`) is incomplete — `AuthorizeCore` always returns `true`, and its usages are commented out. **API endpoints are effectively unauthenticated.**
-- CORS: `AllowCrossSiteAttribute` allows only `http://localhost:4200` — the deployed Angular app's origin must be added (or the attribute isn't used at all).
+- CORS is currently wide open (any origin); restrict it before deployment.
 - `.idea/` (JetBrains) is committed to git; consider adding to `.gitignore`.

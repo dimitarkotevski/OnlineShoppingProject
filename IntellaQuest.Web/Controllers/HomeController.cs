@@ -1,10 +1,10 @@
-﻿using System.Web.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 
 namespace IntellaQuest.Web.Controllers
 {
     public class HomeController : Controller
     {
-        public ActionResult Home()
+        public IActionResult Home()
         {
             return View();
         }
