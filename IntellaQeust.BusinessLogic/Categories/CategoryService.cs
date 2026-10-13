@@ -28,8 +28,8 @@ namespace IntellaQuest.BusinessLogic.Services
         bool CheckCategoryNameExists(String Name);
         bool CheckCategoryStatus(bool status);
         ResponseListModel<CategoryViewModel> FilterAndPage(RequestModel request);
-        ResponseListModel<ProductViewModel> GetProductsByCategory(string Url,RequestModel request);
-        CategoryLookupViewModel GetCategoryByUrl(string url);
+        ResponseListModel<ProductViewModel> GetProductsByCategory(Guid Id, RequestModel request);
+        CategoryLookupViewModel GetCategoryById(Guid Id);
     }
 
     public class CategoryService : ICategoryService
@@ -208,11 +208,11 @@ namespace IntellaQuest.BusinessLogic.Services
             }
         }
 
-        public ResponseListModel<ProductViewModel> GetProductsByCategory(string Url, RequestModel request)
+        public ResponseListModel<ProductViewModel> GetProductsByCategory(Guid Id, RequestModel request)
         {
             using (_unitOfWork.BeginTransaction())
             {
-                var category = _categoryRepository.FindBy(x => x.Url == Url)
+                var category = _categoryRepository.FindBy(Id)
                     ?? throw new BllException(ShopExceptionMassages.CategoriesExceptionMassages.NOT_FOUND_EXCEPTION);
 
                 
@@ -266,11 +266,11 @@ namespace IntellaQuest.BusinessLogic.Services
                 return response;
             }
         }
-        public CategoryLookupViewModel GetCategoryByUrl(string url)
+        public CategoryLookupViewModel GetCategoryById(Guid Id)
         {
             using (_unitOfWork.BeginTransaction())
             {
-                var category = _categoryRepository.FindBy(x => x.Url == url)
+                var category = _categoryRepository.FindBy(Id)
                    ?? throw new BllException(ShopExceptionMassages.CategoriesExceptionMassages.NOT_FOUND_EXCEPTION);
 
                 return category.MapToLookupViewModel();

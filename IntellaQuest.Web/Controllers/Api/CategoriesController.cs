@@ -28,16 +28,16 @@ namespace IntellaQuest.Web.Controllers
         }
 
         [HttpPost]
-        public IActionResult GetProductsByCategory(string Url, RequestModel request)
+        public IActionResult GetProductsByCategory(Guid id, RequestModel request)
         {
-            var gridProducts = _categoriesService.GetProductsByCategory(Url, request);
+            var gridProducts = _categoriesService.GetProductsByCategory(id, request);
             return Json(gridProducts);
         }
 
         [HttpPost]
-        public IActionResult GetCategoryByUrl(string Url)
+        public IActionResult GetCategoryById(Guid id)
         {
-            var gridProducts = _categoriesService.GetCategoryByUrl(Url);
+            var gridProducts = _categoriesService.GetCategoryById(id);
             return Json(gridProducts);
         }
 

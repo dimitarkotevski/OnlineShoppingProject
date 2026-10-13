@@ -3,8 +3,8 @@
       <ul class="navbar-nav w-100">
         <li class="solid-active nav-item solid-gray-text" 
           *ngFor="let category of categories"
-          [class.solid-active]="isLinkActive(category.Url)">
-          <a  class="nav-link p-2 solid-gray-text" [routerLink]="['/category',category.Url]">{{ category.Name }}</a>
+          [class.solid-active]="isLinkActive(category.Id)">
+          <a  class="nav-link p-2 solid-gray-text" [routerLink]="['/category',category.Id]">{{ category.Name }}</a>
         </li>
       </ul>
     </div>

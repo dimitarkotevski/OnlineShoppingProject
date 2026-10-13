@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.Json;
 using FluentMigrator.Runner;
 using Microsoft.Data.SqlClient;
@@ -17,12 +19,13 @@ namespace IntellaQuest.Migrations
     /// dotnet run --project IntellaQuest.Migrations -- up "Data Source=.;..."
     /// </code>
     ///
-    /// Migrations are plain FluentMigrator classes: the original schema is defined
-    /// inline in <c>Migrations\*_&lt;id&gt;.cs</c>, and new changes are scaffolded with
-    /// <c>new-migration.tt</c> into <c>Migrations\&lt;version&gt;\&lt;id&gt;_&lt;gitUser&gt;\</c>
-    /// as a class plus <c>up.sql</c>/<c>down.sql</c>.
+    /// Migrations are plain FluentMigrator classes: each one lives in
+    /// <c>Migrations\&lt;version&gt;\&lt;timestamp&gt;-&lt;gitUser&gt;\</c> as
+    /// <c>sqlmigration.cs</c> plus <c>up.sql</c>/<c>down.sql</c>.
     ///
     /// Applied migrations are tracked by FluentMigrator itself in <c>dbo.VersionInfo</c>.
+    /// When a run finishes the runner prints a summary that lists exactly which
+    /// migrations were applied (or rolled back) and whether the run succeeded.
     /// </summary>
     public static class Program
     {
@@ -43,6 +46,10 @@ namespace IntellaQuest.Migrations
 
                 EnsureDatabaseExists(connectionString);
 
+                // Snapshot what is already applied so the summary can report exactly
+                // which migrations this run changes.
+                var appliedBefore = ReadAppliedMigrations(connectionString);
+
                 using (var serviceProvider = CreateServices(connectionString))
                 using (var scope = serviceProvider.CreateScope())
                 {
@@ -62,11 +69,15 @@ namespace IntellaQuest.Migrations
                     }
                 }
 
+                var appliedAfter = ReadAppliedMigrations(connectionString);
+                PrintSummary(command, appliedBefore, appliedAfter);
+
                 return 0;
             }
             catch (Exception ex)
             {
-                Console.Error.WriteLine("Migration failed: {0}", ex.Message);
+                Console.Error.WriteLine();
+                Console.Error.WriteLine("Migration FAILED: {0}", ex.Message);
                 return 1;
             }
         }
@@ -122,7 +133,103 @@ namespace IntellaQuest.Migrations
                 .BuildServiceProvider(false);
         }
 
+        // ------------------------------------------------------------------ summary
+
+        /// <summary>
+        /// Prints a clear "what happened" block after a run. <paramref name="before"/>
+        /// and <paramref name="after"/> are the applied migrations read from
+        /// <c>dbo.VersionInfo</c> (id -> description) before and after the run.
+        /// </summary>
+        private static void PrintSummary(
+            string command,
+            IReadOnlyDictionary<long, string> before,
+            IReadOnlyDictionary<long, string> after)
+        {
+            if (command == "list")
+            {
+                return;
+            }
+
+            Console.WriteLine();
+            Console.WriteLine("================================================================");
+            Console.WriteLine("Migration result: SUCCESS ({0})", command);
+            Console.WriteLine("----------------------------------------------------------------");
+
+            if (command == "down")
+            {
+                var rolledBack = before.Keys.Except(after.Keys).OrderByDescending(version => version).ToList();
+                if (rolledBack.Count == 0)
+                {
+                    Console.WriteLine("  Nothing to roll back (no migration was applied).");
+                }
+                else
+                {
+                    foreach (var version in rolledBack)
+                    {
+                        Console.WriteLine("  [rolled back] {0}  {1}", version, before[version]);
+                    }
+                }
+            }
+            else
+            {
+                var applied = after.Keys.Except(before.Keys).OrderBy(version => version).ToList();
+                if (applied.Count == 0)
+                {
+                    Console.WriteLine("  Database already up to date - no migrations to apply.");
+                }
+                else
+                {
+                    Console.WriteLine("  Applied {0} migration(s):", applied.Count);
+                    foreach (var version in applied)
+                    {
+                        Console.WriteLine("    [done] {0}  {1}", version, after[version]);
+                    }
+                }
+            }
+
+            Console.WriteLine("----------------------------------------------------------------");
+            Console.WriteLine("  Migrations applied: {0}", after.Count);
+            Console.WriteLine("================================================================");
+        }
+
         // ---------------------------------------------------------------- database
+
+        /// <summary>
+        /// Reads the applied migrations from <c>dbo.VersionInfo</c> as id -> description.
+        /// Returns an empty map when the history table does not exist yet (nothing applied).
+        /// </summary>
+        private static IReadOnlyDictionary<long, string> ReadAppliedMigrations(string connectionString)
+        {
+            var applied = new Dictionary<long, string>();
+
+            using (var connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+
+                using (var probe = connection.CreateCommand())
+                {
+                    probe.CommandText = "SELECT CASE WHEN OBJECT_ID('dbo.VersionInfo', 'U') IS NULL THEN 0 ELSE 1 END";
+                    if ((int)probe.ExecuteScalar() == 0)
+                    {
+                        return applied;
+                    }
+                }
+
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = "SELECT [Version], [Description] FROM dbo.VersionInfo";
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            applied[reader.GetInt64(0)] = reader.IsDBNull(1) ? string.Empty : reader.GetString(1);
+                        }
+                    }
+                }
+            }
+
+            return applied;
+        }
 
         /// <summary>
         /// Creates the target database when it does not exist yet. The CREATE DATABASE

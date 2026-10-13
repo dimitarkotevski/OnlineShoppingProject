@@ -20,7 +20,7 @@ export class CategoryProductsComponent implements OnInit {
   brands?: any;
   isLoading: boolean = true;
   filterCategory:RequestModel = new RequestModel();
-  categoryUrl?: string;
+  categoryId?: string;
 
   constructor(
     private route: ActivatedRoute,
@@ -33,14 +33,14 @@ export class CategoryProductsComponent implements OnInit {
     // only reloads the products (previously each filter change created a new
     // route subscription that was never unsubscribed).
     this.route.paramMap.subscribe(params => {
-      const categoryUrl = params.get('category');
-      if(!categoryUrl){
+      const categoryId = params.get('category');
+      if(!categoryId){
         return;
       }
 
-      this.categoryUrl = categoryUrl;
+      this.categoryId = categoryId;
 
-      this.categoryService.GetCategoryByUrl(categoryUrl).subscribe((res:any)=>{
+      this.categoryService.GetCategoryById(categoryId).subscribe((res:any)=>{
         this.category = res;
         this.productService.GetAllBrands(res.Id)?.subscribe((brands)=>{
           this.brands = brands;
@@ -56,12 +56,12 @@ export class CategoryProductsComponent implements OnInit {
   }
 
   private loadProducts(filter: RequestModel): void{
-    if(!this.categoryUrl){
+    if(!this.categoryId){
       return;
     }
 
     this.isLoading = true;
-    this.categoryService.getProductsByCategoryUrl(this.categoryUrl,filter).subscribe((res : ResponseListModel<ProductGridModel>)=>{
+    this.categoryService.getProductsByCategory(this.categoryId,filter).subscribe((res : ResponseListModel<ProductGridModel>)=>{
       this.products = res;
       this.isLoading=false;
     })

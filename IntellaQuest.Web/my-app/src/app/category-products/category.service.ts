@@ -14,18 +14,13 @@ export class CategoryService{
     getAllCategories(){
         return this.http.post<any>(this.baseApi+'AllCategories',null)
     }
-    getProductsByCategoryUrl(Url:string,filter : RequestModel){
-        return this.http.post<any>(this.baseApi+'GetProductsByCategory',
-        {
-            Url:Url,
-            request: filter
-        })
+    getProductsByCategory(Id:string,filter : RequestModel){
+        return this.http.post<any>(this.baseApi+'GetProductsByCategory/'+Id,
+            filter)
     }
 
-    GetCategoryByUrl(Url:string,){
-        return this.http.post<any>(this.baseApi+'GetCategoryByUrl',
-        {
-            Url:Url
-        })
+    GetCategoryById(Id:string){
+        return this.http.post<any>(this.baseApi+'GetCategoryById/'+Id,
+            null)
     }
 }
