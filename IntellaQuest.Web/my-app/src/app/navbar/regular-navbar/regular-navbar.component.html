@@ -1,21 +1,21 @@
 <nav class="navbar navbar-expand-md navbar-expand-lg navbar-dark bg-dark">
   <div class="container">
-    <a class="navbar-brand flex-grow-1" href="/">ShoppingDev</a>
-    <button class="solid-gray navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup"
+    <a class="navbar-brand flex-grow-1" routerLink="/">ShoppingDev</a>
+    <button class="solid-gray navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup"
       aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
     <a class="solid-color-a btn" *ngIf="categoryNavBar && canAccessToAdminTool" (click)="disableNavbar()" routerLink="/admin-tool" >Go to admin tool</a>
     <a class="solid-color-a btn" *ngIf="!categoryNavBar && canAccessToAdminTool" (click)="disableNavbar()" routerLink="/" >Back to user mode</a>
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-      <div class="navbar-nav ml-auto">
+      <div class="navbar-nav ms-auto">
         <div *ngIf="!isUserAuthenticated" class="nav-item">
           <a class="nav-link " routerLink="/login"><i class='fa fa-s15 fa-sign-in'></i> <span class="responsive-text">
               Login</span></a>
         </div>
         <div *ngIf="isUserAuthenticated" class="solid-button-hide  nav-item">
           <div class="nav-link dropdown">
-            <button class="avatar dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown"
+            <button class="avatar dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown"
               aria-haspopup="true" aria-expanded="false">
               <i class="fa fa-user"></i><span class="px-1">{{username}} {{amount}} </span>
             </button>
@@ -71,7 +71,7 @@
         <div class="solid-button-sm-show hide-in-width-screen">
           <div class="dropdown-divider"></div>
           <div class="nav-item">
-            <a class="nav-item nav-link" (click)="logout()" href="#">
+            <a class="nav-item nav-link" (click)="logout()" role="button" style="cursor: pointer;">
               <i class="fa fa-sign-out" aria-hidden="true"></i> Logout
             </a>
           </div>

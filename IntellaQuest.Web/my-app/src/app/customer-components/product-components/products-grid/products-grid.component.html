@@ -12,6 +12,7 @@
           <img
             [src]="product.Image | byPassSecurity"
             class="img-responsive m-auto"
+            alt="{{ product.Name }}"
           />
         </div>
         <h6 class="shop-thumb__title solid-color-a">
@@ -19,11 +20,7 @@
         </h6>
       </a>
       <hr class="solid-gray" />
-      <!-- <div class="row mt-auto shop-thumb__price">
-        <div class="col-12">
-          <span class="shop-thumb-price_new">${{product.Price?.toFixed(2) || '/'}}</span>
-        </div>
-      </div> -->
+      
       <div class="row mt-auto">
         <div class="col-12">
           <strong class="shop-thumb-price_new"
@@ -86,7 +83,7 @@
                 <img
                   [src]="detail.Product.Image | byPassSecurity"
                   class="img-responsive"
-                  alt="..."
+                  alt="{{ detail.Product?.Name }}"
                 />
               </a>
             </div>

@@ -16,7 +16,7 @@
           <div class="row">
             <div class="col-lg-3 col-sm-12">
               <a [routerLink]="['/product-detail',detail.Product.Id]">
-                <img [src]="detail.Product.Image | byPassSecurity" class="img-responsive" alt="...">
+                <img [src]="detail.Product.Image | byPassSecurity" class="img-responsive" alt="{{detail.Product?.Name}}">
               </a>
             </div>
             <div class="col-lg-6 col-sm-12 solid-side-borders">
@@ -57,7 +57,7 @@
           </div>
           <div class="p-3">
             <div>List of cart product is empty!</div>
-            <a class="solid_color" href="/"><strong>Keep buying</strong></a>
+            <a class="solid_color" routerLink="/"><strong>Keep buying</strong></a>
           </div>
         </div>
       </div>

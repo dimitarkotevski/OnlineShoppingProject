@@ -5,14 +5,14 @@
         <div class="card-body">
           <h1 class="form-label">Register</h1>
           <hr />
-          <div *ngIf="errorMessage.length > 0" class="form-group">
+          <div *ngIf="errorMessage.length > 0" class="mb-3">
             <div class="alert alert-danger">
               <ul>
                 <li *ngFor="let error of errorMessage">{{error}}</li>
               </ul>
             </div>
           </div>
-          <div class="form-group">
+          <div class="mb-3">
             <div class="form-floating mb-3">
               <input [(ngModel)]="registerUserModel.Email" type="email" class="form-control" placeholder="Email *">
             </div>
@@ -32,7 +32,7 @@
               <input [(ngModel)]="repaetPassword" type="password" class="form-control" placeholder="Confirm Password *">
             </div>
           </div>
-          <div class="form-group">
+          <div class="mb-3">
             <button class="btn solid_button_orange w-100" (click)="registerUser()">Register</button>
           </div>
         </div>
