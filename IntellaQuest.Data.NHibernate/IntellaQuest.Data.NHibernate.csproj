@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>IntellaQuest.Data.NHibernate</RootNamespace>
+    <AssemblyName>IntellaQuest.Data.NHibernate</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="NHibernate" Version="5.5.4" />
+    <PackageReference Include="FluentNHibernate" Version="3.5.0" />
+    <PackageReference Include="Iesi.Collections" Version="4.0.4" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="6.1.7" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\IntellaQuest.Domain\IntellaQuest.Domain.csproj" />
+  </ItemGroup>
+
+</Project>

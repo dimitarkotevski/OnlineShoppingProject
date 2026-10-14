@@ -1,7 +1,7 @@
 # IntellaQuest Online Shopping Project — Overview
 
 > Context file for AI assistants. Full-stack online shopping web app.
-> Last updated: 2026-10-13
+> Last updated: 2026-10-14
 
 ## Overview
 
@@ -9,7 +9,7 @@
 
 - **Backend:** .NET 10 / ASP.NET Core (MVC + attribute-routed API controllers), NHibernate + FluentNHibernate (`Microsoft.Data.SqlClient` driver), SQL Server, Autofac DI, FluentValidation
 - **Frontend:** Angular 20 SPA (lives inside `IntellaQuest.Web/my-app/`), Angular Material, Bootstrap 5, @auth0/angular-jwt
-- **Solution:** `IntellaQuestProject.sln` (5 projects)
+- **Solution:** `IntellaQuestProject.sln` (6 projects)
 
 ## Solution Structure
 
@@ -18,16 +18,17 @@ Each project also has its own detailed doc inside its folder:
 | Project (assembly) | Folder | Doc |
 |---|---|---|
 | `IntellaQuest.Domain` | `IntellaQuest.Domain/` | [`IntellaQuest.Domain/IntellaQuest.Domain.md`](IntellaQuest.Domain/IntellaQuest.Domain.md) |
-| `IntellaQeust.Business` ⚠️ | `IntellaQeust.BusinessLogic/` | [`IntellaQeust.BusinessLogic/IntellaQeust.BusinessLogic.md`](IntellaQeust.BusinessLogic/IntellaQeust.BusinessLogic.md) |
-| `IntellaQuest.Data.NHibernate` | `IntellaQuest.Repository/` | [`IntellaQuest.Repository/IntellaQuest.Repository.md`](IntellaQuest.Repository/IntellaQuest.Repository.md) |
+| `IntellaQuest.BusinessLogic` | `IntellaQuest.BusinessLogic/` | [`IntellaQuest.BusinessLogic/IntellaQuest.BusinessLogic.md`](IntellaQuest.BusinessLogic/IntellaQuest.BusinessLogic.md) |
+| `IntellaQuest.Data.NHibernate` | `IntellaQuest.Data.NHibernate/` | [`IntellaQuest.Data.NHibernate/IntellaQuest.Data.NHibernate.md`](IntellaQuest.Data.NHibernate/IntellaQuest.Data.NHibernate.md) |
 | `IntellaQuest.Web` | `IntellaQuest.Web/` | [`IntellaQuest.Web/IntellaQuest.Web.md`](IntellaQuest.Web/IntellaQuest.Web.md) |
 | `IntellaQuest.Migrations` | `IntellaQuest.Migrations/` | FluentMigrator migrations + a console runner that applies them all to `ShopDb` — see [`IntellaQuest.Migrations/README.md`](IntellaQuest.Migrations/README.md) |
+| `IntellaQuest.Tests` | `IntellaQuest.Tests/` | xUnit tests for the business layer (e.g. `PasswordHasher`) |
 
-⚠️ Note the typo: the BusinessLogic folder/project is **IntellaQeust** (Q-e-u-e-s-t), and namespaces are inconsistently `IntellaQeust.BusinessLogic.*` vs `IntellaQuest.BusinessLogic.*` — both appear in the code.
+Every project follows the convention *folder = .csproj name = assembly name = root namespace*. MSBuild settings shared by all projects live in `Directory.Build.props`.
 
 ## Architecture
 
-Layered, dependency direction: `Web → BusinessLogic → Repository → Domain`
+Layered, dependency direction: `Web → BusinessLogic → Data.NHibernate → Domain`
 
 - **Services** (`I*Service` + `*Service`, e.g. `IUserService`/`UserService`): business rules, transaction handling via `IUnitOfWork`, throw `BllException` with messages from `ShopExceptionMassages`.
 - **Repositories** (`IRepository<T>` + `Repository<T>`): generic CRUD (`Add/Update/Delete/FindBy/All/FilterBy/CheckExist`) over NHibernate `ISession`. Per-entity repos add custom queries (e.g. `IUserRepository.GetUserRole`).
@@ -50,17 +51,17 @@ Configured in `IntellaQuest.Web/Program.cs`:
 
 ## Auth & Security
 
-- **JWT:** HMAC-SHA256, issued in `UserService.CreateToken`, 10-day expiry, claims: name / nameidentifier / role. Key, issuer, audience hardcoded in `TokenConstant.cs` ⚠️.
-- **Passwords:** transformed via `PasswordEncryption.Encryption(...)` before storage/comparison (see `Security/PasswordEncryption.cs`).
-- `MyJwtTokenCustomAuthorize` attribute exists in `IdentityController.cs` but is **incomplete** (`AuthorizeCore` always returns true; usage commented out). Endpoints are effectively unauthenticated ⚠️.
+- **JWT:** HMAC-SHA256, issued in `UserService.CreateToken`, claims: name / nameidentifier / role. Key, issuer, audience and expiry are bound from the `Jwt` configuration section into `Security/JwtSettings.cs`; the signing key is required (at least 32 chars) and is never committed.
+- **Passwords:** PBKDF2-HMAC-SHA256 with a random per-password salt (`Security/PasswordHasher.cs`). Passwords written by the old reversible-AES scheme (`PasswordEncryption`) are still verified, then re-hashed to PBKDF2 on the next successful login.
+- **Authorization:** controllers/actions are protected with `[Authorize]` and an `AdminOnly` policy (configured in `Program.cs` using `ClaimsPrincipalExtensions.IsAdministrator`); security headers, HSTS/HTTPS redirection (outside Development), an authentication rate limiter and a restricted CORS policy are also configured in `Program.cs`.
 
 ## Database
 
-- SQL Server, connection string **hardcoded** in `NHibernateContext.cs`: `Data Source=localhost;Initial Catalog=ShopDb;Integrated Security=SSPI;TrustServerCertificate=True;` ⚠️
+- SQL Server; the connection string is read from configuration (`ConnectionStrings:ShopDb` in `IntellaQuest.Web/appsettings.json`) and passed to `NHibernateContext.BuildSessionFactory`.
 - Driver: `MicrosoftDataSqlClientDriver` (NHibernate) over `Microsoft.Data.SqlClient`; MS SQL 2005 dialect.
-- Mappings: `IntellaQuest.Repository/Mapping/*Map.cs` (FluentNHibernate, auto-discovered from `CategoryMap` assembly).
-- **SQL migrations:** `IntellaQuest.Migrations/` — [FluentMigrator](https://fluentmigrator.github.io/) (`FluentMigrator`/`FluentMigrator.Runner`/`FluentMigrator.Runner.SqlServer` 8.0.1). The original per-entity schema (`001_Role.sql`…`009_FavouriteProducts.sql`) is defined inline in `Migrations/*_2026010100000X.cs` (`Execute.Sql`, guarded by `IF OBJECT_ID`). New changes are scaffolded with the `new-migration.tt` T4 template into `Migrations/<version>/<timestamp>_<gitUser>/{1_class.cs, up.sql, down.sql}` (`Execute.Script`); the version lives in `IntellaQuest.Migrations/appsettings.json` (`Migrations:Version`). A console runner creates `ShopDb` if needed and applies pending migrations in order; FluentMigrator tracks them in `dbo.VersionInfo`. Run with `dotnet run --project IntellaQuest.Migrations` (`-- down` / `-- list`). See `IntellaQuest.Migrations/README.md`.
-- ⚠️ `UnitOfWork` ctor calls `BuildSessionFactory()` each time — a new session factory per request/unit-of-work (inefficient; should be a singleton). NHibernate also opens a connection during this call (`SchemaMetadataUpdater`), so a reachable `ShopDb` is required.
+- Mappings: `IntellaQuest.Data.NHibernate/Mapping/*Map.cs` (FluentNHibernate, auto-discovered from `CategoryMap` assembly).
+- **SQL migrations:** `IntellaQuest.Migrations/` — [FluentMigrator](https://fluentmigrator.github.io/) (`FluentMigrator`/`FluentMigrator.Runner`/`FluentMigrator.Runner.SqlServer` 8.0.1). Each migration lives in `Migrations/<version>/<timestamp>-<gitUser>/` as `sqlmigration.cs` plus `up.sql` / `down.sql` applied via `Execute.Script`. New ones are scaffolded with the `new-migration.tt` T4 template; the version lives in `IntellaQuest.Migrations/appsettings.json` (`Migrations:Version`). A console runner creates `ShopDb` if needed and applies pending migrations in order; FluentMigrator tracks them in `dbo.VersionInfo`. Run with `dotnet run --project IntellaQuest.Migrations` (`-- down` / `-- list`). See `IntellaQuest.Migrations/README.md`.
+- `UnitOfWork` takes an `ISessionFactoryProvider` (`ConfigurationRepository/SessionFactoryProvider.cs`) that builds the NHibernate session factory once and reuses it. Building it opens a connection, so a reachable `ShopDb` is required.
 
 ## Frontend (Angular 20) — `IntellaQuest.Web/my-app/`
 
@@ -73,15 +74,12 @@ Run: `npm install` → `ng serve` (port 4200). Build: `npm run build` → output
 
 ## Known Issues / Quirks
 
-1. Typo'd namespace/folder `IntellaQeust.*` mixed with `IntellaQuest.*`
-2. Hardcoded DB connection string and JWT signing key in source
-3. Lots of commented-out code (old `FavouriteProducts` entity on `User`, login validation, dead methods in `UserService`)
-4. `UserService.AddPayment` silently does nothing if `user.Payment != null` (only handles first payment)
-5. JWT authorization not enforced (see Auth section)
-6. Git: `.idea/` (Rider/ReSharper) is committed
+1. Lots of commented-out code (old `FavouriteProducts` entity on `User`, login validation, dead methods in `UserService`)
+2. `UserService.AddPayment` silently does nothing if `user.Payment != null` (only handles first payment)
 
 ## Commands
 
 **Database (once):** `dotnet run --project IntellaQuest.Migrations` — creates `ShopDb` if needed and applies migrations.
 **Backend:** `dotnet run --project IntellaQuest.Web` (already-built SPA served from `my-app/bundles/browser`).
 **Frontend:** `cd IntellaQuest.Web/my-app && npm install && npm run build` (or `ng serve`).
+**Tests:** `dotnet test IntellaQuest.Tests`.

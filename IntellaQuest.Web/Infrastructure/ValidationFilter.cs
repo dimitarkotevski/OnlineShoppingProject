@@ -2,7 +2,7 @@ using System;
 using System.Reflection;
 using System.Threading.Tasks;
 using FluentValidation;
-using IntellaQeust.BusinessLogic.Validation;
+using IntellaQuest.BusinessLogic.Validation;
 using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace IntellaQuest.Web.Infrastructure

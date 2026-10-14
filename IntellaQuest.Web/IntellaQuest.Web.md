@@ -6,19 +6,23 @@
 
 Top-level `WebApplication` bootstrap:
 
-1. **Autofac** via `builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory())`; `ConfigureContainer` registers:
+1. **Configuration / secrets** — the `ShopDb` connection string and the `Jwt` settings are read from configuration. A missing connection string (or a signing key shorter than 32 chars outside Development) fails fast; in Development an ephemeral key is generated when `Jwt:Key` is unset.
+2. **Autofac** via `builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory())`; `ConfigureContainer` registers:
+   - `JwtSettings` (single instance)
+   - `SessionFactoryProvider` as `ISessionFactoryProvider` (a **single instance**, so the NHibernate session factory is built once)
    - `UnitOfWork` as `IUnitOfWork` (`InstancePerLifetimeScope`)
    - **all types ending in `Repository` / `Service`** via `RegisterAssemblyTypes(...).AsImplementedInterfaces()`
    - FluentValidation `IValidator<>` implementations
-2. **MVC:** `AddControllersWithViews`
+3. **MVC:** `AddControllersWithViews`
    - `options.ModelBinderProviders.Insert(0, new JsonBodyModelBinderProvider())`
    - `options.Filters.Add<ValidationFilter>()`
    - `AddJsonOptions`: `PropertyNamingPolicy = null`, `DictionaryKeyPolicy = null`, `PropertyNameCaseInsensitive = true` (keeps the PascalCase JSON, and numeric enums, that the Angular client expects)
-3. **`ApiBehaviorOptions`:** `SuppressModelStateInvalidFilter = true` and `SuppressInferBindingSourcesForParameters = true` — controllers validate `ModelState` themselves.
-4. **CORS:** default policy allowing any origin/header/method.
-5. **JWT bearer** authentication; `TokenValidationParameters` from `TokenConstant` (issuer/audience/key).
-6. `SpaAssets` registered as a singleton.
-7. Pipeline: `ApiExceptionMiddleware` → `UseCors` → static files (`my-app/bundles/browser`) → `UseStaticFiles` → `UseRouting` → auth → `MapControllers` → SPA catch-all.
+4. **`ApiBehaviorOptions`:** `SuppressModelStateInvalidFilter = true` and `SuppressInferBindingSourcesForParameters = true` — controllers validate `ModelState` themselves.
+5. **CORS:** the default policy allows only the configured origins (`Cors:AllowedOrigins`, defaulting to the local dev ports).
+6. **JWT bearer** authentication; `TokenValidationParameters` built from `JwtSettings` (issuer / audience / key), plus an `AdminOnly` authorization policy requiring `ClaimsPrincipalExtensions.IsAdministrator()`.
+7. **Rate limiting:** a fixed-window `"auth"` policy (10 requests / minute per IP) throttles credential brute-forcing.
+8. `SpaAssets` registered as a singleton.
+9. Pipeline: `ApiExceptionMiddleware` → security headers → HSTS/HTTPS redirect (outside Development) → `UseCors` → static files (`my-app/bundles/browser`) → `UseStaticFiles` → `UseRouting` → `UseRateLimiter` → auth → `MapControllers` → SPA catch-all.
 
 ## Routing
 
@@ -36,6 +40,7 @@ Top-level `WebApplication` bootstrap:
 | `JsonBodyModelBinder.cs` | `JsonBodyModelBinderProvider`/`JsonBodyModelBinder`: MVC 5-style body binding (route → query → matching JSON property → whole body) |
 | `ValidationFilter.cs` | Global `IAsyncActionFilter` that runs `[FluentValidator]` validators into `ModelState` |
 | `ApiExceptionMiddleware.cs` | Converts unhandled exceptions (including pre-action/database failures) on `/api/*` into HTTP 409 + `{success, exception}` |
+| `ClaimsPrincipalExtensions.cs` | `IsAdministrator()` — case-insensitive admin-role check used by the `AdminOnly` policy |
 | `SpaAssets.cs` | Resolves the hashed Angular filenames (`styles*`, `polyfills*`, `main*`) for the layout |
 | `SpaFallbackConstraint.cs` | Route constraint excluding `/api` and files from the SPA fallback |
 
@@ -50,24 +55,24 @@ Top-level `WebApplication` bootstrap:
 
 | Controller | Actions |
 |---|---|
-| `IdentityController` | `Registration`, `Login`, `ChangePassword`, `GetUserDetails`, `SetUserDetails`, `UpdatePassword`, `GetAmountMoneyOfUser`, `AddPayment`, `DeletePayment` (+ incomplete `MyJwtTokenCustomAuthorize` attribute — see below) |
-| `UsersController` | `All`, `Get`, `Create`, `Update`, `Delete` |
-| `ProductsController` | `All`, `GetTable`, `Get`, `GetProductImage`, `Create`, `Edit`, `Delete`, `AddImageToProduct`, `GetAllBrands` |
-| `CategoriesController` | `AllCategories`, `GetProductsByCategory`, `GetCategoryByUrl`, `All`, `Get`, `Create`, `Edit`, `DeleteById` |
-| `OrdersController` | `All`, `Get`, `Create`, `Edit`, `Delete`, `GetUserActiveOrder`, `GetUserNotActiveOrders`, `CancelActiveOrder`, `MakeAnOrder`, `MakeAPay` |
-| `ShoppingCartsController` | `GetUserShoppingCartWithProducts`, `AddProductToShoppingCart`, `RemoveProductFromShoppingCart`, `MinusQuantity`, `PlusQuantity` |
-| `FavouriteProductsController` | `UserAddFavouriteProduct`, `GetUserFavouriteProducts`, `RemoveFavouriteProduct` |
+| `IdentityController` | `Registration`, `Login`, `ChangePassword`, `GetUserDetails`, `SetUserDetails`, `UpdatePassword`, `GetAmountMoneyOfUser`, `AddPayment`, `DeletePayment` (`Registration`/`Login` are `[AllowAnonymous]`; the rest are `[Authorize]`) |
+| `UsersController` | `All`, `Get`, `Create`, `Update`, `Delete` (`AdminOnly` at controller level) |
+| `ProductsController` | `All`, `GetTable`, `Get`, `GetProductImage`, `Create`, `Edit`, `Delete`, `AddImageToProduct`, `GetAllBrands` (writes are `AdminOnly`) |
+| `CategoriesController` | `AllCategories`, `GetProductsByCategory`, `GetCategoryById`, `All`, `Get`, `Create`, `Edit`, `DeleteById` (writes are `AdminOnly`) |
+| `OrdersController` | `All`, `Get`, `Create`, `Edit`, `Delete`, `GetUserActiveOrder`, `GetUserNotActiveOrders`, `CancelActiveOrder`, `MakeAnOrder`, `MakeAPay` (admin vs user actions are split) |
+| `ShoppingCartsController` | `GetUserShoppingCartWithProducts`, `AddProductToShoppingCart`, `RemoveProductFromShoppingCart`, `MinusQuantity`, `PlusQuantity` (`[Authorize]` at controller level) |
+| `FavouriteProductsController` | `UserAddFavouriteProduct`, `GetUserFavouriteProducts`, `RemoveFavouriteProduct` (`[Authorize]` at controller level) |
 
 ## Other pieces
 
 - `Views/`: `Home/Home.cshtml` (SPA host), `Shared/_Layout.cshtml` (loads the hashed bundle via `SpaAssets`), `_ViewImports.cshtml`, `_ViewStart.cshtml`.
-- `appsettings.json` / `appsettings.Development.json` — host configuration.
+- `appsettings.json` / `appsettings.Development.json` — host configuration (`ConnectionStrings:ShopDb`, `Jwt`, `Cors:AllowedOrigins`).
 - `Properties/launchSettings.json` — `dotnet run` profile.
 
 ## Frontend — `my-app/` (Angular 20 SPA)
 
-- Dev: `npm install` → `ng serve` at `http://localhost:4200`; build: `npm run build` → outputs to `my-app/bundles/browser`, which the host serves statically. (When using `ng serve`, the CORS default policy allows the dev origin.)
-- Auth: `authentification/` (login, register) + `authentification.service.ts` (JWT via `@auth0/angular-jwt`).
+- Dev: `npm install` → `ng serve` at `http://localhost:4200`; build: `npm run build` → outputs to `my-app/bundles/browser`, which the host serves statically. (When using `ng serve`, the CORS policy allows the configured dev origin.)
+- Auth: `authentification/` (login, register) + `authentification.service.ts` (JWT via `@auth0/angular-jwt`), plus an HTTP interceptor.
 - Customer: `home`, `category-products`, `product-components/` (grid + detail), `cart`, `order` + `order-components/` (grid + detail), `favourite`, `profile`, `settings`, `side-filter`.
 - Admin: `admin-components/` — `admin-tool` shell + tools for **users / products / orders** (CRUD dialogs, plain HTML tables).
 - Routing: `app-routing.module.ts` — `/`, `/sort/:sort`, `/category/:category`, `/register`, `/login`, `/profile/:id`, `/cart`, `/favourite`, `/settings`, `/product-detail/:id`, `/my-order`, `/order-grid`, `/orders/:id/details`, `/admin-tool[/products|/orders|/users]`, `**` → `/error-404`.
@@ -75,6 +80,5 @@ Top-level `WebApplication` bootstrap:
 
 ## Quirks
 
-- **`MyJwtTokenCustomAuthorize`** (`IdentityController.cs`) is incomplete — `AuthorizeCore` always returns `true`, and its usages are commented out. **API endpoints are effectively unauthenticated.**
-- CORS is currently wide open (any origin); restrict it before deployment.
-- `.idea/` (JetBrains) is committed to git; consider adding to `.gitignore`.
+- In Development the JWT signing key is ephemeral when `Jwt:Key` is not configured, so tokens are invalidated on application restart.
+- Outside Development the app requires an explicit `Jwt:Key` (at least 32 characters) and a `ShopDb` connection string.

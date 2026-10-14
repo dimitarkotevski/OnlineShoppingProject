@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Net;
-using IntellaQeust.BusinessLogic.Exceptions;
+using IntellaQuest.BusinessLogic.Exceptions;
 using IntellaQuest.Web.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;

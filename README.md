@@ -15,21 +15,20 @@ A full-stack online shopping application: **ASP.NET Core (.NET 10) backend** wit
 - Angular 20 SPA, Angular Material, Bootstrap 5
 - @auth0/angular-jwt for JWT handling (admin grids use plain HTML tables)
 
-**Solution:** `IntellaQuestProject.sln` (5 projects)
+**Solution:** `IntellaQuestProject.sln` (6 projects)
 
 ## Solution Structure
 
 | Project | Folder | Responsibility |
 |---|---|---|
 | `IntellaQuest.Domain` | `IntellaQuest.Domain/` | Domain entities + enums. No dependencies. |
-| `IntellaQeust.BusinessLogic` ⚠️ | `IntellaQeust.BusinessLogic/` | Services, view models, mappers, security, exceptions |
-| `IntellaQuest.Data.NHibernate` | `IntellaQuest.Repository/` | Generic `Repository<T>`, `IUnitOfWork`, `NHibernateContext`, mappings |
+| `IntellaQuest.BusinessLogic` | `IntellaQuest.BusinessLogic/` | Services, view models, mappers, security, exceptions |
+| `IntellaQuest.Data.NHibernate` | `IntellaQuest.Data.NHibernate/` | Generic `Repository<T>`, `IUnitOfWork`, `NHibernateContext`, mappings |
 | `IntellaQuest.Migrations` | `IntellaQuest.Migrations/` | SQL migration scripts + console runner that applies them to `ShopDb` |
 | `IntellaQuest.Web` | `IntellaQuest.Web/` | ASP.NET Core host, API controllers, Autofac wiring, Angular app |
+| `IntellaQuest.Tests` | `IntellaQuest.Tests/` | xUnit tests for the business layer |
 
-> ⚠️ The BusinessLogic project/folder is spelled **IntellaQeust** (Q-e-u-e-s-t); namespaces mix `IntellaQeust.*` and `IntellaQuest.*` in the code.
-
-**Architecture:** layered, dependency direction `Web → BusinessLogic → Repository → Domain`
+**Architecture:** layered, dependency direction `Web → BusinessLogic → Data.NHibernate → Domain`
 - **Services** (`I*Service` + `*Service`): business rules, transactions via `IUnitOfWork`, throw `BllException`
 - **Repositories** (`IRepository<T>` + `Repository<T>`): generic CRUD over NHibernate `ISession`
 - **Mappers**: extension methods converting entities ↔ view models
@@ -51,7 +50,7 @@ A full-stack online shopping application: **ASP.NET Core (.NET 10) backend** wit
 - **Request binding:** a custom `JsonBodyModelBinderProvider` reproduces the old MVC 5 behaviour — action values are resolved from the route, then the query string, then a matching JSON body property, and finally the whole body (so flat bodies, `{model: ...}` wrappers, and route ids all bind).
 - **Error handling:** unhandled exceptions → HTTP 409 + `{success, exception}` (controller `IExceptionFilter`, plus `ApiExceptionMiddleware` for failures that happen before an action runs, e.g. database errors); validation errors → HTTP 400 + `{Success, Errors}`
 - **Validation:** `ValidationFilter` runs the `[FluentValidator(typeof(...))]` validators into `ModelState`.
-- **Authentication:** `UserService.Login` verifies username + encrypted password, then issues a JWT (10-day expiry, claims: name / nameidentifier / role) created in `CreateToken`. Passwords are transformed via `PasswordEncryption.Encryption` before storage/comparison.
+- **Authentication:** `UserService.Login` verifies the username + password (PBKDF2 via `PasswordHasher`, migrating legacy AES values on first login), then issues a JWT (claims: name / nameidentifier / role) created in `CreateToken` from the configured `Jwt` settings. Endpoints are protected with `[Authorize]`, with an `AdminOnly` policy for admin operations.
 - **Registration:** checks unique username/email, creates the user with the default customer role, then creates an empty active shopping cart.
 - **Customer features:** browse categories/products, product detail, shopping cart, orders, favourite products, profile, payment methods, settings.
 - **Admin features:** user / product / order management with filterable, sortable, paginated grids (`RequestModel` / `ResponseModel`).
@@ -84,12 +83,13 @@ npm run build    # outputs to bundles/browser, which IntellaQuest.Web serves
 # or: ng serve   # dev server on port 4200
 ```
 
+**Tests:**
+
+```bash
+dotnet test IntellaQuest.Tests
+```
+
 ## Known Issues
 
-1. Typo'd namespace/folder `IntellaQeust.*` mixed with `IntellaQuest.*`
-2. Hardcoded DB connection string (`NHibernateContext.cs`) and JWT signing key (`TokenConstant.cs`)
-3. JWT authorization not enforced (`MyJwtTokenCustomAuthorize` is incomplete; endpoints are effectively unauthenticated)
-4. `UnitOfWork` builds a new NHibernate session factory per unit-of-work (should be a singleton)
-5. `UserService.AddPayment` silently does nothing if the user already has a payment method
-6. Lots of commented-out code
-7. Git: `.idea/` (Rider/ReSharper) is committed
+1. `UserService.AddPayment` silently does nothing if the user already has a payment method
+2. Lots of commented-out code

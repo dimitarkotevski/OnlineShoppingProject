@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>IntellaQuest.BusinessLogic</RootNamespace>
+    <AssemblyName>IntellaQuest.BusinessLogic</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FluentValidation" Version="11.11.0" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.23.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\IntellaQuest.Domain\IntellaQuest.Domain.csproj" />
+    <ProjectReference Include="..\IntellaQuest.Data.NHibernate\IntellaQuest.Data.NHibernate.csproj" />
+  </ItemGroup>
+
+</Project>

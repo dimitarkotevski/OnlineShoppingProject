@@ -1,7 +1,7 @@
 ﻿using System;
-using IntellaQeust.BusinessLogic.Requests;
+using IntellaQuest.BusinessLogic.Requests;
 using IntellaQuest.BusinessLogic.Services;
-using IntellaQeust.BusinessLogic.ViewModels;
+using IntellaQuest.BusinessLogic.ViewModels;
 using IntellaQuest.Web.Controllers.Api;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
