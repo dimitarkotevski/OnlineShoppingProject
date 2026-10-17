@@ -41,23 +41,17 @@ namespace NexCart.Business.Services
         private readonly IProductRepository _productsRepository;
         private readonly ICategoryRepository _categoryRepository;
         private readonly IOrderRepository _orderRepository;
-        private readonly IFavouriteProductsRepository _favouriteProductsRepository;
-        private readonly IShoppingCartDetailRepository _shoppingCartDetailRepository;
 
         public ProductService(IProductRepository productsRepository,
             ICategoryRepository categoryRepository,
             IUnitOfWork unitOfWork,
             IOrderRepository orderRepository,
-            IFavouriteProductsRepository favouriteProductsRepository,
-            IShoppingCartDetailRepository shoppingCartDetailRepository,
             IWebHostEnvironment webHostEnvironment)
         {
             _productsRepository = productsRepository;
             _categoryRepository = categoryRepository;
             _unitOfWork = unitOfWork;
             _orderRepository = orderRepository;
-            _favouriteProductsRepository = favouriteProductsRepository;
-            _shoppingCartDetailRepository = shoppingCartDetailRepository;
             _webHostEnvironment = webHostEnvironment;
         }
         #region ADMIN CRUD
@@ -256,27 +250,8 @@ namespace NexCart.Business.Services
                         request.SearchList.Any(item => x.Name.Contains(item)));
                 }
 
-                switch (request.SortName)
-                {
-                    case "Popular":
-                        listProductForFiltering = _favouriteProductsRepository.All().Select(x => x.Product);
-                        break;
-                    case "BestSelling":
-                        listProductForFiltering = _shoppingCartDetailRepository.All().Select(x => x.Product);
-                        break;
-                    case "Newest":
-                        listProductForFiltering = listProductForFiltering.OrderByDescending(x => x.Created);
-                        break;
-                    case "PriceLow":
-                        listProductForFiltering = listProductForFiltering.OrderBy(x => x.Price);
-                        break;
-                    case "PriceHigh":
-                        listProductForFiltering = listProductForFiltering.OrderByDescending(x => x.Price);
-                        break;
-                    default:
-                        break;
-                }
-                var list = listProductForFiltering.ToList().Distinct();
+                // Sorting is done by the client; products are returned in storage order.
+                var list = listProductForFiltering.ToList();
 
                 if (request.Size == 0 && request.PageNeeded == 0)
                 {

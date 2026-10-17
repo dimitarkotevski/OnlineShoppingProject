@@ -18,7 +18,11 @@ export class HomeComponent implements OnInit {
   activeSorting: string = 'Popular';
   isLoading: boolean = true;
 
-  /** Maps the `sort/:sort` route segment to the backend SortName value. */
+  /** Products in the order the backend returned them; sorting is applied on a copy. */
+  private allProducts: ProductGridModel[] = [];
+  private productsLoaded: boolean = false;
+
+  /** Maps the `sort/:sort` route segment to the sort applied on the client. */
   private readonly sortNames: { [key: string]: string } = {
     'popular': 'Popular',
     'newest': 'Newest',
@@ -34,19 +38,22 @@ export class HomeComponent implements OnInit {
     ) { }
 
   ngOnInit(): void {
-    // The route drives the sort order, so the products are loaded exactly once
-    // per navigation (no more duplicate request when a sorting link is clicked).
+    // The route drives the sort order. Products are fetched once and re-sorted
+    // locally on every sorting change.
     this.route.paramMap.subscribe(params => {
       const sortUrl = params.get('sort') || 'popular';
       this.activeSorting = this.sortNames[sortUrl] || 'Popular';
-      this.loadProducts();
+      if (this.productsLoaded) {
+        this.applySorting();
+      } else {
+        this.loadProducts();
+      }
     });
   }
 
   private loadProducts(): void {
     const filter: ProductsFilter = {
       SearchString: "",
-      SortName: this.activeSorting,
       PageNeeded: "",
       Price: "",
     };
@@ -54,16 +61,43 @@ export class HomeComponent implements OnInit {
     this.isLoading = true;
     this.productService.getAll(filter).subscribe({
       next: (result: ResponseListModel<ProductGridModel>) => {
-        this.products = result?.Items || [];
+        this.allProducts = result?.Items || [];
         this.totalItems = result?.TotalItems || 0;
+        this.productsLoaded = true;
+        this.applySorting();
         this.isLoading = false;
       },
       error: () => {
+        this.allProducts = [];
         this.products = [];
         this.totalItems = 0;
         this.isLoading = false;
       }
     });
+  }
+
+  /**
+   * Sorts a copy of the loaded products. Sorts the client has no data for
+   * (Popular, BestSelling) keep the order the backend returned.
+   */
+  private applySorting(): void {
+    const sorted = [...this.allProducts];
+    const price = (p: ProductGridModel) => p.Price ?? 0;
+    const created = (p: ProductGridModel) => (p.DateCreated ? Date.parse(p.DateCreated) : 0) || 0;
+
+    switch (this.activeSorting) {
+      case 'Newest':
+        sorted.sort((a, b) => created(b) - created(a));
+        break;
+      case 'PriceLow':
+        sorted.sort((a, b) => price(a) - price(b));
+        break;
+      case 'PriceHigh':
+        sorted.sort((a, b) => price(b) - price(a));
+        break;
+    }
+
+    this.products = sorted;
   }
 
   ChangeSorting(sortUrl: string): void {
