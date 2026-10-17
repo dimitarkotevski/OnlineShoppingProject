@@ -1,0 +1,27 @@
+<nav *ngIf="categories && categoryNavBar" class="cat-nav-wrapper navbar solid-hide-on-sm navbar-expand-md navbar-expand-lg p-0">
+    <div class="container container-sm">
+      <ul class="navbar-nav w-100 justify-content-center">
+        <li class="nav-item"
+          *ngFor="let category of categories"
+          [class.active-pill]="isLinkActive(category.Id)">
+          <a class="nav-link p-2 solid-gray-text" [routerLink]="['/category',category.Id]">{{ category.Name }}</a>
+        </li>
+      </ul>
+    </div>
+</nav>
+
+<nav *ngIf="!categoryNavBar" class="admin-nav-wrapper navbar solid-hide-on-sm navbar-expand-md navbar-expand-lg p-0">
+  <div class="container container-sm">
+    <ul class="admin-submenu">
+      <li class="admin-item">
+        <a class="admin-link" [routerLink]="['/admin-tool/products']">Products</a>
+      </li>
+      <li class="admin-item">
+          <a class="admin-link" [routerLink]="['/admin-tool/orders']">Orders</a>
+      </li>
+      <li class="admin-item">
+          <a class="admin-link" [routerLink]="['/admin-tool/users']">Users</a>
+      </li>
+    </ul>
+  </div>
+</nav>
