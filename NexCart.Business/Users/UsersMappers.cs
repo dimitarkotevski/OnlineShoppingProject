@@ -34,7 +34,7 @@ namespace NexCart.Business.Mappers
                 Address = user.Address,
                 City = user.City,
                 ZipCode = user.ZipCode,
-                Role = user.Role.Name,
+                Role = user.Role.ToString(),
                 State = user.State
             };
         }

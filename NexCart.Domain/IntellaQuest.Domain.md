@@ -16,14 +16,13 @@ All entities extend `BaseEntity` (single `Guid Id` property) and use the NHibern
 
 | Entity | Key properties | Relationships |
 |---|---|---|
-| `User` | FirstName, LastName, Email, Username, Password, Description, Address, State, City, ZipCode, Amount (double) | Role, Payment, Orders (`IList<Order>`), FavouriteProducts (`IList<Product>`) |
+| `User` | FirstName, LastName, Email, Username, Password, Description, Address, State, City, ZipCode, Amount (double), Role (`UserRole` enum) | Payment, Orders (`IList<Order>`), FavouriteProducts (`IList<Product>`) |
 | `Product` | Name, Price (double), Image (`byte[]`), Description, Tags, Created (DateTime) | Category, Orders (`IList<Order>`) |
 | `Category` | Name, Status (bool), Url | Products (`IList<Product>`) |
 | `Order` | OrderName, TotalAmount (double), DateCreated, PaymentType, OrderStatus | User, ShoppingCart |
 | `ShoppingCart` | Name, Active (bool) | User, ShoppingCartDetails (`IList<ShoppingCartDetail>`) |
 | `ShoppingCartDetail` | Quantity (int) | ShoppingCart, Product |
 | `Payment` | CardNumber, ExpirationDate, SecurityCode, CardHolder, City, BillingAdress ⚠️, ZipPostalCode, Country, PhoneNumber | — |
-| `Role` | Name | — |
 | `FavouriteProducts` | — | User, Product |
 
 ⚠️ `Payment.BillingAdress` is misspelled (should be `BillingAddress`) — renaming it requires a DB migration since FluentNHibernate maps it by name.
@@ -34,8 +33,9 @@ All entities extend `BaseEntity` (single `Guid Id` property) and use the NHibern
 |---|---|---|
 | `OrderStatus` | Canceled=0, OnHold=1, PendingPayment=2, Completed=3 | `NexCart.Domain.Enums` |
 | `PaymentType` | Cash=0, Card=1, NoPaymentTYpe=2 | `NexCart.Domain.Enum` (singular!) |
+| `UserRole` | Admin=1, User=2 | `NexCart.Domain.Enums` |
 
-⚠️ The two enums live in **different namespaces** (`Enums` vs `Enum`) — both `using` directives appear in `Order.cs`/`Payment.cs`. Also `NoPaymentTYpe` is misspelled.
+⚠️ The three enums live in **different namespaces** (`Enums` vs `Enum` singular). `UserRole` is the source of truth for roles: stored as the `Users.Role` INT column (with a `CHECK` constraint) and written to the JWT role claim by name. Also `NoPaymentTYpe` is misspelled.
 
 ## Quirks
 

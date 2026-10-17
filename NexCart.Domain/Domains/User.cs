@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using NexCart.Domain.Enums;
 
 namespace NexCart.Domain
 {
@@ -17,7 +18,7 @@ namespace NexCart.Domain
         private string _zipCode;
         private double _amount;
         private Payment _payment;
-        private Role _role;
+        private UserRole _role;
         private IList<Order> _orders;
         //private IList<FavouriteProducts> _favouriteProducts;
         private IList<Product> _favouriteProducts;
@@ -101,7 +102,7 @@ namespace NexCart.Domain
             get => _payment;
             set => _payment = value;
         }
-        public virtual Role Role
+        public virtual UserRole Role
         {
             get => _role;
             set => _role = value;

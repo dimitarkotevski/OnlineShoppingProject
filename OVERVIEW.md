@@ -31,7 +31,7 @@ Every project follows the convention *folder = .csproj name = assembly name = ro
 Layered, dependency direction: `Web → BusinessLogic → Data.NHibernate → Domain`
 
 - **Services** (`I*Service` + `*Service`, e.g. `IUserService`/`UserService`): business rules, transaction handling via `IUnitOfWork`, throw `BllException` with messages from `ShopExceptionMassages`.
-- **Repositories** (`IRepository<T>` + `Repository<T>`): generic CRUD (`Add/Update/Delete/FindBy/All/FilterBy/CheckExist`) over NHibernate `ISession`. Per-entity repos add custom queries (e.g. `IUserRepository.GetUserRole`).
+- **Repositories** (`IRepository<T>` + `Repository<T>`): generic CRUD (`Add/Update/Delete/FindBy/All/FilterBy/CheckExist`) over NHibernate `ISession`. Per-entity repos add custom queries (e.g. `ICategoryRepository.GetProductsByCategory`).
 - **UnitOfWork**: wraps NHibernate session + transaction (`BeginTransaction`/`Commit`/`Rollback`).
 - **Mappers**: extension methods (e.g. `user.MapToGridModel()`) converting entities ↔ view models.
 - **DI:** Autofac, configured in `NexCart.Web/Program.cs`. Convention-based registration: types ending in `Repository`/`Service` registered `AsImplementedInterfaces()`, all `InstancePerLifetimeScope`.

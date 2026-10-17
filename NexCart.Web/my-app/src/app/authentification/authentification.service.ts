@@ -58,6 +58,10 @@ export class AuthentificationService {
   getRole(){
     return localStorage.getItem('role') || null;
   }
+  /** True when the logged-in user holds the administrator role (case-insensitive). */
+  isAdmin(): boolean {
+    return (this.getRole() || '').toLowerCase() === 'admin';
+  }
   getToken(): string | null  {
     return localStorage.getItem('token') || null;
   }

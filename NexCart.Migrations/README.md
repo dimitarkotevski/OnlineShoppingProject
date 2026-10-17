@@ -76,12 +76,9 @@ with `IF OBJECT_ID(...) IS NULL`, so re-applying is a no-op.
 
 ## Database Schema (ShopDb)
 
-### Roles
-| Column | Type | Key/Constraint |
-| :--- | :--- | :--- |
-| `Id` | Guid | PK |
-| `Name` | string | |
-*Relationships: One-to-Many with Users.*
+> The built-in roles are the `NexCart.Domain.Enums.UserRole` enum. An early schema used a
+> `dbo.Roles` lookup table + `Users.RoleId` FK; migration `20261017200000000` replaced it with
+> an `INT` `Users.Role` column (`Admin = 1`, `User = 2`).
 
 ### Users
 | Column | Type | Key/Constraint |
@@ -99,8 +96,8 @@ with `IF OBJECT_ID(...) IS NULL`, so re-applying is a no-op.
 | `PhoneNumber` | string | |
 | `Description` | string | |
 | `Amount` | double | Default: 0 |
-| `RoleId` | Guid | FK $\rightarrow$ `Roles.Id` |
-*Relationships: Many-to-One with Roles; One-to-One with Payments; One-to-Many with Orders; Many-to-Many with Products via FavouriteProducts.*
+| `Role` | int | Default: 2 (User); Check: `IN (1, 2)` — Admin = 1, User = 2 |
+*Relationships: One-to-One with Payments; One-to-Many with Orders; Many-to-Many with Products via FavouriteProducts.*
 
 ### Categories
 | Column | Type | Key/Constraint |

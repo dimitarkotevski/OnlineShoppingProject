@@ -30,7 +30,7 @@ export class RegularNavbarComponent implements OnInit {
     this.username = this.authService.getLoggedUsername();
     this.id = this.authService.getLoggedUserId();
 
-    if(this.authService.getRole() == 'admin'){
+    if(this.authService.isAdmin()){
       this.canAccessToAdminTool = true;
     }
 

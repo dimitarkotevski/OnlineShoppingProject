@@ -18,7 +18,7 @@ export class AdminToolComponent implements OnInit {
 
   ngOnInit(): void {
 
-    if(this.authService.getRole() != 'admin'){
+    if(!this.authService.isAdmin()){
       this.router.navigate(['error-404']);
       return;
     }

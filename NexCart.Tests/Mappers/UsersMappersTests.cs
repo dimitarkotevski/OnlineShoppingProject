@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using NexCart.Business.Mappers;
 using NexCart.Domain;
+using NexCart.Domain.Enums;
 using Xunit;
 
 namespace NexCart.Tests.Mappers
@@ -53,7 +54,7 @@ namespace NexCart.Tests.Mappers
                 City = "New York",
                 State = "NY",
                 ZipCode = "10001",
-                Role = new Role { Name = "Customer" }
+                Role = UserRole.Admin
             };
 
             var grid = user.MapToGridModel();
@@ -62,7 +63,7 @@ namespace NexCart.Tests.Mappers
             Assert.Equal("jdoe", grid.Username);
             Assert.Equal("John", grid.FirstName);
             Assert.Equal("Doe", grid.LastName);
-            Assert.Equal("Customer", grid.Role);
+            Assert.Equal("Admin", grid.Role);
             Assert.Equal("New York", grid.City);
             Assert.Equal("NY", grid.State);
             Assert.Equal("10001", grid.ZipCode);

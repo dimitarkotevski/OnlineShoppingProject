@@ -1,5 +1,6 @@
 ﻿using FluentNHibernate.Mapping;
 using NexCart.Domain;
+using NexCart.Domain.Enums;
 
 namespace NexCart.Data.NHibernate.Mapping
 {
@@ -74,8 +75,12 @@ namespace NexCart.Data.NHibernate.Mapping
                 .Access
                 .CamelCaseField(Prefix.Underscore).Cascade.All();
 
-            References(x=>x.Role)
-                .Column("RoleId")
+            // Stored as an INT (NexCart.Domain.Enums.UserRole). Every user must have a role;
+            // the migrations default Users.Role to the least-privileged one.
+            Map(x => x.Role)
+                .Column("Role")
+                .CustomType<UserRole>()
+                .Not.Nullable()
                 .Access
                 .CamelCaseField(Prefix.Underscore);
 

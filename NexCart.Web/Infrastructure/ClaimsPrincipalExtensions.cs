@@ -1,6 +1,8 @@
 using System;
 using System.Linq;
 using System.Security.Claims;
+using NexCart.Domain;
+using NexCart.Domain.Enums;
 
 namespace NexCart.Web.Infrastructure
 {
@@ -53,7 +55,7 @@ namespace NexCart.Web.Infrastructure
 
             return principal.Claims.Any(c =>
                 RoleClaimTypes.Contains(c.Type, StringComparer.OrdinalIgnoreCase) &&
-                string.Equals(c.Value, "admin", StringComparison.OrdinalIgnoreCase));
+                string.Equals(c.Value, UserRole.Admin.ToString(), StringComparison.OrdinalIgnoreCase));
         }
     }
 }

@@ -57,10 +57,10 @@
     </div>
 
     <div class="w-50">
-      <label for="description" class="form-label">Pick Role</label>
-      <select class="form-select form-control" [(ngModel)]="model.Role">
-        <option value="admin">ADMIN</option>
-        <option value="user">USER</option>
+      <label for="role" class="form-label">Pick Role</label>
+      <select id="role" name="role" class="form-select" [(ngModel)]="model.Role">
+        <option value="" disabled>Select a role</option>
+        <option *ngFor="let role of roles" [value]="role.Name">{{ role.Name | uppercase }}</option>
       </select>
     </div>
 

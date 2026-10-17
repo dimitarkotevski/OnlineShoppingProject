@@ -36,7 +36,7 @@ A full-stack online shopping application: **ASP.NET Core (.NET 10) backend** wit
 
 ## Domain Model
 
-`User`, `Role`, `Product`, `Category`, `Order`, `ShoppingCart` (+ `ShoppingCartDetail`), `Payment`, `FavouriteProducts`; enums `OrderStatus`, `PaymentType`.
+`User`, `Product`, `Category`, `Order`, `ShoppingCart` (+ `ShoppingCartDetail`), `Payment`, `FavouriteProducts`; enums `OrderStatus`, `PaymentType`, `UserRole`.
 
 ## How the App Works
 

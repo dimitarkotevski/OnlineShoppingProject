@@ -34,7 +34,6 @@ Properties/                AssemblyInfo.cs
 | Repository | Extra methods beyond `IRepository<T>` |
 |---|---|
 | `UserRepository` | — |
-| `RoleRepository` | `GetAdminRole()`, `GetUserRole()` |
 | `ProductRepository` | — |
 | `CategoryRepository` | `GetProductsByCategory(Category)` |
 | `OrderRepository` | — |
@@ -47,7 +46,7 @@ All take `IUnitOfWork` in the constructor. Registered in Autofac by name convent
 
 ## Mappings (`Mapping/`)
 
-One `ClassMap<T>` per entity (`UserMap`, `ProductMap`, `CategoryMap`, `OrderMap`, `PaymentMap`, `RoleMap`, `ShoppingCartMap`, `ShoppingCartDetailMap`, `FavouriteProductsMap`).
+One `ClassMap<T>` per entity (`UserMap`, `ProductMap`, `CategoryMap`, `OrderMap`, `PaymentMap`, `ShoppingCartMap`, `ShoppingCartDetailMap`, `FavouriteProductsMap`).
 
 Conventions (see `UserMap`):
 - `Schema("dbo")`, `Table("<PluralizedName>")` (e.g. `Users`)

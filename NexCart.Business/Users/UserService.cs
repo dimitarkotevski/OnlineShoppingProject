@@ -7,6 +7,7 @@ using NexCart.Business.ViewModels;
 using NexCart.Data.NHibernate.ConfigurationRepository;
 using NexCart.Data.NHibernate.Repositories;
 using NexCart.Domain;
+using NexCart.Domain.Enums;
 using Microsoft.IdentityModel.Tokens;
 using NexCart.Data.NHibernate.Repositories;
 using System;
@@ -42,7 +43,6 @@ namespace NexCart.Business.Services
     public class UserService : IUserService
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IRoleRepository _roleRepository;
         private readonly IUserRepository _userRepository;
         private readonly IOrderRepository _orderRepository;
         private readonly IPaymentRepository _paymentRepository;
@@ -54,7 +54,6 @@ namespace NexCart.Business.Services
         public UserService(
                     IUnitOfWork unitOfWork,
                     IUserRepository userRepository, 
-                    IRoleRepository roleRepository,
                     IOrderRepository orderRepository, 
                     IPaymentRepository paymentRepository,
                     IProductRepository productRepository,
@@ -64,7 +63,6 @@ namespace NexCart.Business.Services
             )
         {
             _unitOfWork = unitOfWork;
-            _roleRepository = roleRepository;
             _userRepository = userRepository;
             _orderRepository = orderRepository;
             _paymentRepository = paymentRepository;
@@ -102,7 +100,7 @@ namespace NexCart.Business.Services
                     LastName = model.LastName,
                     Email = model.Email,
                     Username = model.Username,
-                    Role = _roleRepository.GetUserRole(),
+                    Role = UserRole.User,
                     Password = PasswordHasher.Hash(model.Password),
                 };
                 _userRepository.Add(userEntity);
@@ -157,7 +155,7 @@ namespace NexCart.Business.Services
                 {
                     Id = user.Id,
                     Username = user.Username,
-                    Role = user.Role.Name,
+                    Role = user.Role.ToString(),
                     Token = CreateToken(user)
                 };
             }
@@ -169,7 +167,7 @@ namespace NexCart.Business.Services
                 new Claim(ClaimTypes.Name, user.Username),
                 // The real user id (not a random value) so endpoints can bind resources to the caller.
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new Claim(ClaimTypes.Role, user.Role.Name)
+                new Claim(ClaimTypes.Role, user.Role.ToString())
             };
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Key));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
@@ -428,18 +426,8 @@ namespace NexCart.Business.Services
             if (_userRepository.CheckExist(x => x.Username == model.Username))
                 throw new BllException(string.Format(ShopExceptionMassages.UserExceptionMassages.USERNAME_ALREADY_EXIST, model.Username));
 
-            Role role=null;
-            if(model.Role!= null)
-            {
-                if(model.Role == "admin")
-                {
-                    role = _roleRepository.GetAdminRole();
-                }
-                else
-                {
-                    role = _roleRepository.GetUserRole();
-                }
-            }
+            // Unknown or missing values fall back to the least-privileged role.
+            UserRole role = ParseRole(model.Role);
 
             using (_unitOfWork.BeginTransaction())
             {
@@ -453,7 +441,7 @@ namespace NexCart.Business.Services
                     State = model.State,
                     ZipCode = model.ZipCode,
                     Address = model.Address,
-                    Role = role != null ? role : _roleRepository.GetUserRole(),
+                    Role = role,
                     //FavouriteProducts = new List<FavouriteProducts>(),
                     Orders = null,
                     Payment = null
@@ -463,6 +451,16 @@ namespace NexCart.Business.Services
                 return true;
             }
         }
+
+        /// <summary>
+        /// Maps a role name coming from the client to the <see cref="UserRole"/> enum. Unknown
+        /// or missing values fall back to the least-privileged role rather than failing.
+        /// </summary>
+        private static UserRole ParseRole(string role)
+        {
+            return Enum.TryParse(role, ignoreCase: true, out UserRole parsed) ? parsed : UserRole.User;
+        }
+
         public void Delete(Guid Id)
         {
             using (_unitOfWork.BeginTransaction())
@@ -516,14 +514,8 @@ namespace NexCart.Business.Services
 
                 if(model.Role != null)
                 {
-                    if(model.Role == "admin")
-                    {
-                        user.Role = _roleRepository.GetAdminRole();
-                    }
-                    else
-                    {
-                        user.Role = _roleRepository.GetUserRole();
-                    }
+                    // Unknown values fall back to the least-privileged role.
+                    user.Role = ParseRole(model.Role);
                 }
 
                 _userRepository.Update(user);

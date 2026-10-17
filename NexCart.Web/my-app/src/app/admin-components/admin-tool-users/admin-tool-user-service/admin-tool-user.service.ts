@@ -4,6 +4,7 @@ import { RequestModel } from '../../admin-tool-models/admin-tool-request-model';
 import { ResponseModel } from '../../admin-tool-models/admin-tool-response-model';
 import { UserGridModel } from 'src/app/models/user-grid-model';
 import { UserViewModel } from 'src/app/models/user-view-model';
+import { RoleModel } from 'src/app/models/role-model';
 
 @Injectable({
   providedIn: 'root'
@@ -11,6 +12,7 @@ import { UserViewModel } from 'src/app/models/user-view-model';
 export class AdminToolUserService {
 
   private baseApi = 'api/Users/';
+  private rolesApi = 'api/Roles/';
 
   constructor(
     private http: HttpClient,
@@ -21,6 +23,9 @@ export class AdminToolUserService {
   }
   getById(id:string){
     return this.http.post(this.baseApi+"Get",{Id:id})
+  }
+  getRoles(){
+    return this.http.post<RoleModel[]>(this.rolesApi+"All", {})
   }
   create(model: UserViewModel){
     return this.http.post(this.baseApi+"Create",{model:model})
