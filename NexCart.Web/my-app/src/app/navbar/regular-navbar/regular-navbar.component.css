@@ -1,0 +1,169 @@
+.avatar{
+    background: none;
+    border: none;
+    color: gray;
+    padding: 0px;
+}
+.whiteBackground{
+    background-color: white;
+}
+
+/* Modern Glassmorphism Background */
+.navbar-modern {
+    background: rgba(33, 37, 41, 0.9) !important;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255, 127, 80, 0.3);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+/* Brand Styling */
+.brand-modern {
+    font-weight: 800;
+    background: linear-gradient(45deg, coral, #ff8c00);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-size: 1.5rem;
+}
+
+/* Animated Underline for Nav Links */
+.nav-link {
+    position: relative;
+    transition: color 0.3s ease;
+}
+.nav-link::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: 0;
+    left: 50%;
+    background-color: coral;
+    transition: all 0.3s ease;
+    transform: translateX(-50%);
+}
+.nav-link:hover::after {
+    width: 80%;
+}
+
+/* Modern Profile Pill */
+.profile-pill {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    border-radius: 50px !important;
+    padding: 5px 15px !important;
+    transition: all 0.3s ease !important;
+}
+.profile-pill:hover {
+    background: rgba(255, 127, 80, 0.2) !important;
+    border-color: coral !important;
+}
+
+/* Enhanced Dropdowns */
+.dropdown-menu {
+    border: none !important;
+    border-radius: 12px !important;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2) !important;
+    animation: slideDown 0.3s ease-out;
+}
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.dropdown-item:hover {
+    background-color: rgba(255, 127, 80, 0.1) !important;
+    color: coral !important;
+}
+
+/* Admin Tool Integration */
+.admin-tool-btn {
+    border: 1px solid coral !important;
+    color: coral !important;
+    border-radius: 50px !important;
+    margin-left: 10px;
+    transition: all 0.3s ease !important;
+}
+.admin-tool-btn:hover {
+    background-color: coral !important;
+    color: white !important;
+}
+
+.dropdownmenu ul, .dropdownmenu li {
+    margin: 0;
+    padding: 0;
+}
+.dropdownmenu ul {
+    list-style: none;
+    width: 100%;
+}
+.dropdownmenu li {
+    float: left;
+    position: relative;
+    width:auto;
+}
+.dropdownmenu a {
+    color: black;
+    display: block;
+    font: bold 12px/20px sans-serif;
+    padding: 10px 25px;
+    text-align: center;
+    text-decoration: none;
+    -webkit-transition: all .25s ease;
+    -moz-transition: all .25s ease;
+    -ms-transition: all .25s ease;
+    -o-transition: all .25s ease;
+    transition: all .25s ease;
+}
+.dropdownmenu li:hover a {
+    background: white;
+}
+#submenu {
+    left: 0;
+    opacity: 0;
+    position: absolute;
+    top: 35px;
+    visibility: hidden;
+    z-index: 1;
+}
+li:hover ul#submenu {
+    opacity: 1;
+    top: 40px;
+    visibility: visible;
+}
+#submenu li {
+    float: none;
+    width: 100%;
+}
+#submenu a:hover {
+    background: #DF4B05;
+}
+#submenu a {
+    background-color:white;
+}
+.solid-gray:hover{
+    background-color: coral;
+}
+
+@media (min-width: 768px){
+    .solid-button-hide{
+        display: flex;
+    }
+    .solid-button-sm-show{
+        text-align: none;
+    }
+    .hide-in-width-screen{
+        display: none;
+    }
+}
+@media (max-width: 767px){
+    .solid-button-hide{
+        display: none;
+    }
+    .solid-button-sm-show{
+        text-align: block;
+    }
+    .solid-container{
+        display: block;
+    }
+}

@@ -1,8 +1,0 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-
-  <PropertyGroup>
-    <RootNamespace>IntellaQuest.Domain</RootNamespace>
-    <AssemblyName>IntellaQuest.Domain</AssemblyName>
-  </PropertyGroup>
-
-</Project>
