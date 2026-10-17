@@ -33,6 +33,11 @@ namespace NexCart.Business.Services
         void UpdatePassword(ChangePasswordUserViewModel model);
         ResponseModel<UserGridModel> GetAll(RequestModel request);
         UserDetailsModel Get(Guid Id);
+        /// <summary>
+        /// Current role of the user, or <c>null</c> when no user with that id exists. Used to
+        /// re-check a JWT against the database on every authenticated request.
+        /// </summary>
+        UserRole? GetRole(Guid userId);
         bool Create(UserViewModel model);
         void Update(UserViewModel model);
         void Delete(Guid Id);
@@ -481,6 +486,22 @@ namespace NexCart.Business.Services
                 _unitOfWork.Commit();
             }
         }
+        public UserRole? GetRole(Guid userId)
+        {
+            if (userId == Guid.Empty)
+            {
+                return null;
+            }
+
+            using (_unitOfWork.BeginTransaction())
+            {
+                // Project to the role only, so no User entity is attached to the request's session.
+                return _userRepository.FilterBy(u => u.Id == userId)
+                    .Select(u => (UserRole?)u.Role)
+                    .FirstOrDefault();
+            }
+        }
+
         public UserDetailsModel Get(Guid userId)
         {
             using (_unitOfWork.BeginTransaction())

@@ -46,6 +46,14 @@ namespace NexCart.Web.Infrastructure
             return Guid.Empty;
         }
 
+        /// <summary>The role named in the token, or <c>null</c> when there is no role claim.</summary>
+        public static string GetRole(this ClaimsPrincipal principal)
+        {
+            return principal?.Claims
+                .FirstOrDefault(c => RoleClaimTypes.Contains(c.Type, StringComparer.OrdinalIgnoreCase))
+                ?.Value;
+        }
+
         public static bool IsAdministrator(this ClaimsPrincipal principal)
         {
             if (principal == null)

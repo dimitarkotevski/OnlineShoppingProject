@@ -163,6 +163,12 @@ builder.Services
             ValidateLifetime = true,
             ClockSkew = TimeSpan.FromMinutes(1)
         };
+
+        // A valid signature is not enough: the user must still exist with the same role.
+        options.Events = new JwtBearerEvents
+        {
+            OnTokenValidated = UserTokenValidation.OnTokenValidated
+        };
     });
 
 builder.Services.AddAuthorization(options =>
