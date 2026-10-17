@@ -1,84 +1,60 @@
-<div>
-  <div id="accordion">
-    <div class="card">
-      <div class="card-header p-0">
-        <h5 class="mb-0">
-          <div
-            class="btn solid-color-a left-solid-text w-100"
-            aria-expanded="true"
-          >
-            Price
-          </div>
-        </h5>
-      </div>
+<div class="side-filter-container">
+  <div class="accordion" id="productFilterAccordion">
 
-      <div>
-        <div class="card-body">
-          <div class="row">
+    <!-- Price Filter -->
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="headingPrice">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePrice" aria-expanded="false" aria-controls="collapsePrice">
+          Price Range
+        </button>
+      </h2>
+      <div id="collapsePrice" class="accordion-collapse collapse" aria-labelledby="headingPrice" data-bs-parent="#productFilterAccordion">
+        <div class="accordion-body">
+          <div class="row g-2">
             <div class="col-5">
               <div class="input-group">
-                <span class="py-2">$</span
-                ><input
-                [(ngModel)]="filterProducts.PriceFrom"
-                  type="text"
-                  name="price"
-                  class="form-control"
-                  placeholder="From"
-                />
+                <span class="input-group-text">$</span>
+                <input [(ngModel)]="filterProducts.PriceFrom" type="number" class="form-control" placeholder="From">
               </div>
             </div>
-
-            <div class="col-1">
-              <div class="input-group">
-                <span class="py-2">-</span>
-              </div>
-            </div>
-
+            <div class="col-2 text-center align-self-center">-</div>
             <div class="col-5">
               <div class="input-group">
-                <span class="py-2">$</span
-                ><input
-                [(ngModel)]="filterProducts.PriceTo"
-                  type="text"
-                  name="price"
-                  class="form-control"
-                  placeholder="To"
-                />
+                <span class="input-group-text">$</span>
+                <input [(ngModel)]="filterProducts.PriceTo" type="number" class="form-control" placeholder="To">
               </div>
             </div>
           </div>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col-12 py-3">
-          <button class="btn solid_button solid_button w-75" (click)="searchPrice()" >Search</button>
+          <div class="text-center mt-3">
+            <button class="btn btn-coral w-100" (click)="searchPrice()">Apply Price</button>
+          </div>
         </div>
       </div>
     </div>
-    <div class="card">
-      <div class="card-header p-0">
-        <h5 class="mb-0">
-          <div class="btn solid-color-a left-solid-text w-100">
-            Brands
-            <i class="fa-solid fa-list-radio"></i>
-          </div>
-        </h5>
-      </div>
-      <div>
-        <div class="card-body">
-          <ul class="form-check">
-            <li *ngFor="let brand of brands">
+
+    <!-- Brands Filter -->
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="headingBrands">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseBrands" aria-expanded="false" aria-controls="collapseBrands">
+          Brands
+        </button>
+      </h2>
+      <div id="collapseBrands" class="accordion-collapse collapse" aria-labelledby="headingBrands" data-bs-parent="#productFilterAccordion">
+        <div class="accordion-body">
+          <div class="brand-list">
+            <div *ngFor="let brand of brands" class="form-check mb-2">
               <input
-                (change)="onChangeBrands($event)"
                 class="form-check-input"
-                id="{{ brand }}"
-                name="{{ brand }}"
                 type="checkbox"
-                value="{{ brand }}"
-              />
-              <label for="{{ brand }}">{{ brand }}</label>
-            </li>
-          </ul>
+                [id]="'brand-' + brand"
+                [value]="brand"
+                (change)="onChangeBrands($event)"
+              >
+              <label class="form-check-label" [for]="'brand-' + brand">
+                {{ brand }}
+              </label>
+            </div>
+          </div>
         </div>
       </div>
     </div>

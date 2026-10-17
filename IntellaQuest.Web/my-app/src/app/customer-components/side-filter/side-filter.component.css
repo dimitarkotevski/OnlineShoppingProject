@@ -1,0 +1,75 @@
+.side-filter-container {
+  padding: 1rem;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+}
+
+.accordion .accordion-button {
+  font-weight: 600;
+  color: #333;
+  background-color: #fff;
+  box-shadow: none;
+  border: 1px solid #dee2e6;
+}
+
+.accordion .accordion-button:not(.collapsed) {
+  background-color: #fff;
+  color: coral;
+  box-shadow: none;
+}
+
+.accordion .accordion-button:not(.collapsed)::after {
+  filter: hue-rotate(150deg); /* Adjusts the arrow color to match coral */
+}
+
+.btn-coral {
+  background-color: coral;
+  color: white;
+  border: none;
+  font-weight: 600;
+  transition: background-color 0.3s ease;
+}
+
+.btn-coral:hover {
+  background-color: #ff6347;
+  color: white;
+}
+
+.brand-list {
+  max-height: 300px;
+  overflow-y: auto;
+  padding-right: 5px;
+}
+
+.form-check-input:checked {
+  background-color: coral;
+  border-color: coral;
+}
+
+.form-check-label {
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: #555;
+  transition: color 0.2s ease;
+}
+
+.form-check-input:hover + .form-check-label,
+.form-check-input:checked + .form-check-label {
+  color: #000;
+  font-weight: 500;
+}
+
+/* Custom scrollbar for brand list */
+.brand-list::-webkit-scrollbar {
+  width: 4px;
+}
+.brand-list::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+.brand-list::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 10px;
+}
+.brand-list::-webkit-scrollbar-thumb:hover {
+  background: coral;
+}

@@ -1,27 +1,30 @@
-# Client
+# IntellaQuest Online Shopping - Frontend
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 13.3.10.
+This is the Angular-based client application for the IntellaQuest Online Shopping project.
 
-## Development server
+## 🚀 Getting Started
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+### Prerequisites
+- Node.js (v14.x or v16.x recommended)
+- Angular CLI (`npm install -g @angular/cli`)
 
-## Code scaffolding
+### Development
+Run the following command to start the development server:
+```bash
+ng serve
+```
+Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+## 🛠️ Build & Deployment
+To build the project for production:
+```bash
+ng build
+```
+The build artifacts will be stored in the `dist/` directory.
 
-## Build
+## 🧪 Testing
+- **Unit Tests:** `ng test` (via Karma)
+- **End-to-End Tests:** `ng e2e`
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
-
-## Running unit tests
-
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
-
-## Running end-to-end tests
-
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
-
-## Further help
-
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+## 📖 Project Structure
+The frontend is built with Angular 13 and integrates with the IntellaQuest Domain and Business Logic layers to provide a seamless shopping experience, including product browsing, cart management, and secure payment processing.

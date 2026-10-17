@@ -229,6 +229,30 @@ namespace IntellaQuest.BusinessLogic.Services
                     listProductForFiltering = listProductForFiltering.Where(x => x.Category == category);
                 }
 
+                // Price Filtering
+                if (request.PriceFrom.HasValue)
+                {
+                    listProductForFiltering = listProductForFiltering.Where(x => x.Price >= request.PriceFrom.Value);
+                }
+                if (request.PriceTo.HasValue)
+                {
+                    listProductForFiltering = listProductForFiltering.Where(x => x.Price <= request.PriceTo.Value);
+                }
+
+                // Brand Filtering (Brands are assumed to be the first word of the Product Name)
+                if (request.SearchBrands != null && request.SearchBrands.Any())
+                {
+                    listProductForFiltering = listProductForFiltering.Where(x =>
+                        request.SearchBrands.Any(brand => x.Name.StartsWith(brand)));
+                }
+
+                // SearchList Filtering
+                if (request.SearchList != null && request.SearchList.Any())
+                {
+                    listProductForFiltering = listProductForFiltering.Where(x =>
+                        request.SearchList.Any(item => x.Name.Contains(item)));
+                }
+
                 switch (request.SortName)
                 {
                     case "Popular":
