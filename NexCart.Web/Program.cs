@@ -155,6 +155,11 @@ builder.Services
             ValidAudience = jwtSettings.Audience,
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Key)),
+            // Only accept the single algorithm we sign with, so a crafted token can never
+            // switch the validator to a different (e.g. unsigned "alg: none") algorithm.
+            ValidAlgorithms = new[] { SecurityAlgorithms.HmacSha256 },
+            RequireSignedTokens = true,
+            RequireExpirationTime = true,
             ValidateLifetime = true,
             ClockSkew = TimeSpan.FromMinutes(1)
         };
