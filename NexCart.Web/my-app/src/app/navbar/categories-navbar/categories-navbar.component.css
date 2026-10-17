@@ -5,6 +5,13 @@
   border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }
 
+/* Skeleton placeholder shown while the categories are being fetched. */
+.cat-skeleton {
+  display: flex;
+  justify-content: center;
+  padding: 8px 0;
+}
+
 /* --- Category Navigation --- */
 /* Fixed single-line bar: categories that do not fit are moved into the
    "More" dropdown by the component (see layout()). */

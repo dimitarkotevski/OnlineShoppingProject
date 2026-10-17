@@ -1,0 +1,64 @@
+:host {
+  display: block;
+}
+
+.skeleton-items {
+  display: flex;
+  flex-direction: column;
+}
+
+.skeleton-items.row {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.skeleton {
+  position: relative;
+  width: 100%;
+  margin-bottom: 5px;
+  border-radius: 6px;
+  background: linear-gradient(to right, #eee 33%, #ddd 70%, #eee 90%);
+  background-size: 800px 104px;
+  animation-duration: 1s;
+  animation-fill-mode: forwards;
+  animation-iteration-count: infinite;
+  animation-name: sk_bg_animation;
+  animation-timing-function: linear;
+}
+
+.skeleton-items.row .skeleton {
+  margin-bottom: 0;
+}
+
+/* Shape defaults; explicit [width]/[height] inputs win over these. */
+.skeleton.text {
+  height: 1rem;
+  border-radius: 4px;
+}
+
+.skeleton.block {
+  height: 300px;
+}
+
+.skeleton.pill {
+  width: 6rem;
+  height: 1.9rem;
+  border-radius: 50px;
+}
+
+.skeleton.circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+
+@keyframes sk_bg_animation {
+  0% { background-position: -468px 0; }
+  100% { background-position: 468px 0; }
+}
+
+@-webkit-keyframes sk_bg_animation {
+  0% { background-position: -468px 0; }
+  100% { background-position: 468px 0; }
+}

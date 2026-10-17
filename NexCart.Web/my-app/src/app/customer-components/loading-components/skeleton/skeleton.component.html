@@ -1,0 +1,9 @@
+<div class="skeleton-items" [class.row]="row" [style.gap]="gap">
+  <div
+    *ngFor="let item of items"
+    class="skeleton"
+    [ngClass]="[shape, itemClass]"
+    [style.width]="width"
+    [style.height]="height">
+  </div>
+</div>

@@ -1,6 +1,11 @@
-<nav *ngIf="categories && categoryNavBar" class="cat-nav-wrapper navbar solid-hide-on-sm navbar-expand-md navbar-expand-lg p-0">
+<nav *ngIf="categoryNavBar && (isCategoriesLoading || categories)" class="cat-nav-wrapper navbar solid-hide-on-sm navbar-expand-md navbar-expand-lg p-0">
   <div class="container container-sm">
-    <ul #catList class="navbar-nav w-100">
+    <!-- Skeleton pills shown while the categories are being fetched -->
+    <div *ngIf="isCategoriesLoading" class="cat-skeleton">
+      <app-skeleton [row]="true" shape="pill" [count]="6" width="5.5rem" gap="8px"></app-skeleton>
+    </div>
+
+    <ul #catList class="navbar-nav w-100" *ngIf="!isCategoriesLoading">
       <li class="nav-item"
         *ngFor="let category of categories | slice:0:visibleCount"
         [class.active-pill]="isLinkActive(category.Id)">

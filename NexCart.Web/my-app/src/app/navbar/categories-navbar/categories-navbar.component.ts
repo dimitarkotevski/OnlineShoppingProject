@@ -24,6 +24,9 @@ export class CategoriesNavbarComponent implements OnInit, AfterViewInit, OnDestr
 
   categories?: CategoryViewModel[] | null | undefined;
 
+  /** True until the category list has been fetched (drives the skeleton placeholder). */
+  isCategoriesLoading = true;
+
   /** How many categories fit on the single line. The remainder go into the "More" dropdown. */
   visibleCount = 0;
   overflowCategories: CategoryViewModel[] = [];
@@ -46,11 +49,18 @@ export class CategoriesNavbarComponent implements OnInit, AfterViewInit, OnDestr
   ) { }
 
   ngOnInit(): void {
-    this.categoryService.getAllCategories().subscribe((result: ResponseListModel<CategoryViewModel>) => {
-      this.categories = result.Items ?? [];
-      this.visibleCount = 0;
-      this.hasLaidOut = false;
-      this.scheduleLayout();
+    this.categoryService.getAllCategories().subscribe({
+      next: (result: ResponseListModel<CategoryViewModel>) => {
+        this.categories = result.Items ?? [];
+        this.isCategoriesLoading = false;
+        this.visibleCount = 0;
+        this.hasLaidOut = false;
+        this.scheduleLayout();
+      },
+      error: () => {
+        this.categories = [];
+        this.isCategoriesLoading = false;
+      }
     });
   }
 

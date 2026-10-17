@@ -32,6 +32,7 @@ import { LoadingDetailComponent } from './customer-components/loading-components
 import { AuthentificationService } from './authentification/authentification.service';
 import { CartGridComponent } from './customer-components/cart-components/cart-grid/cart-grid.component';
 import { LoadingGridComponent } from './customer-components/loading-components/loading-grid/loading-grid.component';
+import { SkeletonComponent } from './customer-components/loading-components/skeleton/skeleton.component';
 import { OrderGridComponent } from './customer-components/order-components/order-grid/order-grid.component';
 import { ProductsGridComponent } from './customer-components/product-components/products-grid/products-grid.component';
 import { CartComponent } from './cart/cart.component';
@@ -86,6 +87,7 @@ import { NoDataComponent } from './customer-components/no-data/no-data.component
     SideFilterComponent,
     LoadingDetailComponent,
     LoadingGridComponent,
+    SkeletonComponent,
     CartComponent,
     OrderComponent,
     AdminToolComponent,
