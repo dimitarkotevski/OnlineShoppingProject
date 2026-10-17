@@ -11,7 +11,13 @@ export class ByPassSecurityPipe implements PipeTransform {
         ) 
     {}
 
+    /**
+     * Product images are stored either as raw base64, as an absolute http(s)/data URL
+     * (seeded catalog images) or as a site-relative path such as /images/products/x.jpg
+     * (photos saved by the API); only raw base64 needs the data-URL prefix.
+     */
     transform (value: string): SafeResourceUrl {
-        return this.sanitizer.bypassSecurityTrustResourceUrl('data:image/png;base64, '+value);
+        const isUrl = /^(https?:|data:|\/)/i.test(value || '');
+        return this.sanitizer.bypassSecurityTrustResourceUrl(isUrl ? value : 'data:image/png;base64, '+value);
     }
 }
