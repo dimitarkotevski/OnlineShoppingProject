@@ -31,7 +31,21 @@
       <div class="col-6 form-outline mb-4">
         <label for="password" class="form-label">Password</label>
         <input name="password" [(ngModel)]="model.Password" type="password" class="form-control" />
+        <ul class="password-hints" *ngIf="model.Password">
+          <li *ngFor="let requirement of passwordRequirements"
+            [class.password-hints__met]="requirement.test(model.Password || '')">
+            <i class="fa-solid"
+              [ngClass]="requirement.test(model.Password || '') ? 'fa-circle-check' : 'fa-circle'"></i>
+            <span>{{ requirement.label }}</span>
+          </li>
+        </ul>
       </div>
+    </div>
+
+    <div *ngIf="passwordErrorMessage.length > 0" class="alert alert-danger" role="alert">
+      <ul class="mb-0">
+        <li *ngFor="let error of passwordErrorMessage">{{ error }}</li>
+      </ul>
     </div>
 
     <div class="row">
@@ -69,5 +83,5 @@
   </form>
 </div>
 <div style="float:right;margin:20px;">
-  <input class="btn btn-danger" type="button" value="Save" [mat-dialog-close]="model">
+  <input class="btn btn-danger" type="button" value="Save" (click)="save()">
 </div>

@@ -75,7 +75,7 @@ function extractErrorMessage(error: HttpErrorResponse): string {
 }
 
 /** Flattens the backend's { field: ["msg", ...] } validation envelope into plain strings. */
-function extractValidationMessages(errors: any): string[] {
+export function extractValidationMessages(errors: any): string[] {
   if (!errors || typeof errors !== 'object') {
     return [];
   }

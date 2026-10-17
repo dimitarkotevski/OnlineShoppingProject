@@ -2,6 +2,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { AuthentificationService } from '../authentification.service';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
+import { extractValidationMessages } from 'src/app/utils/error.interceptor';
 
 
 @Component({ standalone: false,
@@ -37,7 +38,10 @@ export class LoginComponent implements OnInit {
       window.location.replace('/')
     },
     (error) => {
-      this.errorMessage = error.error.exception;
+      const messages = extractValidationMessages(error?.error?.Errors);
+      this.errorMessage = messages.length > 0
+        ? messages.join(', ')
+        : (error?.error?.exception || "Invalid username or password");
     })
   }
 }

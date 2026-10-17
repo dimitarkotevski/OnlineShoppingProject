@@ -62,18 +62,43 @@ export class AuthentificationService {
   getRole(){
     return localStorage.getItem('role') || null;
   }
-  /** True when the logged-in user holds the administrator role (case-insensitive). */
+  /**
+   * True when the logged-in user holds the administrator role (case-insensitive) *and* still
+   * has a valid session, so a stale/expired admin token cannot unlock the admin screens.
+   */
   isAdmin(): boolean {
-    return (this.getRole() || '').toLowerCase() === 'admin';
+    return this.isAuthenticated() && (this.getRole() || '').toLowerCase() === 'admin';
   }
   getToken(): string | null  {
     return localStorage.getItem('token') || null;
   }
 
+  /**
+   * True when a token is stored *and* still valid. An expired (or undecodable) token is
+   * treated as no session at all and is cleared, so the UI never shows the app as
+   * authenticated while the API would reject the caller with a 401.
+   */
   isAuthenticated(): boolean {
     const token = this.getToken();
-    return token !== null;
+    if (!token) {
+      return false;
+    }
+    if (this.isTokenExpired(token)) {
+      this.logout();
+      return false;
+    }
+    return true;
   }
+
+  /** Guards against a malformed token by treating anything we cannot read as expired. */
+  private isTokenExpired(token: string): boolean {
+    try {
+      return this.tokenHelper.isTokenExpired(token);
+    } catch {
+      return true;
+    }
+  }
+
   getTokenInformation(){
     if(this.isAuthenticated()){
       return this.tokenHelper.decodeToken(this.getToken() || '') || null;

@@ -83,6 +83,14 @@
               <i class="fa-solid" [ngClass]="showPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
             </button>
           </div>
+          <ul class="auth-password-hints" *ngIf="registerUserModel.Password">
+            <li *ngFor="let requirement of passwordRequirements"
+              [class.auth-password-hints__met]="requirement.test(registerUserModel.Password || '')">
+              <i class="fa-solid"
+                [ngClass]="requirement.test(registerUserModel.Password || '') ? 'fa-circle-check' : 'fa-circle'"></i>
+              <span>{{ requirement.label }}</span>
+            </li>
+          </ul>
         </div>
 
         <div class="mb-4">

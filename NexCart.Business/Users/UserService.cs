@@ -81,10 +81,7 @@ namespace NexCart.Business.Services
                 throw new BllException("Username and email are required.");
             }
 
-            if (!PasswordHasher.MeetsPolicy(model.Password))
-            {
-                throw new BllException($"Password must be at least {PasswordHasher.MinimumLength} characters long.");
-            }
+            EnsurePasswordMeetsPolicy(model.Password);
 
             if (_userRepository.CheckExist(x=>x.Username == model.Username))
                 throw new BllException(string.Format(ShopExceptionMassages.UserExceptionMassages.USERNAME_ALREADY_EXIST, model.Username));
@@ -182,10 +179,7 @@ namespace NexCart.Business.Services
         }
         public void UpdatePassword(ChangePasswordUserViewModel model)
         {
-            if (!PasswordHasher.MeetsPolicy(model.NewPassword))
-            {
-                throw new BllException($"Password must be at least {PasswordHasher.MinimumLength} characters long.");
-            }
+            EnsurePasswordMeetsPolicy(model.NewPassword);
 
             using (_unitOfWork.BeginTransaction())
             {
@@ -415,10 +409,7 @@ namespace NexCart.Business.Services
         }
         public bool Create(UserViewModel model)
         {
-            if (!PasswordHasher.MeetsPolicy(model.Password))
-            {
-                throw new BllException($"Password must be at least {PasswordHasher.MinimumLength} characters long.");
-            }
+            EnsurePasswordMeetsPolicy(model.Password);
 
             if (_userRepository.CheckExist(x => x.Email == model.Email))
                 throw new BllException(string.Format(ShopExceptionMassages.UserExceptionMassages.EMAIL_ALREADY_EXIST, model.Email));
@@ -442,7 +433,6 @@ namespace NexCart.Business.Services
                     ZipCode = model.ZipCode,
                     Address = model.Address,
                     Role = role,
-                    //FavouriteProducts = new List<FavouriteProducts>(),
                     Orders = null,
                     Payment = null
                 };
@@ -459,6 +449,20 @@ namespace NexCart.Business.Services
         private static UserRole ParseRole(string role)
         {
             return Enum.TryParse(role, ignoreCase: true, out UserRole parsed) ? parsed : UserRole.User;
+        }
+
+        /// <summary>
+        /// Throws a single, readable <see cref="BllException"/> listing every way the password
+        /// fails the shared <see cref="PasswordPolicy"/>. The message is shown verbatim to the
+        /// client, so keep it user-friendly.
+        /// </summary>
+        private static void EnsurePasswordMeetsPolicy(string password)
+        {
+            var errors = PasswordPolicy.Validate(password);
+            if (errors.Count > 0)
+            {
+                throw new BllException(string.Join(" ", errors));
+            }
         }
 
         public void Delete(Guid Id)
@@ -504,10 +508,7 @@ namespace NexCart.Business.Services
 
                 if(model.Password != null)
                 {
-                    if (!PasswordHasher.MeetsPolicy(model.Password))
-                    {
-                        throw new BllException($"Password must be at least {PasswordHasher.MinimumLength} characters long.");
-                    }
+                    EnsurePasswordMeetsPolicy(model.Password);
 
                     user.Password = PasswordHasher.Hash(model.Password);
                 }
@@ -522,46 +523,6 @@ namespace NexCart.Business.Services
                 _unitOfWork.Commit();
             }
         }
-
-        //
-        //public void SetUserDetails(UserDetailsModel model)
-        //{
-        //    using (_unitOfWork.BeginTransaction())
-        //    {
-        //        var user = 
-        //    }
-        //}
-
-        //public void UpdatePassword(Guid userId,string oldPassword, string newPassword)
-        //{
-        //    using (_unitOfWork.BeginTransaction())
-        //    {
-        //        var user = _userRepository.FindBy(userId);
-        //        if (user == null)
-        //        {
-        //            throw new BllException(ShopExceptionMassages.UserExceptionMassages.NOT_FOUND_EXCEPTION);
-        //        };
-
-
-        //        var oldP = PasswordEncryption.Encryption(oldPassword);
-        //        var newP = PasswordEncryption.Encryption(newPassword);
-
-        //        if(oldP != user.Password)
-        //        {
-        //            throw new BllException(ShopExceptionMassages.UserExceptionMassages.PASSWORD_IS_INCORRECT);
-        //        }
-
-        //        if (oldP == newP)
-        //        {
-        //            throw new BllException(ShopExceptionMassages.UserExceptionMassages.SAME_OLD_AND_NEW_PASWORD);
-        //        }
-
-        //        user.Password = newP;
-
-        //        _userRepository.Update(user);
-        //        _unitOfWork.Commit();
-        //    }
-        //}
 
         #endregion
 

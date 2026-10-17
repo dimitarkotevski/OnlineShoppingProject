@@ -49,15 +49,6 @@ namespace NexCart.Tests.Security
         }
 
         [Fact]
-        public void MeetsPolicy_enforces_the_minimum_length()
-        {
-            Assert.False(PasswordHasher.MeetsPolicy(null));
-            Assert.False(PasswordHasher.MeetsPolicy("        "));
-            Assert.False(PasswordHasher.MeetsPolicy("short"));
-            Assert.True(PasswordHasher.MeetsPolicy("long enough"));
-        }
-
-        [Fact]
         public void Verify_supports_legacy_aes_passwords()
         {
             string plaintext = "my-secret-pass";

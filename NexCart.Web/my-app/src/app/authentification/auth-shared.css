@@ -189,6 +189,33 @@
   padding-left: 1.1rem;
 }
 
+/* --- Live password requirements checklist --- */
+.auth-password-hints {
+  margin: 0.5rem 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.8rem;
+  color: #adb5bd;
+}
+
+.auth-password-hints li {
+  display: flex;
+  align-items: center;
+  margin-top: 0.15rem;
+  transition: color 0.15s ease;
+}
+
+.auth-password-hints li i {
+  width: 1rem;
+  margin-right: 0.4rem;
+  font-size: 0.7rem;
+  text-align: center;
+}
+
+.auth-password-hints li.auth-password-hints__met {
+  color: #198754;
+}
+
 /* --- Submit button (relies on global .solid_button_orange colours) --- */
 .auth-submit {
   padding: 0.7rem 1rem;

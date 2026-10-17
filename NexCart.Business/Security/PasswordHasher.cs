@@ -21,14 +21,6 @@ namespace NexCart.Business.Security
         private const int HashSize = 32;
         private const int Iterations = 210_000;
 
-        /// <summary>Minimum accepted password length for new/changed passwords.</summary>
-        public const int MinimumLength = 8;
-
-        public static bool MeetsPolicy(string password)
-        {
-            return !string.IsNullOrWhiteSpace(password) && password.Length >= MinimumLength;
-        }
-
         public static string Hash(string password)
         {
             if (password == null)
