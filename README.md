@@ -1,4 +1,4 @@
-# IntellaQuest — Online Shopping Web Site
+# NexCart — Online Shopping Web Site
 
 A full-stack online shopping application: **ASP.NET Core (.NET 10) backend** with an **Angular 20 SPA** frontend.
 
@@ -11,28 +11,28 @@ A full-stack online shopping application: **ASP.NET Core (.NET 10) backend** wit
 - FluentValidation (model validation)
 - JWT (HMAC-SHA256) for authentication
 
-**Frontend** (`IntellaQuest.Web/my-app/`)
+**Frontend** (`NexCart.Web/my-app/`)
 - Angular 20 SPA, Angular Material, Bootstrap 5
 - @auth0/angular-jwt for JWT handling (admin grids use plain HTML tables)
 
-**Solution:** `IntellaQuestProject.sln` (6 projects)
+**Solution:** `NexCartProject.sln` (6 projects)
 
 ## Solution Structure
 
 | Project | Folder | Responsibility |
 |---|---|---|
-| `IntellaQuest.Domain` | `IntellaQuest.Domain/` | Domain entities + enums. No dependencies. |
-| `IntellaQuest.BusinessLogic` | `IntellaQuest.BusinessLogic/` | Services, view models, mappers, security, exceptions |
-| `IntellaQuest.Data.NHibernate` | `IntellaQuest.Data.NHibernate/` | Generic `Repository<T>`, `IUnitOfWork`, `NHibernateContext`, mappings |
-| `IntellaQuest.Migrations` | `IntellaQuest.Migrations/` | SQL migration scripts + console runner that applies them to `ShopDb` |
-| `IntellaQuest.Web` | `IntellaQuest.Web/` | ASP.NET Core host, API controllers, Autofac wiring, Angular app |
-| `IntellaQuest.Tests` | `IntellaQuest.Tests/` | xUnit tests for the business layer |
+| `NexCart.Domain` | `NexCart.Domain/` | Domain entities + enums. No dependencies. |
+| `NexCart.Business` | `NexCart.Business/` | Services, view models, mappers, security, exceptions |
+| `NexCart.Data.NHibernate` | `NexCart.Data.NHibernate/` | Generic `Repository<T>`, `IUnitOfWork`, `NHibernateContext`, mappings |
+| `NexCart.Migrations` | `NexCart.Migrations/` | SQL migration scripts + console runner that applies them to `ShopDb` |
+| `NexCart.Web` | `NexCart.Web/` | ASP.NET Core host, API controllers, Autofac wiring, Angular app |
+| `NexCart.Tests` | `NexCart.Tests/` | xUnit tests for the business layer |
 
 **Architecture:** layered, dependency direction `Web → BusinessLogic → Data.NHibernate → Domain`
 - **Services** (`I*Service` + `*Service`): business rules, transactions via `IUnitOfWork`, throw `BllException`
 - **Repositories** (`IRepository<T>` + `Repository<T>`): generic CRUD over NHibernate `ISession`
 - **Mappers**: extension methods converting entities ↔ view models
-- **DI:** Autofac, convention-based registration in `IntellaQuest.Web/Program.cs` (`InstancePerLifetimeScope`)
+- **DI:** Autofac, convention-based registration in `NexCart.Web/Program.cs` (`InstancePerLifetimeScope`)
 
 ## Domain Model
 
@@ -55,38 +55,38 @@ A full-stack online shopping application: **ASP.NET Core (.NET 10) backend** wit
 - **Customer features:** browse categories/products, product detail, shopping cart, orders, favourite products, profile, payment methods, settings.
 - **Admin features:** user / product / order management with filterable, sortable, paginated grids (`RequestModel` / `ResponseModel`).
 
-**Frontend** (`IntellaQuest.Web/my-app/`): `authentification/` (login/register), customer pages (`home`, `category-products`, `product-components`, `cart`, `order`, `favourite`, `profile`, `settings`), and `admin-components/` (admin-tool shell with CRUD dialogs). Routing in `app-routing.module.ts`.
+**Frontend** (`NexCart.Web/my-app/`): `authentification/` (login/register), customer pages (`home`, `category-products`, `product-components`, `cart`, `order`, `favourite`, `profile`, `settings`), and `admin-components/` (admin-tool shell with CRUD dialogs). Routing in `app-routing.module.ts`.
 
 ## How to Run
 
 **Database (once):** requires SQL Server reachable at `localhost` with a `ShopDb` database. Create it and apply the schema with the migrations runner:
 
 ```bash
-dotnet run --project IntellaQuest.Migrations
+dotnet run --project NexCart.Migrations
 ```
 
 **Backend:**
 
 ```bash
-dotnet run --project IntellaQuest.Web
+dotnet run --project NexCart.Web
 ```
 
-Serves the API and the already-built Angular bundle from `IntellaQuest.Web/my-app/bundles/browser`
-(override the URL with `--urls`, e.g. `dotnet run --project IntellaQuest.Web --urls http://localhost:5080`).
+Serves the API and the already-built Angular bundle from `NexCart.Web/my-app/bundles/browser`
+(override the URL with `--urls`, e.g. `dotnet run --project NexCart.Web --urls http://localhost:5080`).
 
 **Frontend** (only needed when changing the Angular code):
 
 ```bash
-cd IntellaQuest.Web/my-app
+cd NexCart.Web/my-app
 npm install
-npm run build    # outputs to bundles/browser, which IntellaQuest.Web serves
+npm run build    # outputs to bundles/browser, which NexCart.Web serves
 # or: ng serve   # dev server on port 4200
 ```
 
 **Tests:**
 
 ```bash
-dotnet test IntellaQuest.Tests
+dotnet test NexCart.Tests
 ```
 
 ## Known Issues
