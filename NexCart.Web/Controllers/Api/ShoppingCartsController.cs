@@ -27,7 +27,7 @@ namespace NexCart.Web.Controllers
                 userId = CurrentUserId;
             }
 
-            return Json(_shoppingCartService.GetUserShoppingCartWithProducts(userId));
+            return Ok(_shoppingCartService.GetUserShoppingCartWithProducts(userId));
         }
 
         [HttpPost]
@@ -39,7 +39,7 @@ namespace NexCart.Web.Controllers
             }
 
             _shoppingCartService.AddProductToShoppingCart(userId, productId, quality);
-            return Json(true);
+            return Ok(true);
         }
 
         [HttpPost]
@@ -51,7 +51,7 @@ namespace NexCart.Web.Controllers
             }
 
             _shoppingCartService.RemoveProductFromShoppingCart(detailsId);
-            return Json(true);
+            return Ok(true);
         }
 
         [HttpPost]
@@ -63,7 +63,7 @@ namespace NexCart.Web.Controllers
             }
 
             _shoppingCartService.MinusQuantity(detailsId);
-            return Json(true);
+            return Ok(true);
         }
 
         [HttpPost]
@@ -75,7 +75,7 @@ namespace NexCart.Web.Controllers
             }
 
             _shoppingCartService.PlusQuantity(detailsId);
-            return Json(true);
+            return Ok(true);
         }
 
         #endregion

@@ -55,8 +55,17 @@ namespace NexCart.Web.Infrastructure
             }
 
             var httpContext = bindingContext.HttpContext;
-            var name = bindingContext.ModelName;
             var modelType = bindingContext.ModelType;
+
+            // For a top-level action parameter MVC can leave ModelName empty, because the whole
+            // request body is treated as the model. The parameter name (which the client uses to
+            // wrap the payload, e.g. { "model": { ... } }) is still available on the metadata, so
+            // fall back to it; without this, every wrapped request binds as an empty model.
+            var name = bindingContext.ModelName;
+            if (string.IsNullOrEmpty(name))
+            {
+                name = bindingContext.ModelMetadata.Name;
+            }
 
             // 1. Route values (e.g. api/Identity/GetUserDetails/{id}).
             if (!string.IsNullOrEmpty(name)

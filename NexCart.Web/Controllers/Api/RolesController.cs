@@ -7,25 +7,27 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace NexCart.Web.Controllers
 {
+    /// <summary>An assignable role as exposed to the admin user form ({ Id, Name }).</summary>
+    public sealed record RoleModel(int Id, string Name);
+
     [Route("api/[controller]/[action]/{id?}")]
     public class RolesController : BaseController
     {
         /// <summary>
         /// The roles that can be assigned to a user, sourced from the <see cref="UserRole"/> enum.
-        /// Kept in the same { Id, Name } shape the admin user form expects, so it stays data-driven
+        /// Returned in the { Id, Name } shape the admin user form expects, so it stays data-driven
         /// on the client without needing a Roles table.
         /// </summary>
         [HttpPost]
         [Authorize(Policy = "AdminOnly")]
         public IActionResult All()
         {
-            var roles = Enum.GetValues(typeof(UserRole))
-                .Cast<UserRole>()
-                .Select(role => new { Id = (int)role, Name = role.ToString() })
-                .OrderBy(x => x.Name)
-                .ToList();
+            var roles = Enum.GetValues<UserRole>()
+                .OrderBy(role => role.ToString())
+                .Select(role => new RoleModel((int)role, role.ToString()))
+                .ToArray();
 
-            return Json(roles);
+            return Ok(roles);
         }
     }
 }

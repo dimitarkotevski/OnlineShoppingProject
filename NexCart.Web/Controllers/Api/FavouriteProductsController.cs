@@ -28,7 +28,7 @@ namespace NexCart.Web.Controllers
             }
 
             _favouriteProductService.AddProductToFavouriteProduct(userId, productId);
-            return Json(true);
+            return Ok(true);
         }
 
         [HttpPost]
@@ -40,7 +40,7 @@ namespace NexCart.Web.Controllers
             }
 
             var gridProducts = _favouriteProductService.GetUserFavouriteProducts(userId);
-            return Json(gridProducts);
+            return Ok(gridProducts);
         }
 
         [HttpPost]
@@ -52,7 +52,7 @@ namespace NexCart.Web.Controllers
             }
 
             _favouriteProductService.RemoveProductFromFavuriteProduct(userId, productId);
-            return Json(true);
+            return Ok(true);
         }
 
         #endregion

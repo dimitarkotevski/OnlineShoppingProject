@@ -26,13 +26,13 @@ namespace NexCart.Web.Controllers
         [EnableRateLimiting("auth")]
         public IActionResult Registration(UserRegistrationViewModel model)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                _userService.Registration(model);
-                return Json(true);
+                return ErrorNotAcceptable();
             }
 
-            return Json(new { success = false });
+            _userService.Registration(model);
+            return Ok(true);
         }
 
         [HttpPost]
@@ -42,11 +42,11 @@ namespace NexCart.Web.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return Json(ModelState.Values);
+                return ErrorNotAcceptable();
             }
 
             var userToken = _userService.Login(model);
-            return Json(userToken);
+            return Ok(userToken);
         }
 
         #endregion
@@ -60,13 +60,13 @@ namespace NexCart.Web.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return Json(ModelState.Values);
+                return ErrorNotAcceptable();
             }
 
             // The target user is always the caller; a client-supplied id is ignored.
             model.Id = CurrentUserId;
             _userService.UpdatePassword(model);
-            return Json(new { success = true });
+            return Ok(new { success = true });
         }
 
         [HttpPost]
@@ -78,7 +78,7 @@ namespace NexCart.Web.Controllers
                 return Forbid();
             }
 
-            return Json(_userService.Get(id));
+            return Ok(_userService.Get(id));
         }
 
         [HttpPost]
@@ -91,7 +91,7 @@ namespace NexCart.Web.Controllers
             model.Password = null;
 
             _userService.Update(model);
-            return Json(true);
+            return Ok(true);
         }
 
         [HttpPost]
@@ -104,7 +104,7 @@ namespace NexCart.Web.Controllers
             }
 
             var amount = _userService.GetAmountMoneyOfUser(userId);
-            return Json(amount);
+            return Ok(amount);
         }
 
         [HttpPost]
@@ -117,7 +117,7 @@ namespace NexCart.Web.Controllers
             }
 
             _userService.AddPayment(userId, model);
-            return Json(true);
+            return Ok(true);
         }
 
         [HttpPost]
@@ -130,7 +130,7 @@ namespace NexCart.Web.Controllers
             }
 
             _userService.DeletePayment(userId);
-            return Json(true);
+            return Ok(true);
         }
 
         #endregion

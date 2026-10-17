@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Net;
 using NexCart.Business.Exceptions;
 using NexCart.Web.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
@@ -44,23 +43,20 @@ namespace NexCart.Web.Controllers.Api
                 ? context.Exception.Message
                 : "An unexpected error occurred.";
 
-            context.HttpContext.Response.StatusCode = (int)HttpStatusCode.Conflict;
-            context.Result = new JsonResult(new { success = false, exception = message });
+            context.Result = new ConflictObjectResult(new { success = false, exception = message });
             context.ExceptionHandled = true;
         }
 
         [NonAction]
         public IActionResult ErrorNotAcceptable()
         {
-            Response.StatusCode = (int)HttpStatusCode.BadRequest;
-
             var errors = ModelState.ToDictionary(
                 kvp => kvp.Key,
                 kvp => kvp.Value.Errors
                     .Select(e => string.IsNullOrEmpty(e.ErrorMessage) ? e.Exception?.Message : e.ErrorMessage)
                     .ToArray());
 
-            return new JsonResult(new { Success = false, Errors = errors });
+            return BadRequest(new { Success = false, Errors = errors });
         }
     }
 }

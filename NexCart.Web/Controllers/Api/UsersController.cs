@@ -22,20 +22,20 @@ namespace NexCart.Web.Controllers
         [HttpPost]
         public IActionResult All(RequestModel request)
         {
-            return Json(_usersService.GetAll(request));
+            return Ok(_usersService.GetAll(request));
         }
 
         [HttpPost]
         public IActionResult Get(Guid id)
         {
-            return Json(_usersService.Get(id));
+            return Ok(_usersService.Get(id));
         }
 
         [HttpPost]
         public IActionResult Create(UserViewModel model)
         {
             _usersService.Create(model);
-            return Json(new { success = true });
+            return Ok(new { success = true });
         }
 
         [HttpPost]
@@ -43,18 +43,18 @@ namespace NexCart.Web.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return Json(ModelState.Values);
+                return ErrorNotAcceptable();
             }
 
             _usersService.Update(model);
-            return Json(new { success = true });
+            return Ok(new { success = true });
         }
 
         [HttpPost]
         public IActionResult Delete(Guid id)
         {
             _usersService.Delete(id);
-            return Json(new { success = true });
+            return Ok(new { success = true });
         }
     }
 }

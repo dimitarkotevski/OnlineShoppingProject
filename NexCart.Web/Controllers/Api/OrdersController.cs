@@ -26,14 +26,14 @@ namespace NexCart.Web.Controllers
         [Authorize(Policy = "AdminOnly")]
         public IActionResult All(RequestModel request)
         {
-            return Json(_orderService.GetAll(request));
+            return Ok(_orderService.GetAll(request));
         }
 
         [HttpPost]
         [Authorize(Policy = "AdminOnly")]
         public IActionResult Get(Guid Id)
         {
-            return Json(_orderService.Get(Id));
+            return Ok(_orderService.Get(Id));
         }
 
         [HttpPost]
@@ -42,11 +42,11 @@ namespace NexCart.Web.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return Json(ModelState.Values);
+                return ErrorNotAcceptable();
             }
 
             _orderService.Create(model);
-            return Json(new { success = true });
+            return Ok(new { success = true });
         }
 
         [HttpPost]
@@ -54,7 +54,7 @@ namespace NexCart.Web.Controllers
         public IActionResult Edit(OrderViewModel model)
         {
             _orderService.Update(model);
-            return Json(new { success = true });
+            return Ok(new { success = true });
         }
 
         [HttpPost]
@@ -62,7 +62,7 @@ namespace NexCart.Web.Controllers
         public IActionResult Delete(Guid Id)
         {
             _orderService.Delete(Id);
-            return Json(new { success = true });
+            return Ok(new { success = true });
         }
 
         #endregion
@@ -79,7 +79,7 @@ namespace NexCart.Web.Controllers
             }
 
             var result = _orderService.GetUserActiveOrder(userId);
-            return Json(result);
+            return Ok(result);
         }
 
         [HttpPost]
@@ -92,7 +92,7 @@ namespace NexCart.Web.Controllers
             }
 
             var result = _orderService.GetUserNotActiveOrders(userId);
-            return Json(result);
+            return Ok(result);
         }
 
         [HttpPost]
@@ -105,7 +105,7 @@ namespace NexCart.Web.Controllers
             }
 
             _orderService.CancelActiveOrder(orderId);
-            return Json(true);
+            return Ok(true);
         }
 
         [HttpPost]
@@ -123,7 +123,7 @@ namespace NexCart.Web.Controllers
             }
 
             _orderService.MakeAnOrder(shoppingCartId, userId);
-            return Json(new { success = true });
+            return Ok(new { success = true });
         }
 
         [HttpPost]
@@ -136,7 +136,7 @@ namespace NexCart.Web.Controllers
             }
 
             _orderService.MakeAPay(model);
-            return Json(new { success = true });
+            return Ok(new { success = true });
         }
 
         #endregion
