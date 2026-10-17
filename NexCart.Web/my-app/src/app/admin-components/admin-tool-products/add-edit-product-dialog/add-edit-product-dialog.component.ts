@@ -22,7 +22,8 @@ export class AddEditProductDialogComponent implements OnInit {
     @Inject(MAT_DIALOG_DATA) public data: any,
     private categoryService: CategoryService
     ) {
-    this.model = data.product;
+    // Edit a copy so cancelling leaves the grid row untouched.
+    this.model = { ...data.product };
   }
 
   ngOnInit(): void {
@@ -37,6 +38,16 @@ export class AddEditProductDialogComponent implements OnInit {
         this.categories = response.Items;
       }
     })
+  }
+
+  /** The category select binds to the id string; keep the object in sync for the save handler. */
+  get selectedCategoryId(): string | undefined {
+    return this.model?.Category?.Id;
+  }
+
+  set selectedCategoryId(value: string | undefined) {
+    if (!this.model) return;
+    this.model.Category = value ? { Id: value } : undefined;
   }
 
 }

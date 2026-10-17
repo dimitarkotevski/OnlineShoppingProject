@@ -1,9 +1,29 @@
-.solid-header {
-    background-color: #3498db;
-    color: white;
-    font-weight: bold;
-    text-transform: uppercase;
-    padding: 10px;
-    border-top-left-radius: 5px;
-    border-top-right-radius: 5px;
-  }
+/* Shared admin page styles (stats, toolbar, table card, pills) live in src/admin-tool.css. */
+
+.product-table__img-col {
+  width: 60px;
+}
+
+.product-thumb {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+  border-radius: 6px;
+  border: 1px solid #e9ecef;
+  background: #fff;
+  padding: 2px;
+}
+
+.product-thumb--empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ced4da;
+  background: #f8f9fa;
+  font-size: 1.1rem;
+}
+
+.product-price {
+  font-weight: 600;
+  color: #2c3e50;
+}

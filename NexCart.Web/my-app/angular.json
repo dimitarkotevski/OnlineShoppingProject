@@ -34,7 +34,8 @@
               "node_modules/bootstrap/dist/css/bootstrap.min.css",
               "node_modules/ngx-toastr/toastr.css",
               "src/custom-theme.scss",
-              "src/styles.css"
+              "src/styles.css",
+              "src/admin-tool.css"
             ],
             "scripts": [
               "node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"

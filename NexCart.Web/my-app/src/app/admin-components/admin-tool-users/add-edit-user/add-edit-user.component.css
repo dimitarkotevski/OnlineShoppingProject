@@ -1,3 +1,7 @@
+.user-form {
+  padding: 8px 0;
+}
+
 /* Live password requirements checklist (mirrors the register page). */
 .password-hints {
   margin: 0.5rem 0 0;

@@ -1,40 +1,55 @@
-<h1 mat-dialog-title>{{title}} <hr/></h1>
-<div mat-dialog-content>
-  <form>
-    <div class="form-outline mb-4">
-      <label for="name" class="form-label" >Product name</label>
-      <input name="name" [(ngModel)]="model.Name" type="text" class="form-control" />
-    </div>
+<h2 mat-dialog-title>
+  <i class="fa-solid me-2 text-coral" [ngClass]="model.Id ? 'fa-pen' : 'fa-plus'"></i>
+  {{ title }} product
+</h2>
 
-    <div class="form-outline mb-4">
-      <label for="price" class="form-label" >Price</label>
-      <input name="price" [(ngModel)]="model.Price" type="number" class="form-control" />
-    </div>
+<mat-dialog-content>
+  <form #productForm="ngForm" class="product-form">
+    <mat-form-field appearance="outline" class="w-100 mb-3">
+      <mat-label>Product name</mat-label>
+      <input matInput [(ngModel)]="model.Name" name="name" placeholder="Enter product name" required />
+      <mat-error *ngIf="productForm.controls['name']?.invalid && productForm.controls['name']?.touched">
+        Product name is required.
+      </mat-error>
+    </mat-form-field>
 
-    <div class="form-outline mb-4">
-      <label for="description" class="form-label" >Description</label>
-      <textarea rows="5" name="description" [(ngModel)]="model.Description" type="text"  class="form-control"></textarea>
-    </div>
-  
-    <div *ngIf="model.Category != null">
-      <label for="description" class="form-label" >Pick category</label>
-      <select class="form-select form-control" [(ngModel)]="model.Category.Id">
-        <option *ngFor="let item of categories" [ngValue]="item.Id">{{ item.Name }}</option>
-      </select>
-    </div>
+    <mat-form-field appearance="outline" class="w-100 mb-3">
+      <mat-label>Price</mat-label>
+      <input matInput [(ngModel)]="model.Price" name="price" type="number" min="0" step="0.01" placeholder="0.00" required />
+      <span matTextPrefix>$&nbsp;</span>
+      <mat-error *ngIf="productForm.controls['price']?.invalid && productForm.controls['price']?.touched">
+        Valid price is required.
+      </mat-error>
+    </mat-form-field>
 
-    <div *ngIf="model.Category == null">
-      <label for="description" class="form-label" >Pick category</label>
-      <select class="form-select form-control" [(ngModel)]="model.Category">
-        <option *ngFor="let item of categories" [ngValue]="item">{{ item.Name }}</option>
-      </select>
-    </div>
+    <mat-form-field appearance="outline" class="w-100 mb-3">
+      <mat-label>Description</mat-label>
+      <textarea matInput [(ngModel)]="model.Description" name="description" rows="4" placeholder="Describe the product..."></textarea>
+    </mat-form-field>
 
-    
-
+    <mat-form-field appearance="outline" class="w-100 mb-3">
+      <mat-label>Category</mat-label>
+      <mat-select [(ngModel)]="selectedCategoryId" name="category">
+        <mat-option *ngFor="let item of categories" [value]="item.Id">
+          {{ item.Name }}
+        </mat-option>
+      </mat-select>
+      <mat-hint *ngIf="!categories?.length">No categories available.</mat-hint>
+    </mat-form-field>
   </form>
-</div>
-<div style="float:right;margin:20px;">
-  <input class="btn btn-danger" type="button" value="Save"  [mat-dialog-close]="model">
-</div>
+</mat-dialog-content>
 
+<mat-dialog-actions align="end">
+  <button mat-button [mat-dialog-close]="null" class="btn-cancel">
+    <i class="fa-solid fa-xmark me-1"></i> Cancel
+  </button>
+  <button
+    mat-flat-button
+    color="primary"
+    [mat-dialog-close]="model"
+    [disabled]="productForm.invalid"
+    class="btn-save"
+  >
+    <i class="fa-solid fa-check me-1"></i> Save
+  </button>
+</mat-dialog-actions>

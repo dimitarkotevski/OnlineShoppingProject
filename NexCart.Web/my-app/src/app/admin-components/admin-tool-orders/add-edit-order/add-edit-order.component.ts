@@ -36,7 +36,12 @@ export class AddEditOrderComponent implements OnInit {
     }
   }
 
+  /** Status as it was when the dialog opened; completed orders are locked. */
+  isCompleted = false
+
   ngOnInit(): void {
+    this.isCompleted = this.model.OrderStatus === OrderStatus.Completed
+
     if(this.model.Id){
       this.title = "Edit"
     }else{

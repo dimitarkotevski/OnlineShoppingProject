@@ -1,34 +1,35 @@
-<h1 mat-dialog-title>{{title}}
-  <hr />
-</h1>
+<h2 mat-dialog-title>
+  <i class="fa-solid me-2 text-coral" [ngClass]="model.Id ? 'fa-user-pen' : 'fa-user-plus'"></i>
+  {{ title }} user
+</h2>
 
-<div mat-dialog-content>
-  <form>
+<mat-dialog-content>
+  <form class="user-form">
     <div class="row">
-      <div class="col-6 form-outline mb-4">
+      <div class="col-6 mb-3">
         <label for="first_name" class="form-label">First name</label>
         <input name="first_name" [(ngModel)]="model.FirstName" type="text" class="form-control" />
       </div>
 
-      <div class="col-6 form-outline mb-4">
+      <div class="col-6 mb-3">
         <label for="last_name" class="form-label">Last name</label>
-        <input name="last_name" [(ngModel)]="model.LastName" type="tel" class="form-control" />
+        <input name="last_name" [(ngModel)]="model.LastName" type="text" class="form-control" />
       </div>
     </div>
 
     <div class="row">
-      <div class="col-6 form-outline mb-4">
+      <div class="col-6 mb-3">
         <label for="email" class="form-label">Email</label>
         <input name="email" [(ngModel)]="model.Email" type="email" class="form-control" />
       </div>
-      <div class="col-6 form-outline mb-4">
+      <div class="col-6 mb-3">
         <label for="username" class="form-label">Username</label>
         <input name="username" [(ngModel)]="model.Username" type="text" class="form-control" />
       </div>
     </div>
 
     <div *ngIf="title == 'Add'" class="row">
-      <div class="col-6 form-outline mb-4">
+      <div class="col-6 mb-3">
         <label for="password" class="form-label">Password</label>
         <input name="password" [(ngModel)]="model.Password" type="password" class="form-control" />
         <ul class="password-hints" *ngIf="model.Password">
@@ -49,29 +50,29 @@
     </div>
 
     <div class="row">
-      <div class="col-6 form-outline mb-4">
+      <div class="col-6 mb-3">
         <label for="address" class="form-label">Address</label>
         <input name="address" [(ngModel)]="model.Address" type="text" class="form-control" />
       </div>
-      <div class="col-6 form-outline mb-4">
+      <div class="col-6 mb-3">
         <label for="city" class="form-label">City</label>
         <input name="city" [(ngModel)]="model.City" type="text" class="form-control" />
       </div>
     </div>
 
     <div class="row">
-      <div class="col-6 form-outline mb-4">
+      <div class="col-6 mb-3">
         <label for="state" class="form-label">State</label>
         <input name="state" [(ngModel)]="model.State" type="text" class="form-control" />
       </div>
-      <div class="col-6 form-outline mb-4">
+      <div class="col-6 mb-3">
         <label for="zip_code" class="form-label">Zip code</label>
         <input name="zip_code" [(ngModel)]="model.ZipCode" type="text" class="form-control" />
       </div>
     </div>
 
-    <div class="w-50">
-      <label for="role" class="form-label">Pick Role</label>
+    <div class="col-6">
+      <label for="role" class="form-label">Role</label>
       <select id="role" name="role" class="form-select" [(ngModel)]="model.Role">
         <option value="" disabled>Select a role</option>
         <option *ngFor="let role of roles" [value]="role.Name">{{ role.Name | uppercase }}</option>
@@ -81,7 +82,13 @@
     
 
   </form>
-</div>
-<div style="float:right;margin:20px;">
-  <input class="btn btn-danger" type="button" value="Save" (click)="save()">
-</div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button [mat-dialog-close]="null" class="btn-cancel">
+    <i class="fa-solid fa-xmark me-1"></i> Cancel
+  </button>
+  <button mat-flat-button color="primary" (click)="save()" class="btn-save">
+    <i class="fa-solid fa-check me-1"></i> Save
+  </button>
+</mat-dialog-actions>

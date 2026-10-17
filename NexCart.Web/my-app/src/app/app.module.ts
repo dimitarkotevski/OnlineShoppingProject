@@ -46,6 +46,10 @@ import { AdminToolUsersComponent } from './admin-components/admin-tool-users/adm
 import { DateConverter } from './utils/convert-date';
 import { OrderStatusPipe } from './utils/order-pipe';
 import { MatDialogModule } from '@angular/material/dialog';
+import { MatButtonModule } from '@angular/material/button';
+import { MatInputModule } from '@angular/material/input';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { AddEditProductDialogComponent } from './admin-components/admin-tool-products/add-edit-product-dialog/add-edit-product-dialog.component';
 import { PhotoDialogComponent } from './admin-components/admin-tool-products/photo-dialog/photo-dialog.component';
 import { YesNoDialogComponent } from './customer-components/yes-no-dialog/yes-no-dialog.component';
@@ -115,6 +119,10 @@ import { NoDataComponent } from './customer-components/no-data/no-data.component
     }),
     BrowserAnimationsModule,
     MatDialogModule,
+    MatButtonModule,
+    MatInputModule,
+    MatFormFieldModule,
+    MatTooltipModule,
     NgbModule,
     MatSelectModule
   ],

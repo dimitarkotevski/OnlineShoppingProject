@@ -1,0 +1,12 @@
+.product-form {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 0;
+  min-width: 420px;
+}
+
+@media (max-width: 576px) {
+  .product-form {
+    min-width: unset;
+  }
+}

@@ -10,6 +10,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { AddEditOrderComponent } from './add-edit-order/add-edit-order.component';
 import { Router } from '@angular/router';
 import { AuthentificationService } from 'src/app/authentification/authentification.service';
+import { OrderStatus } from 'src/app/models/enum/order-status';
 
 @Component({ standalone: false,
   selector: 'app-admin-tool-orders',
@@ -55,11 +56,12 @@ export class AdminToolOrdersComponent implements OnInit {
     const dialogRef = this.dialog.open(AddEditOrderComponent, {
       data: { order },
       width: '500px', // Set the width of the modal
-      panelClass: 'custom-modalbox'
+      panelClass: ['custom-modalbox', 'admin-dialog']
     });
   
     dialogRef.afterClosed().subscribe((result : OrderViewModel) => {
-      if(result!= null){
+      // Cancel / Esc / backdrop click close without a model: nothing to save.
+      if(result){
         if(result.Id){
           this.adminToolOrderService.update(result).subscribe(()=>{
             this.toastr.success("Success changed order")
@@ -84,7 +86,7 @@ export class AdminToolOrdersComponent implements OnInit {
       const dialogRef = this.dialog.open(YesNoDialogComponent, {
         data: { text: 'Do you want to delete this order?' },
         width: '500px', // Set the width of the modal
-        panelClass: 'custom-modalbox'
+        panelClass: ['custom-modalbox', 'admin-dialog']
       });
       dialogRef.afterClosed().subscribe((result : OrderViewModel) => {
         if(result){
@@ -94,6 +96,24 @@ export class AdminToolOrdersComponent implements OnInit {
           })
         }
       });
+    }
+  }
+
+  get totalPages(): number {
+    return this.response.Size > 0 ? Math.ceil(this.response.TotalItems / this.response.Size) : 0;
+  }
+
+  get pageTotalAmount(): number {
+    return (this.response.Items || []).reduce((sum, order) => sum + (order.TotalAmount || 0), 0);
+  }
+
+  statusPillClass(status?: OrderStatus): string {
+    switch (status) {
+      case OrderStatus.Canceled: return 'pill--danger';
+      case OrderStatus.OnHold: return 'pill--warning';
+      case OrderStatus.PendingPayment: return 'pill--coral';
+      case OrderStatus.Completed: return 'pill--success';
+      default: return '';
     }
   }
 
@@ -116,6 +136,7 @@ export class AdminToolOrdersComponent implements OnInit {
   }
   onPageSizeChange(value : number){
     this.request.Size = value;
+    this.request.PageNeeded = 1;
     this.getData();
   }
 }

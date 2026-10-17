@@ -63,6 +63,10 @@ export class AdminToolProductsComponent implements OnInit {
     this.getData();
   }
 
+  get totalPages(): number {
+    return this.response.Size > 0 ? Math.ceil(this.response.TotalItems / this.response.Size) : 0;
+  }
+
   getData(){
     this.adminToolProductService.getTable(this.request).subscribe((response: ResponseModel<ProductGridModel>)=>{
       this.response = response;
@@ -75,7 +79,7 @@ export class AdminToolProductsComponent implements OnInit {
     const dialogRef = this.dialog.open(PhotoDialogComponent, {
       data: { data64, id},
       width: '600px', // Set the width of the modal
-      panelClass: 'custom-modalbox'
+      panelClass: ['custom-modalbox', 'admin-dialog']
     });
   
     dialogRef.afterClosed().subscribe(result => {
@@ -86,11 +90,12 @@ export class AdminToolProductsComponent implements OnInit {
     const dialogRef = this.dialog.open(AddEditProductDialogComponent, {
       data: { product },
       width: '600px', // Set the width of the modal
-      panelClass: 'custom-modalbox'
+      panelClass: ['custom-modalbox', 'admin-dialog']
     });
   
     dialogRef.afterClosed().subscribe((result : ProductViewModel) => {
-      if(result!= null){
+      // Cancel / Esc / backdrop click close without a product: nothing to save.
+      if(result){
         if(result.Id){
           this.adminToolProductService.update(result).subscribe(()=>{
             this.toastr.success("Success changed product")
@@ -118,7 +123,7 @@ export class AdminToolProductsComponent implements OnInit {
       const dialogRef = this.dialog.open(YesNoDialogComponent, {
         data: { text: 'Do you want to delete this product?' },
         width: '500px', // Set the width of the modal
-        panelClass: 'custom-modalbox'
+        panelClass: ['custom-modalbox', 'admin-dialog']
       });
       dialogRef.afterClosed().subscribe((result : ProductViewModel) => {
         if(result){
@@ -142,6 +147,7 @@ export class AdminToolProductsComponent implements OnInit {
   }
   onPageSizeChange(value : number){
     this.request.Size = value;
+    this.request.PageNeeded = 1;
     this.getData();
   }
 }

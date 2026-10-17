@@ -1,13 +1,40 @@
-<h1 mat-dialog-title>Photo view</h1>
-<div mat-dialog-content class="center text-center">
-  <img width="300px" [src]="photoUrl | byPassSecurity" alt="">
-  <hr/>
-  <label for="myfile">Change photo</label>
-  <input type="file" id="myfile" name="myfile" (change)="onFileSelected($event)">
-  <div *ngIf="addPhotoButton">
-    <button class="btn btn-check" (click)="addPhoto(photoUrl)">Add photo</button>
+<h2 mat-dialog-title>
+  <i class="fa-solid fa-image me-2 text-coral"></i> Product photo
+</h2>
+
+<mat-dialog-content>
+  <div class="photo-dialog__preview">
+    <img
+      *ngIf="photoUrl"
+      [src]="photoUrl | byPassSecurity"
+      alt="Product photo"
+      class="photo-dialog__img"
+    />
+    <div *ngIf="!photoUrl" class="photo-dialog__placeholder">
+      <i class="fa-solid fa-image"></i>
+      <p>No photo available</p>
+    </div>
   </div>
-</div>
-<div style="float:right;margin:20px;">
-  <input class="btn btn-danger" type="button" value="Cancel"  [mat-dialog-close]="false">
-</div>
+
+  <div class="photo-dialog__upload">
+    <label for="myfile" class="photo-dialog__label">
+      <i class="fa-solid fa-upload me-1"></i> Choose new photo
+    </label>
+    <input type="file" id="myfile" name="myfile" (change)="onFileSelected($event)" accept="image/*" />
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button [mat-dialog-close]="null" class="btn-cancel">
+    <i class="fa-solid fa-xmark me-1"></i> Close
+  </button>
+  <button
+    *ngIf="addPhotoButton"
+    mat-flat-button
+    color="primary"
+    (click)="addPhoto(photoUrl)"
+    class="btn-save"
+  >
+    <i class="fa-solid fa-check me-1"></i> Save photo
+  </button>
+</mat-dialog-actions>
