@@ -99,6 +99,20 @@ with `IF OBJECT_ID(...) IS NULL`, so re-applying is a no-op.
 | `Role` | int | Default: 2 (User); Check: `IN (1, 2)` — Admin = 1, User = 2 |
 *Relationships: One-to-One with Payments; One-to-Many with Orders; Many-to-Many with Products via FavouriteProducts.*
 
+#### Default administrator
+Migration `20261017220000000` seeds a built-in administrator so a fresh database has an
+account that can sign in and use the admin tool (`/admin-tool`, backed by the API's
+`AdminOnly` policy):
+
+| Username | Password | Role |
+| :--- | :--- | :--- |
+| `isoadmin` | `P@ssw0rd` | `Admin` (`UserRole.Admin`, stored as `Role = 1`) |
+
+The password is stored as a PBKDF2-HMAC-SHA256 hash in the same format the app writes
+(`NexCart.Business.Security.PasswordHasher`), so login verifies it like any other account.
+**Change it after the first sign-in.** The row is inserted only when it does not already
+exist, so re-applying the migration is a no-op.
+
 ### Categories
 | Column | Type | Key/Constraint |
 | :--- | :--- | :--- |
