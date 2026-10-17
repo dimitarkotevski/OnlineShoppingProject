@@ -177,6 +177,29 @@
   box-shadow: none;
 }
 
+/* --- Inline field validation --- */
+/* Only the input needs a red border, but colouring the whole group (icon + field + toggle)
+   reads better and matches how the group highlights coral while focused. */
+.auth-input-group.is-invalid {
+  box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.15);
+}
+
+.auth-input-group.is-invalid .input-group-text,
+.auth-input-group.is-invalid .form-control,
+.auth-input-group.is-invalid .auth-toggle-btn {
+  border-color: #dc3545;
+}
+
+.auth-field-error {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin: 0.4rem 0 0;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #dc3545;
+}
+
 /* --- Alerts --- */
 .auth-alert {
   padding: 0.75rem 1rem;
@@ -214,6 +237,11 @@
 
 .auth-password-hints li.auth-password-hints__met {
   color: #198754;
+}
+
+/* After a failed submit, unmet requirements turn red so the missing rules stand out. */
+.auth-password-hints li.auth-password-hints__miss {
+  color: #dc3545;
 }
 
 /* --- Submit button (relies on global .solid_button_orange colours) --- */

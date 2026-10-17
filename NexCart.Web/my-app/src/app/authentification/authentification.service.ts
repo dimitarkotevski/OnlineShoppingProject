@@ -39,7 +39,13 @@ export class AuthentificationService {
   constructor(
     private http: HttpClient,
     private tokenHelper: JwtHelperService
-    ) {}
+    ) {
+    // Identity now lives in the signed token. Drop any keys written by older builds so a stale
+    // plaintext role/id/username cannot linger in the browser.
+    localStorage.removeItem('id');
+    localStorage.removeItem('username');
+    localStorage.removeItem('role');
+  }
     
   getUserDetails(id:string | null) : Observable<UserDetails>{
     return this.http.post<UserDetails>(`${this.baseApi}/GetUserDetails/${id}`, null);
@@ -47,21 +53,24 @@ export class AuthentificationService {
   updateUserDetails(userDetails:UserDetails){
     return this.http.post(`${this.baseApi}/SetUserDetails`, {model:userDetails});
   }
+  /**
+   * Identity (id, username, role) is read from the signed JWT instead of being duplicated in
+   * localStorage. The token is verified by the API, so these values cannot be tampered with on
+   * the client: editing them would break the signature and the API would reject the token.
+   */
   getLoggedUsername() : string | undefined {
-    return localStorage.getItem('username') || undefined;
+    return this.getClaim(USERNAME_CLAIMS) || undefined;
   }
 
   login(username:string,password:string): Observable<boolean> {
-    // The login page renders the failure inline, so keep the global toastr quiet.
+    // The login page shows its own toast for failures, so keep the global toastr quiet.
     return this.http.post<any>(this.baseApi+"/Login", {Username:username, Password:password}, {
       context: new HttpContext().set(SKIP_ERROR_TOAST, true),
     }).pipe(
       map((response : UserTokenInfo) => {
-        if (response.Id && response.Token && response.Username && response.Role) {
-          localStorage.setItem('id', response.Id);
-          localStorage.setItem('username', response.Username);
+        if (response.Token) {
+          // Only the token is stored; everything else is derived from it on demand.
           localStorage.setItem('token', response.Token);
-          localStorage.setItem('role',response.Role);
           return true;
         }
         return false;
@@ -70,15 +79,12 @@ export class AuthentificationService {
   }
   logout(): void {
     localStorage.removeItem('token');
-    localStorage.removeItem('id');
-    localStorage.removeItem('username');
-    localStorage.removeItem('role');
   }
   getLoggedUserId(): string | null {
-    return localStorage.getItem('id') || null;
+    return this.getClaim(USER_ID_CLAIMS);
   }
-  getRole(){
-    return localStorage.getItem('role') || null;
+  getRole(): string | null {
+    return this.getClaim(ROLE_CLAIMS);
   }
   /**
    * True when the logged-in user holds the administrator role (case-insensitive) *and* still
@@ -89,6 +95,32 @@ export class AuthentificationService {
   }
   getToken(): string | null  {
     return localStorage.getItem('token') || null;
+  }
+
+  /**
+   * Reads a claim from the signed token without verifying it (the API is the authority on
+   * validity). Returns null when there is no readable token or the claim is absent.
+   */
+  private getClaim(candidates: string[]): string | null {
+    const token = this.getToken();
+    if (!token) {
+      return null;
+    }
+    try {
+      const payload = this.tokenHelper.decodeToken(token);
+      if (!payload) {
+        return null;
+      }
+      for (const key of candidates) {
+        const value = payload[key];
+        if (value !== undefined && value !== null && value !== '') {
+          return String(value);
+        }
+      }
+    } catch {
+      return null;
+    }
+    return null;
   }
 
   /**

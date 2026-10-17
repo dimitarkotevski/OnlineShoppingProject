@@ -214,3 +214,22 @@ body{
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
+/* Rounded surface for the "add payment" dialog (container lives in the CDK overlay). */
+.payment-modalbox .mat-mdc-dialog-surface {
+    border-radius: 20px;
+}
+
+/* --- Toast notifications --- */
+/* Sit below the header (main navbar + category bar). `--navbar-height` is measured
+   and published by NavbarComponent; the fallback covers the very first paint. */
+#toast-container.toast-top-right,
+#toast-container.toast-top-center,
+#toast-container.toast-top-left,
+#toast-container.toast-top-full-width {
+    top: calc(var(--navbar-height, 104px) + 12px);
+}
+
+#toast-container.toast-top-right {
+    right: 16px;
+}
+

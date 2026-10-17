@@ -21,10 +21,8 @@ export class AuthInterceptor implements HttpInterceptor {
     return next.handle(authReq).pipe(
       catchError((error: HttpErrorResponse) => {
         if (error.status === 401) {
+          // The session is gone; drop the token. Identity is derived from it, so nothing else to clear.
           localStorage.removeItem('token');
-          localStorage.removeItem('id');
-          localStorage.removeItem('username');
-          localStorage.removeItem('role');
         }
         return throwError(() => error);
       })

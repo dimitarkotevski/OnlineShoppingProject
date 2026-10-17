@@ -38,7 +38,7 @@ export class RegularNavbarComponent implements OnInit {
       if(res === 0){
         this.amount = null;
       }else{
-        this.amount ="( $"+res+")";
+        this.amount = "$" + res;
       }
     })
   }

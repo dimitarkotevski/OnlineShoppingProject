@@ -1,10 +1,5 @@
-<div class="container">
-    <app-breadcrumb [isItem]="false" [itemDetail]="'My order'"></app-breadcrumb>
-    
-    <div>
-        <app-order-detail [activeOrder]="activeOrder"></app-order-detail>
-    </div>
+<div class="container orders-page">
+    <app-breadcrumb [isItem]="false" [itemDetail]="'My orders'"></app-breadcrumb>
 
-    
-    
+    <app-order-detail [activeOrder]="activeOrder"></app-order-detail>
 </div>

@@ -20,35 +20,41 @@
       <h1 class="auth-title">Welcome back</h1>
       <p class="auth-subtitle">Log in to continue to your account.</p>
 
-      <div *ngIf="errorMessage" class="alert alert-danger auth-alert" role="alert">
-        <i class="fa-solid fa-circle-exclamation me-2"></i>{{ errorMessage }}
-      </div>
-
       <form (ngSubmit)="loginUser()" novalidate>
         <div class="mb-3">
           <label class="form-label auth-label" for="loginUsername">
             Username <span class="auth-required">*</span>
           </label>
-          <div class="input-group auth-input-group">
+          <div class="input-group auth-input-group" [class.is-invalid]="showUsernameError">
             <span class="input-group-text"><i class="fa-solid fa-user"></i></span>
             <input id="loginUsername" name="username" type="text" class="form-control" autocomplete="username"
-              placeholder="Enter your username" [(ngModel)]="username">
+              placeholder="Enter your username" [(ngModel)]="username"
+              (blur)="usernameTouched = true" [attr.aria-invalid]="showUsernameError">
           </div>
+          <p class="auth-field-error" *ngIf="showUsernameError">
+            <i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>
+            Username is required.
+          </p>
         </div>
 
         <div class="mb-4">
           <label class="form-label auth-label" for="loginPassword">
             Password <span class="auth-required">*</span>
           </label>
-          <div class="input-group auth-input-group">
+          <div class="input-group auth-input-group" [class.is-invalid]="showPasswordError">
             <span class="input-group-text"><i class="fa-solid fa-lock"></i></span>
             <input id="loginPassword" name="password" [type]="showPassword ? 'text' : 'password'" class="form-control"
-              autocomplete="current-password" placeholder="Enter your password" [(ngModel)]="password">
+              autocomplete="current-password" placeholder="Enter your password" [(ngModel)]="password"
+              (blur)="passwordTouched = true" [attr.aria-invalid]="showPasswordError">
             <button class="btn auth-toggle-btn" type="button" (click)="showPassword = !showPassword"
               [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'">
               <i class="fa-solid" [ngClass]="showPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
             </button>
           </div>
+          <p class="auth-field-error" *ngIf="showPasswordError">
+            <i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>
+            Password is required.
+          </p>
         </div>
 
         <button class="btn solid_button_orange w-100 auth-submit" type="submit">Login</button>

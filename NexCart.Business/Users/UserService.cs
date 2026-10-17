@@ -251,6 +251,14 @@ namespace NexCart.Business.Services
                     throw new BllException(ShopExceptionMassages.UserExceptionMassages.NOT_FOUND_EXCEPTION);
                 }
 
+                // A missing/invalid expiry arrives as DateTime.MinValue, which SQL Server's
+                // datetime column cannot store (it cannot represent dates before 1753).
+                // Reject it as a business error instead of letting the commit overflow.
+                if (model.ExpirationDate < new DateTime(1753, 1, 1))
+                {
+                    throw new BllException(ShopExceptionMassages.PaymentExceptionMassages.INVALID_EXPIRATION_DATE);
+                }
+
                 if(user.Payment == null)
                 {
                     var payment = new Payment

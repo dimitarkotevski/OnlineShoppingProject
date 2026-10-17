@@ -1,163 +1,187 @@
-<div class="container">
+<div class="container account-page">
     <app-breadcrumb *ngIf="userDetails" [isItem]="false" [itemDetail]="'Account'"></app-breadcrumb>
 
-    <div *ngIf="userDetails" class="tab-pane fade show active" id="account" role="tabpanel">
-        <div class="row">
+    <div *ngIf="userDetails" class="account-content">
+        <div class="row g-4">
+            <!-- Profile summary -->
             <div class="col-lg-4">
-                <div class="card h-100">
-                    <div class="card-body text-center">
-                        <h1>Profile image</h1>
-                        <hr/>
-                        <div>
-                            <i class="fas fa-user-circle fa-10x"></i>
-                        </div>
-                        <h3 class="py-3 text-capitalize">{{userDetails.FirstName}} {{userDetails.LastName}}</h3>
+                <div class="account-card account-summary h-100">
+                    <div class="account-avatar">
+                        <i class="fa-solid fa-user"></i>
                     </div>
+                    <h2 class="account-summary__name text-capitalize">
+                        {{userDetails.FirstName}} {{userDetails.LastName}}
+                    </h2>
+                    <p class="account-summary__username">&#64;{{userDetails.Username}}</p>
+
+                    <ul class="account-summary__meta">
+                        <li *ngIf="userDetails.Email">
+                            <i class="fa fa-envelope" aria-hidden="true"></i>
+                            <span>{{userDetails.Email}}</span>
+                        </li>
+                        <li *ngIf="userDetails.State">
+                            <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
+                            <span>{{userDetails.State}}</span>
+                        </li>
+                    </ul>
+
+                    <a class="btn account-edit-btn" routerLink="/settings">
+                        <i class="fa-solid fa-pen-to-square" aria-hidden="true"></i> Edit profile
+                    </a>
                 </div>
             </div>
+
+            <!-- Account information -->
             <div class="col-lg-8">
-                <div class="card ">
-                    <div class="card-body">
-                        <h1>Account Information</h1>
-                        <hr>
-                        <div>
-                            <div class="row">
-                              <div class="col-sm-3">
-                                <h6 class="mb-0"><i class="fa fa-envelope" aria-hidden="true"></i> Email</h6>
-                              </div>
-                              <div class="col-sm-9 text-secondary">
-                                {{userDetails.Email}}
-                              </div>
-                            </div>
-                            <br />
-                            <div class="row">
-                              <div class="col-sm-3">
-                                <h6 class="mb-0"><i class="fa-solid fa-person"></i> Username</h6>
-                              </div>
-                              <div class="col-sm-9 text-secondary">
-                                {{userDetails.Username}}
-                              </div>
-                            </div>
-                            <br />
-                            <div class="row">
-                              <div class="col-sm-3">
-                                <h6 class="mb-0"><i class="fa-solid fa-globe"></i> State</h6>
-                              </div>
-                              <div class="col-sm-9 text-secondary">
-                                {{userDetails.State}}
-                              </div>
-                            </div>
-                            <br />
-                            <div class="row">
-                              <div class="col-sm-3">
-                                <h6 class="mb-0"><i class="fa-solid fa-location-dot"></i> Address</h6>
-                              </div>
-                              <div class="col-sm-9 text-secondary">
-                                {{userDetails.Address}}
-                              </div>
-                            </div>
-                            <br/>
-                            <div class="row">
-                              <div class="col-sm-3">
-                                <h6 class="mb-0"><i class="fa-solid fa-pencil"></i> Description</h6>
-                              </div>
-                              <div class="col-sm-9 text-secondary">
-                                {{userDetails.Description}}
-                              </div>
-                            </div>
-                        </div>
+                <div class="account-card h-100">
+                    <div class="account-card__header">
+                        <h3>Account information</h3>
+                        <p>Your personal details on ShoppingDev.</p>
                     </div>
+
+                    <dl class="account-info">
+                        <div class="account-info__row">
+                            <dt><i class="fa fa-envelope" aria-hidden="true"></i> Email</dt>
+                            <dd>{{userDetails.Email || '—'}}</dd>
+                        </div>
+                        <div class="account-info__row">
+                            <dt><i class="fa-solid fa-person" aria-hidden="true"></i> Username</dt>
+                            <dd>{{userDetails.Username || '—'}}</dd>
+                        </div>
+                        <div class="account-info__row">
+                            <dt><i class="fa-solid fa-globe" aria-hidden="true"></i> State</dt>
+                            <dd>{{userDetails.State || '—'}}</dd>
+                        </div>
+                        <div class="account-info__row">
+                            <dt><i class="fa-solid fa-location-dot" aria-hidden="true"></i> Address</dt>
+                            <dd>{{userDetails.Address || '—'}}</dd>
+                        </div>
+                        <div class="account-info__row">
+                            <dt><i class="fa-solid fa-pencil" aria-hidden="true"></i> Description</dt>
+                            <dd>{{userDetails.Description || '—'}}</dd>
+                        </div>
+                    </dl>
                 </div>
             </div>
         </div>
-        <div class="card mt-sm-3">
-            <div class="card-body">
-                <h1>Payment info</h1>
-                <hr/>
-                <div class="row" *ngIf="userDetails.Payment">
-                  <div class="col-lg-6">
 
-                      <div class="container preload">
-                          <div class="creditcard">
-                              <div class="front">
-                                  <div id="ccsingle"></div>
-                                  <svg version="1.1" id="cardfront" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
-                                      x="0px" y="0px" viewBox="0 0 750 471" style="enable-background:new 0 0 750 471;" xml:space="preserve">
-                                      <g id="Front">
-                                          <g id="CardBackground">
-                                              <g id="Page-1_1_">
-                                                  <g id="amex_1_">
-                                                      <path id="Rectangle-1_1_" class="lightcolor grey" d="M40,0h670c22.1,0,40,17.9,40,40v391c0,22.1-17.9,40-40,40H40c-22.1,0-40-17.9-40-40V40
-                                              C0,17.9,17.9,0,40,0z" />
-                                                  </g>
-                                              </g>
-                                              <path class="darkcolor greydark" d="M750,431V193.2c-217.6-57.5-556.4-13.5-750,24.9V431c0,22.1,17.9,40,40,40h670C732.1,471,750,453.1,750,431z" />
-                                          </g>
-                                          <text transform="matrix(1 0 0 1 60.106 295.0121)" id="svgnumber" class="st2 st3 st4">{{ userDetails.Payment.CardNumber }}</text>
-                                          <text transform="matrix(1 0 0 1 54.1064 428.1723)" id="svgname" class="st2 st5 st6">{{userDetails.Payment.CardHolder}}</text>
-                                          <text transform="matrix(1 0 0 1 54.1074 389.8793)" class="st7 st5 st8">cardholder name</text>
-                                          <text transform="matrix(1 0 0 1 479.7754 388.8793)" class="st7 st5 st8">expiration</text>
-                                          <text transform="matrix(1 0 0 1 65.1054 241.5)" class="st7 st5 st8">card number</text>
-                                          <g>
-                                              <text transform="matrix(1 0 0 1 574.4219 433.8095)" id="svgexpire" class="st2 st5 st9">{{userDetails.Payment.ExpirationDate}}</text>
-                                              <text transform="matrix(1 0 0 1 479.3848 417.0097)" class="st2 st10 st11">VALID</text>
-                                              <text transform="matrix(1 0 0 1 479.3848 435.6762)" class="st2 st10 st11">THRU</text>
-                                              <polygon class="st2" points="554.5,421 540.4,414.2 540.4,427.9 		" />
-                                          </g>
-                                          <g id="cchip">
-                                              <g>
-                                                  <path class="st2" d="M168.1,143.6H82.9c-10.2,0-18.5-8.3-18.5-18.5V74.9c0-10.2,8.3-18.5,18.5-18.5h85.3
-                                          c10.2,0,18.5,8.3,18.5,18.5v50.2C186.6,135.3,178.3,143.6,168.1,143.6z" />
-                                              </g>
-                                              <g>
-                                                  <g>
-                                                      <rect x="82" y="70" class="st12" width="1.5" height="60" />
-                                                  </g>
-                                                  <g>
-                                                      <rect x="167.4" y="70" class="st12" width="1.5" height="60" />
-                                                  </g>
-                                                  <g>
-                                                      <path class="st12" d="M125.5,130.8c-10.2,0-18.5-8.3-18.5-18.5c0-4.6,1.7-8.9,4.7-12.3c-3-3.4-4.7-7.7-4.7-12.3
-                                              c0-10.2,8.3-18.5,18.5-18.5s18.5,8.3,18.5,18.5c0,4.6-1.7,8.9-4.7,12.3c3,3.4,4.7,7.7,4.7,12.3
-                                              C143.9,122.5,135.7,130.8,125.5,130.8z M125.5,70.8c-9.3,0-16.9,7.6-16.9,16.9c0,4.4,1.7,8.6,4.8,11.8l0.5,0.5l-0.5,0.5
-                                              c-3.1,3.2-4.8,7.4-4.8,11.8c0,9.3,7.6,16.9,16.9,16.9s16.9-7.6,16.9-16.9c0-4.4-1.7-8.6-4.8-11.8l-0.5-0.5l0.5-0.5
-                                              c3.1-3.2,4.8-7.4,4.8-11.8C142.4,78.4,134.8,70.8,125.5,70.8z" />
-                                                  </g>
-                                                  <g>
-                                                      <rect x="82.8" y="82.1" class="st12" width="25.8" height="1.5" />
-                                                  </g>
-                                                  <g>
-                                                      <rect x="82.8" y="117.9" class="st12" width="26.1" height="1.5" />
-                                                  </g>
-                                                  <g>
-                                                      <rect x="142.4" y="82.1" class="st12" width="25.8" height="1.5" />
-                                                  </g>
-                                                  <g>
-                                                      <rect x="142" y="117.9" class="st12" width="26.2" height="1.5" />
-                                                  </g>
-                                              </g>
-                                          </g>
-                                      </g>
-                                      <g id="Back">
-                                      </g>
-                                  </svg>
-                              </div>
-                          </div>
-                      </div>
+        <!-- Payment info -->
+        <div class="account-card account-payment mt-4">
+            <div class="account-card__header">
+                <h3>Payment method</h3>
+                <p>Manage the card used to pay for your orders.</p>
+            </div>
 
-                  </div>
-                  <div class="col-lg-6 right-solid-text">
-                    <div><button (click)="deletePayment(userDetails.Id)" class="btn solid_hover_color h-75">Remove payment here</button></div>
-                  </div>
+            <div class="row g-4 align-items-start" *ngIf="userDetails.Payment">
+                <div class="col-lg-5">
+                    <div class="container preload">
+                        <div class="creditcard">
+                            <div class="front">
+                                <i class="card-brand" [ngClass]="cardBrandIcon" aria-hidden="true"></i>
+                                <div id="ccsingle"></div>
+                                <svg version="1.1" id="cardfront" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+                                    x="0px" y="0px" viewBox="0 0 750 471" style="enable-background:new 0 0 750 471;" xml:space="preserve">
+                                    <g id="Front">
+                                        <g id="CardBackground">
+                                            <g id="Page-1_1_">
+                                                <g id="amex_1_">
+                                                    <path id="Rectangle-1_1_" class="lightcolor grey" d="M40,0h670c22.1,0,40,17.9,40,40v391c0,22.1-17.9,40-40,40H40c-22.1,0-40-17.9-40-40V40
+                                            C0,17.9,17.9,0,40,0z" />
+                                                </g>
+                                            </g>
+                                            <path class="darkcolor greydark" d="M750,431V193.2c-217.6-57.5-556.4-13.5-750,24.9V431c0,22.1,17.9,40,40,40h670C732.1,471,750,453.1,750,431z" />
+                                        </g>
+                                        <text transform="matrix(1 0 0 1 60.106 295.0121)" id="svgnumber" class="st2 st3 st4">{{ maskedCardNumber }}</text>
+                                        <text transform="matrix(1 0 0 1 54.1064 428.1723)" id="svgname" class="st2 st5 st6">{{userDetails.Payment.CardHolder}}</text>
+                                        <text transform="matrix(1 0 0 1 54.1074 389.8793)" class="st7 st5 st8">cardholder name</text>
+                                        <text transform="matrix(1 0 0 1 479.7754 388.8793)" class="st7 st5 st8">expiration</text>
+                                        <text transform="matrix(1 0 0 1 65.1054 241.5)" class="st7 st5 st8">card number</text>
+                                        <g>
+                                            <text transform="matrix(1 0 0 1 574.4219 433.8095)" id="svgexpire" class="st2 st5 st9">{{cardExpiry}}</text>
+                                            <text transform="matrix(1 0 0 1 479.3848 417.0097)" class="st2 st10 st11">VALID</text>
+                                            <text transform="matrix(1 0 0 1 479.3848 435.6762)" class="st2 st10 st11">THRU</text>
+                                            <polygon class="st2" points="554.5,421 540.4,414.2 540.4,427.9 		" />
+                                        </g>
+                                        <g id="cchip">
+                                            <g>
+                                                <path class="st2" d="M168.1,143.6H82.9c-10.2,0-18.5-8.3-18.5-18.5V74.9c0-10.2,8.3-18.5,18.5-18.5h85.3
+                                        c10.2,0,18.5,8.3,18.5,18.5v50.2C186.6,135.3,178.3,143.6,168.1,143.6z" />
+                                            </g>
+                                            <g>
+                                                <g>
+                                                    <rect x="82" y="70" class="st12" width="1.5" height="60" />
+                                                </g>
+                                                <g>
+                                                    <rect x="167.4" y="70" class="st12" width="1.5" height="60" />
+                                                </g>
+                                                <g>
+                                                    <path class="st12" d="M125.5,130.8c-10.2,0-18.5-8.3-18.5-18.5c0-4.6,1.7-8.9,4.7-12.3c-3-3.4-4.7-7.7-4.7-12.3
+                                        c0-10.2,8.3-18.5,18.5-18.5s18.5,8.3,18.5,18.5c0,4.6-1.7,8.9-4.7,12.3c3,3.4,4.7,7.7,4.7,12.3
+                                        C143.9,122.5,135.7,130.8,125.5,130.8z M125.5,70.8c-9.3,0-16.9,7.6-16.9,16.9c0,4.4,1.7,8.6,4.8,11.8l0.5,0.5l-0.5,0.5
+                                        c-3.1,3.2-4.8,7.4-4.8,11.8c0,9.3,7.6,16.9,16.9,16.9s16.9-7.6,16.9-16.9c0-4.4-1.7-8.6-4.8-11.8l-0.5-0.5l0.5-0.5
+                                        c3.1-3.2,4.8-7.4,4.8-11.8C142.4,78.4,134.8,70.8,125.5,70.8z" />
+                                                </g>
+                                                <g>
+                                                    <rect x="82.8" y="82.1" class="st12" width="25.8" height="1.5" />
+                                                </g>
+                                                <g>
+                                                    <rect x="82.8" y="117.9" class="st12" width="26.1" height="1.5" />
+                                                </g>
+                                                <g>
+                                                    <rect x="142.4" y="82.1" class="st12" width="25.8" height="1.5" />
+                                                </g>
+                                                <g>
+                                                    <rect x="142" y="117.9" class="st12" width="26.2" height="1.5" />
+                                                </g>
+                                            </g>
+                                        </g>
+                                    </g>
+                                    <g id="Back">
+                                    </g>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div *ngIf="!userDetails.Payment" class="row">
-                  <div class="col-6 pt-2">
-                    <div>No Payment Information Available</div>
-                  </div>
-                  <div class="col-6 right-solid-text">
-                    <div><button (click)="addPayment()" class="btn solid_hover_color h-75">Add payment here</button></div>
-                  </div>
+
+                <div class="col-lg-7">
+                    <div class="payment-actions">
+                        <div class="payment-actions__top">
+                            <div class="payment-actions__status">
+                                <span class="payment-brand">
+                                    <i [ngClass]="cardBrandIcon" aria-hidden="true"></i>
+                                    {{ cardBrand }}
+                                </span>
+                                <span class="payment-status" [ngClass]="'payment-status--' + cardStatus">
+                                    <i class="fa-solid fa-circle" aria-hidden="true"></i>
+                                    {{ cardStatusLabel }}
+                                </span>
+                            </div>
+
+                            <button (click)="deletePayment(userDetails.Id)" class="btn account-danger-btn">
+                                <i class="fa-solid fa-trash-can" aria-hidden="true"></i> Remove payment
+                            </button>
+                        </div>
+
+                        <p class="payment-actions__hint">
+                            <i class="fa-solid fa-lock" aria-hidden="true"></i>
+                            <span>Your card is stored securely and used automatically at checkout.</span>
+                        </p>
+                    </div>
                 </div>
+            </div>
+
+            <div *ngIf="!userDetails.Payment" class="payment-empty">
+                <div class="payment-empty__icon">
+                    <i class="fa-regular fa-credit-card" aria-hidden="true"></i>
+                </div>
+                <div class="payment-empty__text">
+                    <h4>No payment method yet</h4>
+                    <p class="mb-0">Add a card so you can check out faster next time.</p>
+                </div>
+                <button (click)="addPayment()" class="btn account-primary-btn">
+                    <i class="fa-solid fa-plus" aria-hidden="true"></i> Add payment
+                </button>
             </div>
         </div>
     </div>

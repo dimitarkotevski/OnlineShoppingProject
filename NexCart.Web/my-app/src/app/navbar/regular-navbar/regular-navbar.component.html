@@ -10,28 +10,45 @@
       <a class="solid-color-a btn admin-tool-btn" *ngIf="!categoryNavBar && canAccessToAdminTool" (click)="disableNavbar()" routerLink="/" >Back to user mode</a>
       <div class="navbar-nav ms-auto">
         <div *ngIf="!isUserAuthenticated" class="nav-item">
-          <a class="nav-link " routerLink="/login"><i class='fa fa-s15 fa-sign-in'></i> <span class="responsive-text">
-              Login</span></a>
+          <a class="nav-link navbar-action" routerLink="/login" routerLinkActive="navbar-action--active">
+            <i class="fa-solid fa-right-to-bracket navbar-action__icon" aria-hidden="true"></i>
+            <span class="responsive-text">Login</span>
+          </a>
         </div>
         <div *ngIf="isUserAuthenticated" class="solid-button-hide  nav-item">
           <div class="nav-link dropdown">
             <button class="avatar profile-pill dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown"
               aria-haspopup="true" aria-expanded="false">
-              <i class="fa fa-user"></i><span class="px-1">{{username}} {{amount}} </span>
+              <i class="fa-solid fa-user profile-pill__icon" aria-hidden="true"></i>
+              <span class="profile-pill__name">{{username}}</span>
+              <span class="profile-pill__balance" *ngIf="amount">{{amount}}</span>
             </button>
-            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-              <a class="dropdown-item" [routerLink]="['/profile',id]">
-                <i class="fa fa-user-circle" aria-hidden="true"></i> Account
-              </a>
-              <a class="dropdown-item" routerLink="/settings">
-                <i class="fa fa-cog" aria-hidden="true"></i> Settings
-              </a>
-              <a class="dropdown-item" routerLink="/my-order">
-                <i class="fa-solid fa-bag-shopping" aria-hidden="true"></i> My order
-              </a>
+            <div class="dropdown-menu dropdown-menu-end profile-dropdown" aria-labelledby="dropdownMenuButton">
+              <div class="profile-dropdown__header">
+                <span class="profile-dropdown__avatar"><i class="fa-solid fa-user" aria-hidden="true"></i></span>
+                <div class="profile-dropdown__meta">
+                  <span class="profile-dropdown__username">{{username}}</span>
+                  <span class="profile-dropdown__balance" *ngIf="amount">{{amount}} in your wallet</span>
+                </div>
+              </div>
+
               <div class="dropdown-divider"></div>
-              <a (click)="logout()" class="dropdown-item">
-                <i class="fa fa-sign-out" aria-hidden="true"></i> Logout
+
+              <a class="dropdown-item profile-dropdown__item" [routerLink]="['/profile',id]">
+                <i class="fa-solid fa-circle-user profile-dropdown__item-icon" aria-hidden="true"></i> Account
+              </a>
+              <a class="dropdown-item profile-dropdown__item" routerLink="/settings">
+                <i class="fa-solid fa-gear profile-dropdown__item-icon" aria-hidden="true"></i> Settings
+              </a>
+              <a class="dropdown-item profile-dropdown__item" routerLink="/my-order">
+                <i class="fa-solid fa-bag-shopping profile-dropdown__item-icon" aria-hidden="true"></i> My orders
+              </a>
+
+              <div class="dropdown-divider"></div>
+
+              <a class="dropdown-item profile-dropdown__item profile-dropdown__item--danger" (click)="logout()" role="button"
+                style="cursor: pointer;">
+                <i class="fa-solid fa-right-from-bracket profile-dropdown__item-icon" aria-hidden="true"></i> Logout
               </a>
             </div>
           </div>
@@ -41,13 +58,13 @@
           <div class="nav-item">
             <div class="dropdown-divider"></div>
             <a class="nav-item nav-link" [routerLink]="['/profile',id]">
-              <i class="fa fa-user-circle" aria-hidden="true"></i> Profile Information
+              <i class="fa-solid fa-circle-user navbar-action__icon" aria-hidden="true"></i> Profile Information
             </a>
           </div>
 
           <div class="nav-item">
             <a class="nav-item nav-link" routerLink="/settings">
-              <i class="fa fa-cog" aria-hidden="true"></i> Change Information
+              <i class="fa-solid fa-gear navbar-action__icon" aria-hidden="true"></i> Change Information
             </a>
           </div>
 
@@ -56,23 +73,26 @@
         </div>
 
 
-        <!-- POCNUVA FAVOURITE I CART -->
+        <!-- FAVOURITE AND CART -->
         <div class="nav-item">
-          <a class="nav-item nav-link " routerLink="/favourite">
-            <i class='fa fa-s15 fa-heart'><span class="responsive-text"> Favourite</span> </i>
+          <a class="nav-item nav-link navbar-action" routerLink="/favourite" routerLinkActive="navbar-action--active">
+            <i class="fa-solid fa-heart navbar-action__icon" aria-hidden="true"></i>
+            <span class="responsive-text">Favourite</span>
           </a>
         </div>
 
         <div class="nav-item">
-          <a class="nav-item nav-link " routerLink="/cart"><i class='fa fa-s15 fa-cart-shopping'></i> <span
-              class="responsive-text"> Cart</span></a>
+          <a class="nav-item nav-link navbar-action" routerLink="/cart" routerLinkActive="navbar-action--active">
+            <i class="fa-solid fa-cart-shopping navbar-action__icon" aria-hidden="true"></i>
+            <span class="responsive-text">Cart</span>
+          </a>
         </div>
 
         <div class="solid-button-sm-show hide-in-width-screen">
           <div class="dropdown-divider"></div>
           <div class="nav-item">
             <a class="nav-item nav-link" (click)="logout()" role="button" style="cursor: pointer;">
-              <i class="fa fa-sign-out" aria-hidden="true"></i> Logout
+              <i class="fa-solid fa-right-from-bracket navbar-action__icon" aria-hidden="true"></i> Logout
             </a>
           </div>
         </div>

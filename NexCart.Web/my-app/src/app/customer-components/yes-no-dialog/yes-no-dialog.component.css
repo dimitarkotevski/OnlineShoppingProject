@@ -1,0 +1,109 @@
+:host {
+    display: block;
+}
+
+/* --- Icon badge --- */
+.confirm-dialog__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    align-self: center;
+    width: 64px;
+    height: 64px;
+    margin: 24px auto 0;
+    border-radius: 50%;
+    font-size: 1.6rem;
+    background: rgba(255, 127, 80, 0.14);
+    color: coral;
+}
+
+.confirm-dialog__icon--danger {
+    background: rgba(220, 53, 69, 0.12);
+    color: #dc3545;
+}
+
+/* --- Title & message ---
+   The compound selectors beat Material's own section padding regardless of the order
+   the stylesheets are injected in. */
+.mat-mdc-dialog-title.confirm-dialog__title {
+    padding: 8px 24px 4px;
+    margin: 0;
+    text-align: center;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #212529;
+}
+
+.mat-mdc-dialog-content.confirm-dialog__content {
+    padding: 0 24px 4px;
+    text-align: center;
+    color: #6c757d;
+}
+
+.confirm-dialog__text {
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* --- Actions --- */
+.mat-mdc-dialog-actions.confirm-dialog__actions {
+    padding: 16px 24px 20px;
+    justify-content: center;
+    gap: 0.75rem;
+}
+
+.confirm-dialog__btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-width: 112px;
+    border-radius: 50px;
+    font-weight: 600;
+    padding: 0.55rem 1.4rem;
+    transition: background 0.25s ease, border-color 0.25s ease, color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.confirm-dialog__btn--ghost {
+    background: transparent;
+    border: 1px solid #ced4da;
+    color: #495057;
+}
+
+.confirm-dialog__btn--ghost:hover {
+    background: #f1f3f5;
+    color: #212529;
+}
+
+.confirm-dialog__btn--primary {
+    background: coral;
+    border: 1px solid coral;
+    color: #fff;
+}
+
+.confirm-dialog__btn--primary:hover {
+    background: chocolate;
+    border-color: chocolate;
+    color: #fff;
+}
+
+.confirm-dialog__btn--danger {
+    background: #dc3545;
+    border: 1px solid #dc3545;
+    color: #fff;
+}
+
+.confirm-dialog__btn--danger:hover {
+    background: #bb2d3b;
+    border-color: #bb2d3b;
+    color: #fff;
+}
+
+.confirm-dialog__btn:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 0.2rem rgba(255, 127, 80, 0.3);
+}
+
+.confirm-dialog__btn--danger:focus-visible {
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.3);
+}

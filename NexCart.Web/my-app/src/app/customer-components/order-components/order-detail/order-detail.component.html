@@ -1,40 +1,47 @@
-<div class="card">
-    <div *ngIf="activeOrder">
-        <div class="card-body">
-            <div class="row">
-                <div class="col-6">
-                    <h1>{{activeOrder?.OrderName}}</h1>
-                </div>
-                <div class="col-6 right-solid-text">
-                    <button class="btn solid_hover_color h-75" 
-                            (click)="CancelOrder(activeOrder.Id)">Cancel order</button>
-                </div>
-            </div>
-            <div>
-                <div>Order Status : <b>{{activeOrder.OrderStatus | orderStatus}}</b>  </div>
-                <div>Payment Type : <b>{{activeOrder.PaymentType | paymentType}}</b></div>
-            </div>
-            <hr/>
-            <app-products-grid 
-                    [type]="'order'" 
-                    [orderProducts]="activeOrder.Products">
-            </app-products-grid>
-            <hr/>
-            <div class="row">
-                <div class="col-6">
-                    <button type="button" (click)="Confirmation(activeOrder)" 
-                            class="btn solid_hover_color w-100 h-100">Make order</button>
-                </div>
-                <div class="col-6">
-                    <h3>Total amount: ${{ (activeOrder.TotalAmount || 0).toFixed(2) }}</h3>
-                </div>
-            </div>
+<div class="order-card" *ngIf="activeOrder; else noOrder">
+    <div class="order-card__header">
+        <div class="order-card__title">
+            <span class="order-card__eyebrow">Active order</span>
+            <h2>{{activeOrder?.OrderName}}</h2>
+        </div>
+        <button class="btn order-cancel-btn" (click)="CancelOrder(activeOrder.Id)">
+            <i class="fa-solid fa-xmark" aria-hidden="true"></i> Cancel order
+        </button>
+    </div>
+
+    <div class="order-meta">
+        <div class="order-meta__item">
+            <span class="order-meta__label">Status</span>
+            <span class="order-meta__value order-meta__value--accent">{{activeOrder.OrderStatus | orderStatus}}</span>
+        </div>
+        <div class="order-meta__item">
+            <span class="order-meta__label">Payment type</span>
+            <span class="order-meta__value">{{activeOrder.PaymentType | paymentType}}</span>
         </div>
     </div>
-    <div *ngIf="!activeOrder">
-        <div class="card-body">
-            <h1>No orders</h1>
-            <hr/>
+
+    <div class="order-products">
+        <app-products-grid [type]="'order'" [orderProducts]="activeOrder.Products"></app-products-grid>
+    </div>
+
+    <div class="order-footer">
+        <button type="button" (click)="Confirmation(activeOrder)" class="btn order-primary-btn">
+            <i class="fa-solid fa-check" aria-hidden="true"></i> Make order
+        </button>
+        <div class="order-total">
+            <span>Total amount</span>
+            <strong>${{ (activeOrder.TotalAmount || 0).toFixed(2) }}</strong>
         </div>
     </div>
 </div>
+
+<ng-template #noOrder>
+    <div class="order-card order-empty">
+        <div class="order-empty__icon">
+            <i class="fa-solid fa-bag-shopping" aria-hidden="true"></i>
+        </div>
+        <h3>No active order</h3>
+        <p>You don't have any products waiting in an active order right now.</p>
+        <a class="btn order-primary-btn" routerLink="/">Start shopping</a>
+    </div>
+</ng-template>

@@ -1,146 +1,154 @@
-
-<div class="container">
+<div class="container settings-page">
     <app-breadcrumb [isItem]="false" [itemDetail]="'Settings'"></app-breadcrumb>
 
-    <div class="row">
-        <!-- TABS -->
-        <div class="col-md-4 col-xl-4">
-            <div class="card">
-              <div class="">
-                <a [ngClass]="{ 'solid-active': activeTab === 'account' }" class="list-group-item btn left-solid-text nav-link" (click)="switchTab('account')">
-                    Profile Information
-                </a>
-                <a [ngClass]="{ 'solid-active': activeTab === 'address' }" class="list-group-item btn left-solid-text nav-link" (click)="switchTab('address')">
-                    Address Information
-                </a>
-                <a [ngClass]="{ 'solid-active': activeTab === 'password' }" class="list-group-item btn left-solid-text nav-link" (click)="switchTab('password')">
-                  Change Password
-                </a>
-              </div>
-            </div>
+    <div class="row g-4">
+        <!-- Section navigation -->
+        <div class="col-md-4 col-lg-3">
+            <nav class="settings-nav">
+                <button type="button" class="settings-nav__item"
+                    [class.settings-nav__item--active]="activeTab === 'account'" (click)="switchTab('account')">
+                    <i class="fa-solid fa-user" aria-hidden="true"></i>
+                    <span>Profile information</span>
+                </button>
+                <button type="button" class="settings-nav__item"
+                    [class.settings-nav__item--active]="activeTab === 'address'" (click)="switchTab('address')">
+                    <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
+                    <span>Address information</span>
+                </button>
+                <button type="button" class="settings-nav__item"
+                    [class.settings-nav__item--active]="activeTab === 'password'" (click)="switchTab('password')">
+                    <i class="fa-solid fa-lock" aria-hidden="true"></i>
+                    <span>Change password</span>
+                </button>
+            </nav>
         </div>
 
-        <!-- TAB PANEL CONTENT -->
-        <div class="col-md-8 col-xl-8">
-            <div class="tab-content">
-              <div class="tab-pane fade" [ngClass]="{ 'show active': activeTab === 'account' }" id="account">
-                <div class="card">
-                    <div *ngIf="userDetails" class="card-body">
-                        <h1>Public info</h1>
-                        <hr />
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="row">
-                                        <div class="mb-3 col-md-6">
-                                            <label >First name</label>
-                                            <input type="text" class="form-control"
-                                                [(ngModel)]="userDetails.FirstName"
-                                                placeholder="First name">
-                                        </div>
-                                        <div class="mb-3 col-md-6">
-                                            <label for="inputLastName">Last name</label>
-                                            <input type="text" class="form-control" id="inputLastName"
-                                            [(ngModel)]="userDetails.LastName"
-                                                placeholder="Last name">
-                                        </div>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="inputEmail4">Email</label>
-                                        <input type="email" class="form-control"
-                                            [(ngModel)]="userDetails.Email"
-                                            id="inputEmail4" 
-                                            placeholder="Email">
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label>Username</label>
-                                        <input type="text" class="form-control"
-                                            [(ngModel)]="userDetails.Username" 
-                                            placeholder="Username">
-                                    </div>
-                                </div>
-                                <div class="col-md-12">
-                                    <div class="mb-3 ">
-                                        <label>Description</label>
-                                        <textarea rows="5" class="form-control"
-                                        [(ngModel)]="userDetails.Description"></textarea>
-                                    </div>
-                                </div>
-                            </div>
-                            <button type="button" (click)="updateUserPublicInfo(userDetails)" class="btn solid_button_orange">Save changes</button>
-                    </div>
+        <!-- Panels -->
+        <div class="col-md-8 col-lg-9">
+            <!-- Profile information -->
+            <section class="settings-card" *ngIf="activeTab === 'account'">
+                <div class="settings-card__header">
+                    <h3>Profile information</h3>
+                    <p>Update the public details shown on your account.</p>
                 </div>
-              </div>
-              <div class="tab-pane fade" [ngClass]="{ 'show active': activeTab === 'address'}" id="address">
-                <div class="card">
-                    <div *ngIf="userDetails" class="card-body">
-                        <h1>Private info</h1>
-                        <hr>
-                            <div class="mb-3">
-                                <label for="inputAddress">Address</label>
-                                <input type="text" class="form-control" id="inputAddress"
-                                    [(ngModel)]="userDetails.Address" 
-                                    placeholder="1234 Main St">
-                            </div>
-                            <div class="row">
-                                <div class="mb-3 col-md-6">
-                                    <label>City</label>
-                                    <input type="text" class="form-control" [(ngModel)]="userDetails.City" >
-                                </div>
-                                <div class="mb-3 col-md-4">
-                                    <label>State</label>
-                                    <input type="text" class="form-control" [(ngModel)]="userDetails.State" >
-                                </div>
-                                <div class="mb-3 col-md-2">
-                                    <label>Zip</label>
-                                    <input type="text" class="form-control" [(ngModel)]="userDetails.ZipCode" >
-                                </div>
-                            </div>
-                            <button type="button" (click)="updateUserPublicInfo(userDetails)" class="btn solid_button_orange">Save changes</button>
-                    </div>
-                </div>
-              </div>
-              <div class="tab-pane fade" [ngClass]="{ 'show active': activeTab === 'password' }" id="password">
-                <div class="card">
-                    <div class="card-body">
-                        <h1>Password</h1>
-                        <hr>
-                            <div *ngIf="passwordErrorMessage.length > 0" class="alert alert-danger" role="alert">
-                                <ul class="mb-0">
-                                    <li *ngFor="let error of passwordErrorMessage">{{ error }}</li>
-                                </ul>
-                            </div>
-                            <div class="mb-3">
-                                <label for="inputPasswordCurrent" >Current password</label>
-                                <input type="password" class="form-control" [(ngModel)]="changePasswordViewModel.OldPassword" id="inputPasswordCurrent">
-                            </div>
-                            <div class="mb-3">
-                                <label for="inputPasswordNew">New password</label>
-                                <input type="password" [(ngModel)]="changePasswordViewModel.NewPassword" class="form-control" id="inputPasswordNew">
-                                <ul class="password-hints" *ngIf="changePasswordViewModel.NewPassword">
-                                    <li *ngFor="let requirement of passwordRequirements"
-                                        [class.password-hints__met]="requirement.test(changePasswordViewModel.NewPassword || '')">
-                                        <i class="fa-solid"
-                                            [ngClass]="requirement.test(changePasswordViewModel.NewPassword || '') ? 'fa-circle-check' : 'fa-circle'"></i>
-                                        <span>{{ requirement.label }}</span>
-                                    </li>
-                                </ul>
-                            </div>
-                            <div class="mb-3">
-                                <label for="inputPasswordNewRepeat">Confirm new password</label>
-                                <input type="password" [(ngModel)]="repeatNewPassword" class="form-control" id="inputPasswordNewRepeat">
-                            </div>
-                            
-                            <button type="button" (click)="changePassword()" class="btn solid_button_orange">Change password</button>
-                    </div>
-                </div>
-              </div>
-              <div class="tab-pane fade" [ngClass]="{ 'show active': activeTab === 'deleteaccount' }" id="deleteaccount">
 
-              </div>
-            </div>
+                <div class="settings-card__body" *ngIf="userDetails">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">First name</label>
+                            <input type="text" class="form-control" [(ngModel)]="userDetails.FirstName"
+                                placeholder="First name">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Last name</label>
+                            <input type="text" class="form-control" [(ngModel)]="userDetails.LastName"
+                                placeholder="Last name">
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control" [(ngModel)]="userDetails.Email" placeholder="Email">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Username</label>
+                        <input type="text" class="form-control" [(ngModel)]="userDetails.Username"
+                            placeholder="Username">
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label">Description</label>
+                        <textarea rows="4" class="form-control" [(ngModel)]="userDetails.Description"
+                            placeholder="Tell us a little about yourself"></textarea>
+                    </div>
+
+                    <button type="button" (click)="updateUserPublicInfo(userDetails)" class="btn settings-save-btn">
+                        <i class="fa-solid fa-check" aria-hidden="true"></i> Save changes
+                    </button>
+                </div>
+            </section>
+
+            <!-- Address information -->
+            <section class="settings-card" *ngIf="activeTab === 'address'">
+                <div class="settings-card__header">
+                    <h3>Address information</h3>
+                    <p>Where should we deliver your orders?</p>
+                </div>
+
+                <div class="settings-card__body" *ngIf="userDetails">
+                    <div class="mb-3">
+                        <label class="form-label">Address</label>
+                        <input type="text" class="form-control" [(ngModel)]="userDetails.Address"
+                            placeholder="1234 Main St">
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">City</label>
+                            <input type="text" class="form-control" [(ngModel)]="userDetails.City" placeholder="City">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">State</label>
+                            <input type="text" class="form-control" [(ngModel)]="userDetails.State" placeholder="State">
+                        </div>
+                        <div class="col-md-2 mb-3">
+                            <label class="form-label">Zip</label>
+                            <input type="text" class="form-control" [(ngModel)]="userDetails.ZipCode" placeholder="Zip">
+                        </div>
+                    </div>
+
+                    <button type="button" (click)="updateUserPublicInfo(userDetails)" class="btn settings-save-btn">
+                        <i class="fa-solid fa-check" aria-hidden="true"></i> Save changes
+                    </button>
+                </div>
+            </section>
+
+            <!-- Change password -->
+            <section class="settings-card" *ngIf="activeTab === 'password'">
+                <div class="settings-card__header">
+                    <h3>Change password</h3>
+                    <p>Choose a strong password you don't use anywhere else.</p>
+                </div>
+
+                <div class="settings-card__body">
+                    <div *ngIf="passwordErrorMessage.length > 0" class="alert alert-danger" role="alert">
+                        <ul class="mb-0 ps-3">
+                            <li *ngFor="let error of passwordErrorMessage">{{ error }}</li>
+                        </ul>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Current password</label>
+                        <input type="password" class="form-control" [(ngModel)]="changePasswordViewModel.OldPassword"
+                            autocomplete="current-password">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">New password</label>
+                        <input type="password" class="form-control" [(ngModel)]="changePasswordViewModel.NewPassword"
+                            autocomplete="new-password">
+                        <ul class="password-hints" *ngIf="changePasswordViewModel.NewPassword">
+                            <li *ngFor="let requirement of passwordRequirements"
+                                [class.password-hints__met]="requirement.test(changePasswordViewModel.NewPassword || '')">
+                                <i class="fa-solid"
+                                    [ngClass]="requirement.test(changePasswordViewModel.NewPassword || '') ? 'fa-circle-check' : 'fa-circle'"></i>
+                                <span>{{ requirement.label }}</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label">Confirm new password</label>
+                        <input type="password" class="form-control" [(ngModel)]="repeatNewPassword"
+                            autocomplete="new-password">
+                    </div>
+
+                    <button type="button" (click)="changePassword()" class="btn settings-save-btn">
+                        <i class="fa-solid fa-key" aria-hidden="true"></i> Change password
+                    </button>
+                </div>
+            </section>
         </div>
     </div>
-      
 </div>

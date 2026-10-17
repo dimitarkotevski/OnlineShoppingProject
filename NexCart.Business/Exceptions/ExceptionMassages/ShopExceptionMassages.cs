@@ -58,6 +58,7 @@
         public static class PaymentExceptionMassages
         {
             public static string NOT_FOUND = "Payment not found";
+            public static string INVALID_EXPIRATION_DATE = "A valid card expiration date is required";
         }
     }
 }

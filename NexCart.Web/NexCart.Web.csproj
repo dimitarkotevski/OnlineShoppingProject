@@ -3,6 +3,7 @@
   <PropertyGroup>
     <RootNamespace>NexCart.Web</RootNamespace>
     <AssemblyName>NexCart.Web</AssemblyName>
+    <UserSecretsId>ff82099b-d007-49b0-b98f-ee5cf894dd1c</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>

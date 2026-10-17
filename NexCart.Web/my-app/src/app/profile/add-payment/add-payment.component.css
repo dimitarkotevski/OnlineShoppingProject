@@ -1,220 +1,98 @@
-body {
-    margin: 0;
-    padding: 0;
-    background-color: #f9f9f9;
-    display: -webkit-box;
-    display: -ms-flexbox;
+:host {
+    display: block;
+}
+
+/* --- Dialog title --- */
+.payment-dialog__title {
     display: flex;
-    -ms-flex-line-pack: center;
-        align-content: center;
-    -webkit-box-align: center;
-        -ms-flex-align: center;
-            align-items: center;
-    -webkit-box-pack: center;
-        -ms-flex-pack: center;
-            justify-content: center;
-    min-height: 100vh;
-    -ms-flex-wrap: wrap;
-        flex-wrap: wrap;
-    font-family: 'Raleway';
+    align-items: center;
+    gap: 0.6rem;
+    margin: 0;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #212529;
 }
 
-.payment-title {
-    width: 100%;
-    text-align: center;
+.payment-dialog__title i {
+    color: coral;
 }
 
-.form-container .field-container:first-of-type {
-    grid-area: name;
+/* --- Content --- */
+.payment-dialog__content {
+    padding-top: 0.75rem !important;
 }
 
-.form-container .field-container:nth-of-type(2) {
-    grid-area: number;
+/* --- Validation summary --- */
+.payment-dialog__errors {
+    margin-bottom: 1rem;
+    border-radius: 12px;
+    font-size: 0.85rem;
 }
 
-.form-container .field-container:nth-of-type(3) {
-    grid-area: expiration;
+/* --- Live card preview --- */
+.payment-preview {
+    display: flex;
+    justify-content: center;
+    position: sticky;
+    top: 0;
 }
 
-.form-container .field-container:nth-of-type(4) {
-    grid-area: security;
-}
-
-.field-container input {
-    -webkit-box-sizing: border-box;
-    box-sizing: border-box;
-}
-
-.field-container {
+.creditcard {
     position: relative;
-}
-
-.form-container {
-    display: grid;
-    grid-column-gap: 10px;
-    grid-template-columns: auto auto;
-    grid-template-rows: 90px 90px 90px;
-    grid-template-areas: "name name""number number""expiration security";
-    max-width: 400px;
-    padding: 20px;
-    color: #707070;
-}
-
-label {
-    padding-bottom: 5px;
-    font-size: 13px;
-}
-
-input {
-    margin-top: 3px;
-    padding: 15px;
-    font-size: 16px;
     width: 100%;
-    border-radius: 3px;
-    border: 1px solid #dcdcdc;
+    max-width: 360px;
+    -webkit-transform-style: preserve-3d;
+    transform-style: preserve-3d;
+    -webkit-transition: -webkit-transform 0.6s;
+    transition: transform 0.6s, -webkit-transform 0.6s;
 }
 
-.ccicon {
-    height: 38px;
-    position: absolute;
-    right: 6px;
-    top: calc(50% - 17px);
-    width: 60px;
-}
-
-/* CREDIT CARD IMAGE STYLING */
-.preload * {
-    -webkit-transition: none !important;
-    -moz-transition: none !important;
-    -ms-transition: none !important;
-    -o-transition: none !important;
-}
-
-.container {
+.creditcard .front,
+.creditcard .back {
     width: 100%;
-    max-width: 400px;
-    max-height: 251px;
-    height: 54vw;
-    padding: 20px;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    -webkit-font-smoothing: antialiased;
 }
 
-#ccsingle {
+.creditcard .back {
     position: absolute;
-    right: 15px;
-    top: 20px;
+    top: 0;
+    left: 0;
+    -webkit-transform: rotateY(180deg);
+    transform: rotateY(180deg);
 }
 
-#ccsingle svg {
-    width: 100px;
-    max-height: 60px;
+.creditcard.flipped {
+    -webkit-transform: rotateY(180deg);
+    transform: rotateY(180deg);
 }
 
 .creditcard svg#cardfront,
 .creditcard svg#cardback {
+    display: block;
     width: 100%;
-    -webkit-box-shadow: 1px 5px 6px 0px black;
-    box-shadow: 1px 5px 6px 0px black;
-    border-radius: 22px;
+    height: auto;
+    border-radius: 18px;
+    box-shadow: 0 16px 32px rgba(0, 0, 0, 0.22);
 }
 
-#generatecard{
-    cursor: pointer;
-    float: right;
-    font-size: 12px;
-    color: #fff;
-    padding: 2px 4px;
-    background-color: #909090;
-    border-radius: 4px;
-    cursor: pointer;
-    float:right;
-}
-
-/* CHANGEABLE CARD ELEMENTS */
+/* Card colours, themed to match the site accent. */
 .creditcard .lightcolor,
-.creditcard .darkcolor {
-    -webkit-transition: fill .5s;
-    transition: fill .5s;
-}
-
-.creditcard .lightblue {
-    fill: #03A9F4;
-}
-
-.creditcard .lightbluedark {
-    fill: #0288D1;
-}
-
-.creditcard .red {
-    fill: #ef5350;
-}
-
-.creditcard .reddark {
-    fill: #d32f2f;
-}
-
-.creditcard .purple {
-    fill: #ab47bc;
-}
-
-.creditcard .purpledark {
-    fill: #7b1fa2;
-}
-
-.creditcard .cyan {
-    fill: #26c6da;
-}
-
-.creditcard .cyandark {
-    fill: #0097a7;
-}
-
-.creditcard .green {
-    fill: #66bb6a;
-}
-
-.creditcard .greendark {
-    fill: #388e3c;
-}
-
-.creditcard .lime {
-    fill: #d4e157;
-}
-
-.creditcard .limedark {
-    fill: #afb42b;
-}
-
-.creditcard .yellow {
-    fill: #ffeb3b;
-}
-
-.creditcard .yellowdark {
-    fill: #f9a825;
-}
-
-.creditcard .orange {
-    fill: #ff9800;
-}
-
-.creditcard .orangedark {
-    fill: #ef6c00;
-}
-
 .creditcard .grey {
-    fill: #bdbdbd;
+    fill: #ff7f50;
+    transition: fill 0.4s ease;
 }
 
+.creditcard .darkcolor,
 .creditcard .greydark {
-    fill: #616161;
+    fill: #e8613a;
+    transition: fill 0.4s ease;
 }
 
-/* FRONT OF CARD */
-#svgname {
-    text-transform: uppercase;
-}
-
+/* Front-of-card text */
 #cardfront .st2 {
-    fill: #FFFFFF;
+    fill: #ffffff;
 }
 
 #cardfront .st3 {
@@ -236,8 +114,8 @@ input {
 }
 
 #cardfront .st7 {
-    opacity: 0.6;
-    fill: #FFFFFF;
+    opacity: 0.65;
+    fill: #ffffff;
 }
 
 #cardfront .st8 {
@@ -245,7 +123,7 @@ input {
 }
 
 #cardfront .st9 {
-    font-size: 36.5498px;
+    font-size: 34px;
 }
 
 #cardfront .st10 {
@@ -258,99 +136,318 @@ input {
 }
 
 #cardfront .st12 {
-    fill: #4C4C4C;
+    fill: #4c4c4c;
 }
 
-/* BACK OF CARD */
-#cardback .st0 {
-    fill: none;
-    stroke: #0F0F0F;
-    stroke-miterlimit: 10;
+/* Back-of-card details */
+#cardback .magstripe {
+    fill: #2b2b2b;
 }
 
-#cardback .st2 {
-    fill: #111111;
+#cardback .signature-panel {
+    fill: #f2f2f2;
 }
 
-#cardback .st3 {
-    fill: #F2F2F2;
-}
-
-#cardback .st4 {
-    fill: #D8D2DB;
-}
-
-#cardback .st5 {
-    fill: #C4C4C4;
-}
-
-#cardback .st6 {
+#cardback .cvclabel {
+    fill: #6c757d;
     font-family: 'Source Code Pro', monospace;
-    font-weight: 400;
+    font-weight: 600;
+    font-size: 26px;
+    letter-spacing: 1px;
 }
 
-#cardback .st7 {
-    font-size: 27px;
+#cardback .cvcvalue {
+    fill: #212529;
+    font-family: 'Source Code Pro', monospace;
+    font-weight: 600;
+    font-size: 36px;
 }
 
-#cardback .st8 {
-    opacity: 0.6;
+/* --- Form fields --- */
+.payment-field {
+    margin-bottom: 1rem;
 }
 
-#cardback .st9 {
-    fill: #FFFFFF;
+.payment-field label {
+    display: block;
+    margin-bottom: 0.35rem;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #495057;
 }
 
-#cardback .st10 {
-    font-size: 24px;
+.payment-field .form-control {
+    border-radius: 10px;
+    border: 1px solid #e0e3e7;
+    padding: 0.55rem 0.75rem;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-#cardback .st11 {
-    fill: #EAEAEA;
+.payment-field .form-control:focus {
+    border-color: coral;
+    box-shadow: 0 0 0 0.2rem rgba(255, 127, 80, 0.2);
 }
 
-#cardback .st12 {
-    font-family: 'Rock Salt', cursive;
+/* Keep the invalid state red even while the field is focused. */
+.payment-field .form-control.is-invalid,
+.payment-field .form-control.is-invalid:focus {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.15);
 }
 
-#cardback .st13 {
-    font-size: 37.769px;
+/* --- Expiry date: MM / YY input with a calendar toggle --- */
+.expiry-input {
+    display: flex;
+    align-items: stretch;
+    border: 1px solid #e0e3e7;
+    border-radius: 10px;
+    background: #fff;
+    overflow: hidden;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-/* FLIP ANIMATION */
-.container {
-    perspective: 1000px;
+.expiry-input:focus-within {
+    border-color: coral;
+    box-shadow: 0 0 0 0.2rem rgba(255, 127, 80, 0.2);
 }
 
-.creditcard {
-    width: 100%;
-    max-width: 400px;
-    -webkit-transform-style: preserve-3d;
-    transform-style: preserve-3d;
-    transition: -webkit-transform 0.6s;
-    -webkit-transition: -webkit-transform 0.6s;
-    transition: transform 0.6s;
-    transition: transform 0.6s, -webkit-transform 0.6s;
+.expiry-input--invalid,
+.expiry-input--invalid:focus-within {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.15);
+}
+
+.payment-field__error {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin: 0.4rem 0 0;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #dc3545;
+}
+
+/* --- Validation summary --- */
+.payment-errors {
+    margin-top: 0.5rem;
+    padding: 0.85rem 1rem;
+    border: 1px solid rgba(220, 53, 69, 0.25);
+    border-radius: 12px;
+    background: rgba(220, 53, 69, 0.06);
+    color: #b02a37;
+    font-size: 0.82rem;
+}
+
+.payment-errors__title {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin: 0 0 0.35rem;
+    font-weight: 700;
+}
+
+.payment-errors ul {
+    margin: 0;
+    padding-left: 1.1rem;
+}
+
+.payment-errors li + li {
+    margin-top: 0.15rem;
+}
+
+.expiry-input__part {
+    flex: 1 1 0;
+    min-width: 0;
+    border: 0;
+    outline: none;
+    background: transparent;
+    padding: 0.55rem 0.5rem;
+    text-align: center;
+    font-family: 'Source Code Pro', monospace;
+    font-variant-numeric: tabular-nums;
+    font-size: 1rem;
+    letter-spacing: 0.08em;
+    color: #212529;
+}
+
+.expiry-input__part::placeholder {
+    color: #adb5bd;
+    letter-spacing: 0.08em;
+}
+
+.expiry-input__sep {
+    display: flex;
+    align-items: center;
+    padding: 0 0.15rem;
+    color: #adb5bd;
+    font-weight: 700;
+    user-select: none;
+}
+
+.expiry-input__toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    flex: 0 0 auto;
+    border: 0;
+    border-left: 1px solid #e0e3e7;
+    background: #f8f9fa;
+    color: #6c757d;
     cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease;
 }
 
-.creditcard .front,
-.creditcard .back {
-    position: absolute;
-    width: 100%;
-    max-width: 400px;
-    -webkit-backface-visibility: hidden;
-    backface-visibility: hidden;
-    -webkit-font-smoothing: antialiased;
-    color: #47525d;
+.expiry-input__toggle:hover,
+.expiry-input__toggle:focus-visible,
+.expiry-input--open .expiry-input__toggle {
+    background: coral;
+    color: #fff;
+    outline: none;
 }
 
-.creditcard .back {
-    -webkit-transform: rotateY(180deg);
-    transform: rotateY(180deg);
+.expiry-picker {
+    margin-top: 0.5rem;
+    padding: 0.75rem;
+    border: 1px solid #e0e3e7;
+    border-radius: 12px;
+    background: #fff;
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
+    animation: expiry-picker-in 0.15s ease-out;
 }
 
-.creditcard.flipped {
-    -webkit-transform: rotateY(180deg);
-    transform: rotateY(180deg);
+@keyframes expiry-picker-in {
+    from {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.expiry-picker__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.6rem;
+}
+
+.expiry-picker__year {
+    font-weight: 700;
+    color: #212529;
+    font-variant-numeric: tabular-nums;
+}
+
+.expiry-picker__nav {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border: 1px solid #e0e3e7;
+    border-radius: 50%;
+    background: #fff;
+    color: #495057;
+    cursor: pointer;
+    transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.expiry-picker__nav:hover {
+    background: coral;
+    border-color: coral;
+    color: #fff;
+}
+
+.expiry-picker__months {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.35rem;
+}
+
+.expiry-picker__month {
+    padding: 0.45rem 0;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    background: #f1f3f5;
+    color: #495057;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+.expiry-picker__month:hover {
+    background: rgba(255, 127, 80, 0.15);
+    color: chocolate;
+}
+
+.expiry-picker__month--selected,
+.expiry-picker__month--selected:hover {
+    background: coral;
+    color: #fff;
+}
+
+/* --- Actions --- */
+.payment-dialog__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    padding-top: 0.5rem !important;
+}
+
+.payment-dialog__btn {
+    border-radius: 50px;
+    font-weight: 600;
+    padding: 0.55rem 1.5rem;
+    transition: all 0.25s ease;
+}
+
+.payment-dialog__btn--ghost {
+    background: transparent;
+    border: 1px solid #ced4da;
+    color: #495057;
+}
+
+.payment-dialog__btn--ghost:hover {
+    background: #f1f3f5;
+    color: #212529;
+}
+
+.payment-dialog__btn--primary {
+    background: coral;
+    border: 1px solid coral;
+    color: #fff;
+}
+
+.payment-dialog__btn--primary:hover {
+    background: chocolate;
+    border-color: chocolate;
+    color: #fff;
+}
+
+@media (max-width: 767px) {
+    .payment-preview {
+        position: static;
+    }
+}
+
+@media (max-width: 575px) {
+    .payment-dialog__content {
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+    }
+
+    .payment-dialog__actions {
+        flex-direction: column-reverse;
+    }
+
+    .payment-dialog__btn {
+        width: 100%;
+    }
+
+    .creditcard {
+        max-width: 100%;
+    }
 }

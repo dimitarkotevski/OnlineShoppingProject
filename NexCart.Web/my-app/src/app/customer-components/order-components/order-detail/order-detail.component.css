@@ -1,0 +1,214 @@
+/* ---------------------------------------------------------------- */
+/* Order detail card                                                */
+/* ---------------------------------------------------------------- */
+.order-card {
+    background: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    border-radius: 16px;
+    padding: 1.75rem;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.06);
+}
+
+.order-card__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.5rem;
+}
+
+.order-card__eyebrow {
+    display: inline-block;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: coral;
+    margin-bottom: 0.25rem;
+}
+
+.order-card__title h2 {
+    margin: 0;
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #212529;
+}
+
+.order-cancel-btn {
+    border: 1px solid #dc3545;
+    color: #dc3545;
+    border-radius: 50px;
+    font-weight: 600;
+    padding: 0.5rem 1.25rem;
+    transition: all 0.25s ease;
+}
+
+.order-cancel-btn:hover {
+    background: #dc3545;
+    color: #fff;
+}
+
+/* Meta strip */
+.order-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.order-meta__item {
+    flex: 1 1 200px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 0.9rem 1.1rem;
+    border-radius: 12px;
+    background: #f8f9fa;
+    border: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+.order-meta__label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #6c757d;
+    font-weight: 600;
+}
+
+.order-meta__value {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #212529;
+}
+
+.order-meta__value--accent {
+    color: coral;
+}
+
+/* Products */
+.order-products {
+    padding: 0.5rem 0;
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    margin-bottom: 1.5rem;
+}
+
+/* Footer */
+.order-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.order-primary-btn {
+    background: coral;
+    color: #fff;
+    border-radius: 50px;
+    font-weight: 600;
+    padding: 0.6rem 1.75rem;
+    border: none;
+    transition: all 0.25s ease;
+}
+
+.order-primary-btn:hover {
+    background: chocolate;
+    color: #fff;
+}
+
+.order-total {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.order-total span {
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #6c757d;
+    font-weight: 600;
+}
+
+.order-total strong {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: #212529;
+}
+
+/* Empty state */
+.order-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 3rem 1.5rem;
+}
+
+.order-empty__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 84px;
+    height: 84px;
+    border-radius: 50%;
+    background: rgba(255, 127, 80, 0.12);
+    color: coral;
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+.order-empty h3 {
+    margin: 0 0 0.35rem;
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: #212529;
+}
+
+.order-empty p {
+    margin: 0 0 1.25rem;
+    color: #6c757d;
+    max-width: 380px;
+}
+
+@media (max-width: 575px) {
+    .order-footer {
+        flex-direction: column-reverse;
+        align-items: stretch;
+        text-align: center;
+    }
+
+    .order-total {
+        align-items: center;
+    }
+
+    .order-primary-btn {
+        width: 100%;
+    }
+}
+
+@media (max-width: 767px) {
+    .order-card {
+        padding: 1.25rem;
+    }
+
+    .order-meta__item {
+        flex-basis: 100%;
+    }
+}
+
+@media (max-width: 575px) {
+    .order-card__title h2 {
+        font-size: 1.3rem;
+    }
+
+    .order-cancel-btn {
+        width: 100%;
+    }
+
+    .order-empty {
+        padding: 2rem 1rem;
+    }
+}

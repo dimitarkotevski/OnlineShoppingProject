@@ -1,8 +1,22 @@
-<h1 mat-dialog-title>Confirm dialog</h1>
-<div mat-dialog-content>
-    {{text}}
-  </div>
-<div style="float:right;margin:20px;">
-    <input class="btn btn-danger m-1" type="button" value="Yes"  [mat-dialog-close]="true">
-    <input class="btn btn-outline-primary m-1" type="button" value="No"  [mat-dialog-close]="false">
+<div class="confirm-dialog__icon" [class.confirm-dialog__icon--danger]="danger">
+    <i class="fa-solid" [ngClass]="danger ? 'fa-triangle-exclamation' : 'fa-circle-question'" aria-hidden="true"></i>
+</div>
+
+<h2 mat-dialog-title class="confirm-dialog__title">{{ title }}</h2>
+
+<div mat-dialog-content class="confirm-dialog__content">
+    <p class="confirm-dialog__text">{{ text }}</p>
+</div>
+
+<div mat-dialog-actions class="confirm-dialog__actions">
+    <button type="button" class="btn confirm-dialog__btn confirm-dialog__btn--ghost" [mat-dialog-close]="false">
+        {{ cancelText }}
+    </button>
+    <button type="button" class="btn confirm-dialog__btn"
+        [class.confirm-dialog__btn--danger]="danger"
+        [class.confirm-dialog__btn--primary]="!danger"
+        [mat-dialog-close]="true">
+        <i class="fa-solid" [ngClass]="danger ? 'fa-trash-can' : 'fa-check'" aria-hidden="true"></i>
+        {{ confirmText }}
+    </button>
 </div>

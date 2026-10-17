@@ -116,3 +116,411 @@
 #cardback .st2 {
     fill: #111111;
 }
+
+/* ---------------------------------------------------------------- */
+/* Account page                                                     */
+/* ---------------------------------------------------------------- */
+.account-page {
+    padding-bottom: 3rem;
+}
+
+.account-content {
+    margin-top: 0.5rem;
+}
+
+.account-card {
+    background: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.06);
+}
+
+.account-card__header {
+    margin-bottom: 1.25rem;
+}
+
+.account-card__header h3 {
+    margin: 0 0 0.25rem;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #212529;
+}
+
+.account-card__header p {
+    margin: 0;
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+/* Profile summary */
+.account-summary {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.account-avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 96px;
+    height: 96px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, coral, #ff8c00);
+    color: #fff;
+    font-size: 2.5rem;
+    box-shadow: 0 8px 20px rgba(255, 127, 80, 0.35);
+    margin-bottom: 1rem;
+}
+
+.account-summary__name {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #212529;
+    margin: 0;
+}
+
+.account-summary__username {
+    color: #ff7f50;
+    font-weight: 600;
+    margin: 0.15rem 0 1rem;
+}
+
+.account-summary__meta {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 1.5rem;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
+.account-summary__meta li {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.55rem;
+    color: #495057;
+    font-size: 0.92rem;
+    word-break: break-word;
+}
+
+.account-summary__meta li i {
+    color: coral;
+}
+
+.account-edit-btn {
+    margin-top: auto;
+    width: 100%;
+    border-radius: 50px;
+    border: 1px solid coral;
+    color: coral;
+    font-weight: 600;
+    transition: all 0.25s ease;
+}
+
+.account-edit-btn:hover {
+    background: coral;
+    color: #fff;
+}
+
+/* Information list */
+.account-info {
+    margin: 0;
+}
+
+.account-info__row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.9rem 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.account-info__row:last-child {
+    border-bottom: none;
+}
+
+.account-info__row dt {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin: 0;
+    font-weight: 600;
+    color: #495057;
+    font-size: 0.9rem;
+    white-space: nowrap;
+}
+
+.account-info__row dt i {
+    width: 18px;
+    text-align: center;
+    color: coral;
+}
+
+.account-info__row dd {
+    margin: 0;
+    color: #212529;
+    font-weight: 500;
+    text-align: right;
+    word-break: break-word;
+}
+
+/* Payment */
+.payment-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.9rem;
+    width: 100%;
+}
+
+.payment-actions__status {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+}
+
+.payment-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: #f8f9fa;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    color: #212529;
+    font-weight: 600;
+    font-size: 0.9rem;
+    padding: 0.35rem 0.85rem;
+    border-radius: 50px;
+}
+
+.payment-brand i {
+    font-size: 1.3rem;
+    color: coral;
+    line-height: 1;
+}
+
+.payment-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-weight: 600;
+    font-size: 0.85rem;
+    padding: 0.35rem 0.85rem;
+    border-radius: 50px;
+}
+
+.payment-status i {
+    font-size: 0.5rem;
+}
+
+.payment-status--valid {
+    background: rgba(25, 135, 84, 0.12);
+    color: #198754;
+}
+
+.payment-status--expiring {
+    background: rgba(255, 193, 7, 0.2);
+    color: #a17c00;
+}
+
+.payment-status--expired {
+    background: rgba(220, 53, 69, 0.12);
+    color: #dc3545;
+}
+
+.payment-actions__hint {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    color: #6c757d;
+    margin: 0;
+    font-size: 0.85rem;
+}
+
+.payment-actions__hint i {
+    color: #198754;
+    margin-top: 0.15rem;
+}
+
+.account-primary-btn {
+    background: coral;
+    color: #fff;
+    border-radius: 50px;
+    font-weight: 600;
+    padding: 0.55rem 1.4rem;
+    border: none;
+    transition: all 0.25s ease;
+}
+
+.account-primary-btn:hover {
+    background: chocolate;
+    color: #fff;
+}
+
+.account-danger-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(220, 53, 69, 0.08);
+    color: #dc3545;
+    border: 1px solid rgba(220, 53, 69, 0.28);
+    border-radius: 50px;
+    font-weight: 600;
+    padding: 0.55rem 1.4rem;
+    transition: background 0.25s ease, color 0.25s ease, border-color 0.25s ease,
+        box-shadow 0.25s ease, transform 0.15s ease;
+}
+
+.account-danger-btn:hover {
+    background: #dc3545;
+    border-color: #dc3545;
+    color: #fff;
+    box-shadow: 0 8px 18px rgba(220, 53, 69, 0.28);
+}
+
+.account-danger-btn:active {
+    transform: translateY(1px);
+}
+
+.account-danger-btn:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+}
+
+.payment-empty {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    padding: 1.25rem;
+    border: 1px dashed rgba(0, 0, 0, 0.15);
+    border-radius: 12px;
+    background: #fbfbfb;
+    flex-wrap: wrap;
+}
+
+.payment-empty__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: rgba(255, 127, 80, 0.12);
+    color: coral;
+    font-size: 1.4rem;
+    flex: 0 0 56px;
+}
+
+.payment-empty__text {
+    flex: 1 1 auto;
+    min-width: 160px;
+}
+
+.payment-empty__text h4 {
+    margin: 0 0 0.2rem;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #212529;
+}
+
+.payment-empty__text p {
+    color: #6c757d;
+}
+
+@media (max-width: 575px) {
+    .account-info__row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.25rem;
+    }
+
+    .account-info__row dd {
+        text-align: left;
+    }
+}
+
+/* --- Saved card visual (Account page) --- */
+.creditcard {
+    position: relative;
+    max-width: 280px;
+    margin: 0 auto;
+}
+
+/* Brand logo overlaid on the top-right corner of the card face. */
+.card-brand {
+    position: absolute;
+    top: 14px;
+    right: 20px;
+    z-index: 1;
+    font-size: 2.2rem;
+    line-height: 1;
+    color: #ffffff;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+    pointer-events: none;
+}
+
+.creditcard svg#cardfront {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 18px;
+    box-shadow: 0 16px 32px rgba(0, 0, 0, 0.22);
+}
+
+/* The SVG background paths only carry utility classes, so give them the brand colours
+   (without these they fall back to the SVG default of black). */
+.creditcard .lightcolor,
+.creditcard .grey {
+    fill: #ff7f50;
+    transition: fill 0.4s ease;
+}
+
+.creditcard .darkcolor,
+.creditcard .greydark {
+    fill: #e8613a;
+    transition: fill 0.4s ease;
+}
+
+/* --- Saved card actions --- */
+/* Brand + status on the left, Remove button on the right. */
+.payment-actions__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem 1rem;
+    flex-wrap: wrap;
+    width: 100%;
+}
+
+/* --- Responsive --- */
+@media (max-width: 575px) {
+    .account-card {
+        padding: 1.15rem;
+    }
+
+    .account-avatar {
+        width: 76px;
+        height: 76px;
+        font-size: 2rem;
+    }
+
+    .account-summary__name {
+        font-size: 1.2rem;
+    }
+
+    .payment-empty {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .payment-empty .account-primary-btn {
+        width: 100%;
+    }
+}

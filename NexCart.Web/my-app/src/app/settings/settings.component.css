@@ -1,60 +1,173 @@
-.sidebar {
-    height: 100%;
-    width: 150px;
-    position: absolute;
-    left: 0;
-    top: 0;
-    padding-top: 40px;
-    background-color: lightblue;
-    }
-    
-    .sidebar div {
-    padding: 8px;
-    font-size: 24px;
-    display: block;
-    }
-    
-    .body-text {
-    margin-left: 150px;
-    font-size: 18px;
+/* ---------------------------------------------------------------- */
+/* Settings page                                                    */
+/* ---------------------------------------------------------------- */
+.settings-page {
+    padding-bottom: 3rem;
+}
+
+/* Section navigation */
+.settings-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    background: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    border-radius: 16px;
+    padding: 0.6rem;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.06);
+    position: sticky;
+    top: 1rem;
+}
+
+.settings-nav__item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+    text-align: left;
+    border: none;
+    background: transparent;
+    color: #495057;
+    font-weight: 600;
+    font-size: 0.92rem;
+    padding: 0.75rem 0.9rem;
+    border-radius: 10px;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.settings-nav__item i {
+    width: 18px;
+    text-align: center;
+    color: coral;
+    font-size: 0.95rem;
+}
+
+.settings-nav__item:hover {
+    background: rgba(255, 127, 80, 0.08);
+    color: coral;
+}
+
+.settings-nav__item--active,
+.settings-nav__item--active:hover {
+    background: coral;
+    color: #fff;
+}
+
+.settings-nav__item--active i {
+    color: #fff;
+}
+
+/* Panels */
+.settings-card {
+    background: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    border-radius: 16px;
+    padding: 1.75rem;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.06);
+}
+
+.settings-card__header {
+    margin-bottom: 1.5rem;
+}
+
+.settings-card__header h3 {
+    margin: 0 0 0.25rem;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #212529;
+}
+
+.settings-card__header p {
+    margin: 0;
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+.settings-card__body .form-label {
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: #495057;
+    margin-bottom: 0.35rem;
+}
+
+.settings-card__body .form-control {
+    border-radius: 10px;
+    border: 1px solid #e0e3e7;
+    padding: 0.6rem 0.85rem;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.settings-card__body .form-control:focus {
+    border-color: coral;
+    box-shadow: 0 0 0 0.2rem rgba(255, 127, 80, 0.2);
+}
+
+.settings-save-btn {
+    background: coral;
+    color: #fff;
+    border-radius: 50px;
+    font-weight: 600;
+    padding: 0.55rem 1.5rem;
+    border: none;
+    transition: all 0.25s ease;
+}
+
+.settings-save-btn:hover {
+    background: chocolate;
+    color: #fff;
+}
+
+/* Live password requirements checklist (mirrors the register page). */
+.password-hints {
+    margin: 0.5rem 0 0;
+    padding: 0;
+    list-style: none;
+    font-size: 0.8rem;
+    color: #adb5bd;
+}
+
+.password-hints li {
+    display: flex;
+    align-items: center;
+    margin-top: 0.15rem;
+    transition: color 0.15s ease;
+}
+
+.password-hints li i {
+    width: 1rem;
+    margin-right: 0.4rem;
+    font-size: 0.7rem;
+    text-align: center;
+}
+
+.password-hints li.password-hints__met {
+    color: #198754;
+}
+
+@media (max-width: 767px) {
+    .settings-nav {
+        position: static;
+        flex-direction: row;
+        flex-wrap: wrap;
     }
 
+    .settings-nav__item {
+        width: auto;
+        flex: 1 1 auto;
+        justify-content: center;
+    }
+}
 
-
-    .my-tab {
-        background-color: lightgray;
-        border: none;
-        border-radius: 0;
-      }
-      
-      .my-tab.active {
-        background-color: teal;
-        color: white;
-      }
-
-    /* Live password requirements checklist (mirrors the register page). */
-    .password-hints {
-      margin: 0.5rem 0 0;
-      padding: 0;
-      list-style: none;
-      font-size: 0.8rem;
-      color: #adb5bd;
+@media (max-width: 575px) {
+    .settings-card {
+        padding: 1.15rem;
     }
 
-    .password-hints li {
-      display: flex;
-      align-items: center;
-      margin-top: 0.15rem;
-      transition: color 0.15s ease;
+    .settings-nav__item {
+        flex-basis: 100%;
     }
 
-    .password-hints li i {
-      width: 1rem;
-      margin-right: 0.4rem;
-      font-size: 0.7rem;
-      text-align: center;
+    .settings-save-btn {
+        width: 100%;
     }
-
-    .password-hints li.password-hints__met {
-      color: #198754;
-    }
+}

@@ -12,6 +12,7 @@ import { FlashMessageService } from 'src/app/utils/flash-message.service';
   styleUrls: ['./register.component.css', '../auth-shared.css']
 })
 export class RegisterComponent implements OnInit {
+  /** Server-side (API) errors, shown in the alert above the form. */
   errorMessage: string[] = [];
 
   registerUserModel: UserRegister = new UserRegister();
@@ -19,6 +20,13 @@ export class RegisterComponent implements OnInit {
   repeatPassword: string = "";
   showPassword: boolean = false;
   showRepeatPassword: boolean = false;
+
+  /** Set on the first submit so every field can reveal its error. */
+  submitted: boolean = false;
+  emailTouched: boolean = false;
+  usernameTouched: boolean = false;
+  passwordTouched: boolean = false;
+  repeatPasswordTouched: boolean = false;
 
   /** Live password checklist rendered under the password field. */
   passwordRequirements: PasswordRequirement[] = PASSWORD_REQUIREMENTS;
@@ -34,21 +42,59 @@ export class RegisterComponent implements OnInit {
       this.router.navigate(["/"])
     }
   }
+
+  get emailValid(): boolean {
+    return (this.registerUserModel.Email ?? '').trim() !== '';
+  }
+
+  get emailFormatValid(): boolean {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test((this.registerUserModel.Email ?? '').trim());
+  }
+
+  get usernameValid(): boolean {
+    return (this.registerUserModel.Username ?? '').trim() !== '';
+  }
+
+  get passwordValid(): boolean {
+    return validatePassword(this.registerUserModel.Password).length === 0;
+  }
+
+  get repeatPasswordValid(): boolean {
+    return this.repeatPassword !== '' && this.repeatPassword === this.registerUserModel.Password;
+  }
+
+  /** Whether each field's inline error should currently be shown. */
+  get showEmailError(): boolean {
+    return (this.emailTouched || this.submitted) && (!this.emailValid || !this.emailFormatValid);
+  }
+
+  get showUsernameError(): boolean {
+    return (this.usernameTouched || this.submitted) && !this.usernameValid;
+  }
+
+  get showPasswordError(): boolean {
+    return (this.passwordTouched || this.submitted) && !this.passwordValid;
+  }
+
+  /** The password field only needs a text error when empty; otherwise the checklist explains what is missing. */
+  get showPasswordRequiredError(): boolean {
+    return (this.passwordTouched || this.submitted) && (this.registerUserModel.Password ?? '') === '';
+  }
+
+  get showRepeatPasswordError(): boolean {
+    return (this.repeatPasswordTouched || this.submitted) && !this.repeatPasswordValid;
+  }
+
+  get repeatPasswordErrorMessage(): string {
+    return this.repeatPassword === '' ? 'Please confirm your password.' : 'Passwords do not match.';
+  }
+
   registerUser(){
+    this.submitted = true;
     this.errorMessage = [];
-    if(this.registerUserModel.Email ===""){
-      this.errorMessage.push("Email is required");
-    }
-    if(this.registerUserModel.Username ===""){
-      this.errorMessage.push("Username is required");
-    }
-    this.errorMessage.push(...validatePassword(this.registerUserModel.Password));
-    if(this.repeatPassword ===""){
-      this.errorMessage.push("Please confirm your password");
-    }else if(this.repeatPassword !== this.registerUserModel.Password){
-      this.errorMessage.push("Passwords do not match");
-    }
-    if(this.errorMessage.length > 0){
+
+    if(!this.emailValid || !this.emailFormatValid || !this.usernameValid
+        || !this.passwordValid || !this.repeatPasswordValid){
       return;
     }
 

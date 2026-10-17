@@ -1,17 +1,15 @@
+<h2 mat-dialog-title class="payment-dialog__title">
+    <i class="fa-solid fa-credit-card" aria-hidden="true"></i>
+    Payment information
+</h2>
 
-<h1 mat-dialog-title>
-    <div class="payment-title">
-        <h1>Payment Information</h1>
-    </div>
-    <hr />
-  </h1>
-<div mat-dialog-content>
-    <div class="row">
-        <div class="col-6-lg col-md-6 col-sm-12"> 
-            <div class="container preload">
-                <div class="creditcard">
+<div mat-dialog-content class="payment-dialog__content">
+    <div class="row g-4 align-items-start">
+        <!-- Live card preview -->
+        <div class="col-md-6">
+            <div class="payment-preview">
+                <div class="creditcard" [class.flipped]="cvcFocused">
                     <div class="front">
-                        <div id="ccsingle"></div>
                         <svg version="1.1" id="cardfront" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
                             x="0px" y="0px" viewBox="0 0 750 471" style="enable-background:new 0 0 750 471;" xml:space="preserve">
                             <g id="Front">
@@ -30,7 +28,7 @@
                                 <text transform="matrix(1 0 0 1 479.7754 388.8793)" class="st7 st5 st8">expiration</text>
                                 <text transform="matrix(1 0 0 1 65.1054 241.5)" class="st7 st5 st8">card number</text>
                                 <g>
-                                    <text transform="matrix(1 0 0 1 574.4219 433.8095)" id="svgexpire" class="st2 st5 st9">{{model.ExpirationDate}}</text>
+                                    <text transform="matrix(1 0 0 1 574.4219 433.8095)" id="svgexpire" class="st2 st5 st9">{{dateString}}</text>
                                     <text transform="matrix(1 0 0 1 479.3848 417.0097)" class="st2 st10 st11">VALID</text>
                                     <text transform="matrix(1 0 0 1 479.3848 435.6762)" class="st2 st10 st11">THRU</text>
                                     <polygon class="st2" points="554.5,421 540.4,414.2 540.4,427.9 		" />
@@ -69,83 +67,157 @@
                                     </g>
                                 </g>
                             </g>
-                            <g id="Back">
-                            </g>
                         </svg>
                     </div>
+
+                    <!-- Back of the card, revealed while entering the CVC -->
                     <div class="back">
                         <svg version="1.1" id="cardback" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
                             x="0px" y="0px" viewBox="0 0 750 471" style="enable-background:new 0 0 750 471;" xml:space="preserve">
-                            <g id="Front">
-                                <line class="st0" x1="35.3" y1="10.4" x2="36.7" y2="11" />
-                            </g>
                             <g id="Back">
-                                <g id="Page-1_2_">
-                                    <g id="amex_2_">
-                                        <path id="Rectangle-1_2_" class="darkcolor greydark" d="M40,0h670c22.1,0,40,17.9,40,40v391c0,22.1-17.9,40-40,40H40c-22.1,0-40-17.9-40-40V40
-                                C0,17.9,17.9,0,40,0z" />
-                                    </g>
+                                <g id="CardBackgroundBack">
+                                    <path class="lightcolor grey" d="M40,0h670c22.1,0,40,17.9,40,40v391c0,22.1-17.9,40-40,40H40c-22.1,0-40-17.9-40-40V40
+                                        C0,17.9,17.9,0,40,0z" />
                                 </g>
-                                <rect y="61.6" class="st2" width="750" height="78" />
-                                <g>
-                                    <path class="st3" d="M701.1,249.1H48.9c-3.3,0-6-2.7-6-6v-52.5c0-3.3,2.7-6,6-6h652.1c3.3,0,6,2.7,6,6v52.5
-                            C707.1,246.4,704.4,249.1,701.1,249.1z" />
-                                    <rect x="42.9" y="198.6" class="st4" width="664.1" height="10.5" />
-                                    <rect x="42.9" y="224.5" class="st4" width="664.1" height="10.5" />
-                                    <path class="st5" d="M701.1,184.6H618h-8h-10v64.5h10h8h83.1c3.3,0,6-2.7,6-6v-52.5C707.1,187.3,704.4,184.6,701.1,184.6z" />
-                                </g>
-                                <text transform="matrix(1 0 0 1 621.999 227.2734)" id="svgsecurity" class="st6 st7">985</text>
-                                <g class="st8">
-                                    <text transform="matrix(1 0 0 1 518.083 280.0879)" class="st9 st6 st10">security code</text>
-                                </g>
-                                <rect x="58.1" y="378.6" class="st11" width="375.5" height="13.5" />
-                                <rect x="58.1" y="405.6" class="st11" width="421.7" height="13.5" />
-                                <text transform="matrix(1 0 0 1 59.5073 228.6099)" id="svgnameback" class="st12 st13">John Doe</text>
+                                <rect class="magstripe" x="0" y="76" width="750" height="104" />
+                                <rect class="signature-panel" x="40" y="300" width="670" height="82" rx="6" />
+                                <text transform="matrix(1 0 0 1 62 352)" class="cvclabel">CVC</text>
+                                <text transform="matrix(1 0 0 1 590 354)" class="cvcvalue">{{model.SecurityCode}}</text>
                             </g>
                         </svg>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="col-6-lg col-md-6 col-sm-12">
-            <div class="row">
-                <div class="col-12 mb-4">
-                  <label for="card_holder" class="col-form-label-sm">Card Holder</label>
-                  <input name="card_holder" placeholder="Joe Doe" [(ngModel)]="model.CardHolder" type="text" class="form-control-sm" />
-                </div>
+
+        <!-- Form -->
+        <div class="col-md-6">
+            <div class="payment-field">
+                <label for="cardHolder">Card holder</label>
+                <input id="cardHolder" name="card_holder" type="text" class="form-control" placeholder="Jane Doe"
+                    autocomplete="cc-name" [(ngModel)]="model.CardHolder"
+                    (blur)="cardHolderTouched = true"
+                    [class.is-invalid]="showCardHolderError">
+                <p class="payment-field__error" *ngIf="showCardHolderError">
+                    <i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>
+                    Card holder name is required.
+                </p>
             </div>
-            <div class="row">
-                <div class="col-12 mb-4">
-                  <label for="card_number" class="col-form-label-sm">Card Number</label> <br/>
-                  <div class="row">
+
+            <div class="payment-field">
+                <label>Card number</label>
+                <div class="row g-2">
                     <div class="col-3">
-                        <input name="card_number" [(ngModel)]="firstFourDigit" placeholder="1111" maxlength="4" type="text" class="form-control-sm" />
+                        <input name="card_number_1" type="text" class="form-control" placeholder="1111" maxlength="4"
+                            inputmode="numeric" autocomplete="cc-number" [(ngModel)]="firstFourDigit"
+                            (blur)="cardNumberTouched = true"
+                            [class.is-invalid]="showCardNumberError">
                     </div>
                     <div class="col-3">
-                        <input name="card_number" [(ngModel)]="secondFourDigit"   placeholder="1111" maxlength="4" type="text" class="form-control-sm" />
+                        <input name="card_number_2" type="text" class="form-control" placeholder="1111" maxlength="4"
+                            inputmode="numeric" [(ngModel)]="secondFourDigit"
+                            (blur)="cardNumberTouched = true"
+                            [class.is-invalid]="showCardNumberError">
                     </div>
                     <div class="col-3">
-                        <input name="card_number" [(ngModel)]="thirdFourDigit"  placeholder="1111" maxlength="4" type="text" class="form-control-sm" />
+                        <input name="card_number_3" type="text" class="form-control" placeholder="1111" maxlength="4"
+                            inputmode="numeric" [(ngModel)]="thirdFourDigit"
+                            (blur)="cardNumberTouched = true"
+                            [class.is-invalid]="showCardNumberError">
                     </div>
                     <div class="col-3">
-                        <input name="card_number" [(ngModel)]="fourthFourDigit"   placeholder="1111" maxlength="4" type="text" class="form-control-sm" />                    </div>
-                  </div>
+                        <input name="card_number_4" type="text" class="form-control" placeholder="1111" maxlength="4"
+                            inputmode="numeric" [(ngModel)]="fourthFourDigit"
+                            (blur)="cardNumberTouched = true"
+                            [class.is-invalid]="showCardNumberError">
+                    </div>
+                </div>
+                <p class="payment-field__error" *ngIf="showCardNumberError">
+                    <i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>
+                    Card number must be 16 digits (four groups of four).
+                </p>
+            </div>
+
+            <div class="row g-2">
+                <div class="col-7">
+                    <div class="payment-field" (click)="$event.stopPropagation()">
+                        <label for="expireMonth">Expiry date</label>
+
+                        <div class="expiry-input"
+                            [class.expiry-input--open]="expiryPickerOpen"
+                            [class.expiry-input--invalid]="showExpiryError || showExpiryExpiredError">
+                            <input id="expireMonth" name="expire_month" type="text" class="expiry-input__part"
+                                placeholder="MM" maxlength="2" inputmode="numeric" autocomplete="cc-exp-month"
+                                aria-label="Expiry month" [ngModel]="expireMonth"
+                                (ngModelChange)="onExpireMonthChange($event)" (blur)="onExpireBlur()"
+                                (keydown.escape)="expiryPickerOpen = false">
+                            <span class="expiry-input__sep" aria-hidden="true">/</span>
+                            <input id="expireYear" name="expire_year" type="text" class="expiry-input__part"
+                                placeholder="YY" maxlength="2" inputmode="numeric" autocomplete="cc-exp-year"
+                                aria-label="Expiry year" [ngModel]="expireYear"
+                                (ngModelChange)="onExpireYearChange($event)" (blur)="onExpireBlur()"
+                                (keydown.escape)="expiryPickerOpen = false">
+                            <button type="button" class="expiry-input__toggle" (click)="toggleExpiryPicker($event)"
+                                [attr.aria-expanded]="expiryPickerOpen"
+                                aria-label="Pick expiry date from calendar">
+                                <i class="fa-regular fa-calendar" aria-hidden="true"></i>
+                            </button>
+                        </div>
+
+                        <p class="payment-field__error" *ngIf="showExpiryError">
+                            <i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>
+                            Enter a valid expiry date (MM / YY).
+                        </p>
+                        <p class="payment-field__error" *ngIf="showExpiryExpiredError">
+                            <i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>
+                            This card has already expired.
+                        </p>
+
+                        <div class="expiry-picker" *ngIf="expiryPickerOpen">
+                            <div class="expiry-picker__header">
+                                <button type="button" class="expiry-picker__nav" (click)="shiftExpiryYear(-1)"
+                                    aria-label="Previous year">
+                                    <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
+                                </button>
+                                <span class="expiry-picker__year">{{ expiryViewYear }}</span>
+                                <button type="button" class="expiry-picker__nav" (click)="shiftExpiryYear(1)"
+                                    aria-label="Next year">
+                                    <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+                                </button>
+                            </div>
+                            <div class="expiry-picker__months">
+                                <button type="button" class="expiry-picker__month"
+                                    [class.expiry-picker__month--selected]="isExpiryMonthSelected(i)"
+                                    *ngFor="let label of monthLabels; let i = index"
+                                    (click)="selectExpiryMonth(i)">{{ label }}</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-5">
+                    <div class="payment-field">
+                        <label for="securityCode">CVC</label>
+                        <input id="securityCode" name="security_code" type="text" class="form-control" placeholder="123"
+                            maxlength="4" inputmode="numeric" autocomplete="cc-csc" [(ngModel)]="model.SecurityCode"
+                            (focus)="cvcFocused = true" (blur)="cvcFocused = false; securityCodeTouched = true"
+                            [class.is-invalid]="showSecurityCodeError">
+                        <p class="payment-field__error" *ngIf="showSecurityCodeError">
+                            <i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>
+                            Security code must be 3 or 4 digits.
+                        </p>
+                    </div>
                 </div>
             </div>
-            <div class="row">
-                <div class="col-12 mb-4">
-                  <label for="expire_date" class="col-form-label-sm">Expire date</label>
-                  <input name="expire_date" [(ngModel)]="dateString" type="month" class="form-control-sm" />
-                </div>
-                <div class="col-12 mb-4">
-                    <label for="security_code" class="col-form-label-sm">Card Holder</label>
-                    <input name="security_code" placeholder="Security code" [(ngModel)]="model.SecurityCode" type="text" class="form-control-sm" />
-                  </div>
-            </div>
+
         </div>
     </div>
 </div>
 
-<div style="float:right;margin:20px;">
-    <input class="btn btn-danger" type="button" value="Save" (click)="makeCardNumber()" [mat-dialog-close]="model">
+<div mat-dialog-actions class="payment-dialog__actions">
+    <button type="button" class="btn payment-dialog__btn payment-dialog__btn--ghost" [mat-dialog-close]="false">
+        Cancel
+    </button>
+    <button type="button" class="btn payment-dialog__btn payment-dialog__btn--primary" (click)="save()">
+        <i class="fa-solid fa-check" aria-hidden="true"></i> Save card
+    </button>
 </div>
