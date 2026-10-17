@@ -1,13 +1,34 @@
 <nav *ngIf="categories && categoryNavBar" class="cat-nav-wrapper navbar solid-hide-on-sm navbar-expand-md navbar-expand-lg p-0">
-    <div class="container container-sm">
-      <ul class="navbar-nav w-100 justify-content-center">
-        <li class="nav-item"
-          *ngFor="let category of categories"
-          [class.active-pill]="isLinkActive(category.Id)">
-          <a class="nav-link p-2 solid-gray-text" [routerLink]="['/category',category.Id]">{{ category.Name }}</a>
-        </li>
-      </ul>
-    </div>
+  <div class="container container-sm">
+    <ul #catList class="navbar-nav w-100">
+      <li class="nav-item"
+        *ngFor="let category of categories | slice:0:visibleCount"
+        [class.active-pill]="isLinkActive(category.Id)">
+        <a class="nav-link solid-gray-text" [routerLink]="['/category',category.Id]">{{ category.Name }}</a>
+      </li>
+
+      <li class="nav-item" ngbDropdown *ngIf="overflowCategories.length > 0" placement="bottom-end">
+        <a class="nav-link solid-gray-text dropdown-toggle" ngbDropdownToggle role="button" aria-expanded="false">More</a>
+        <ul class="dropdown-menu" ngbDropdownMenu>
+          <li *ngFor="let category of overflowCategories">
+            <a class="dropdown-item" ngbDropdownItem [routerLink]="['/category',category.Id]">{{ category.Name }}</a>
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </div>
+
+  <!-- Hidden, off-screen copies used only to measure real layout widths -->
+  <ul #measureList class="navbar-nav cat-measure" aria-hidden="true">
+    <li class="nav-item" *ngFor="let category of categories">
+      <a class="nav-link solid-gray-text">{{ category.Name }}</a>
+    </li>
+  </ul>
+  <ul class="navbar-nav cat-measure" aria-hidden="true">
+    <li class="nav-item dropdown" #measureMore>
+      <a class="nav-link solid-gray-text dropdown-toggle">More</a>
+    </li>
+  </ul>
 </nav>
 
 <nav *ngIf="!categoryNavBar" class="admin-nav-wrapper navbar solid-hide-on-sm navbar-expand-md navbar-expand-lg p-0">

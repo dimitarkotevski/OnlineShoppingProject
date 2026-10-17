@@ -6,48 +6,92 @@
 }
 
 /* --- Category Navigation --- */
-.nav-item {
-  transition: all 0.3s ease;
+/* Fixed single-line bar: categories that do not fit are moved into the
+   "More" dropdown by the component (see layout()). */
+.cat-nav-wrapper .navbar-nav {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: center;
+  gap: 4px 6px;
+  padding: 6px 0;
+  margin: 0;
+}
+
+.cat-nav-wrapper .nav-item {
+  display: flex;
   position: relative;
+  border-radius: 8px;
+  transition: background-color 0.25s ease;
 }
 
-.nav-item .nav-link {
-  transition: all 0.3s ease;
+.cat-nav-wrapper .navbar-nav .nav-item .nav-link {
+  white-space: nowrap;
+  padding: 6px 14px;
+  border-radius: 8px;
   font-weight: 500;
-  letter-spacing: 0.3px;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  letter-spacing: 0.2px;
+  transition: color 0.25s ease, background-color 0.25s ease;
 }
 
-.nav-item:hover .nav-link {
-  color: chocolate !important;
-  transform: translateY(-1px);
+.cat-nav-wrapper .nav-item:hover {
+  background-color: rgba(255, 127, 80, 0.08);
+}
+
+/* Override the global `.solid-gray-text:hover` (grey background + underline) here */
+.cat-nav-wrapper .navbar-nav .nav-item .nav-link.solid-gray-text:hover {
+  color: coral;
+  background-color: transparent;
+  text-decoration: none;
 }
 
 /* Active State: Pill Effect */
-.active-pill {
-  background-color: rgba(255, 127, 80, 0.1) !important;
-  border-radius: 20px;
-  margin: 4px 2px;
+.cat-nav-wrapper .active-pill {
+  background-color: rgba(255, 127, 80, 0.1);
+  border-radius: 8px;
 }
 
-.active-pill .nav-link {
-  color: coral !important;
+.cat-nav-wrapper .active-pill .nav-link {
+  color: coral;
   font-weight: 600;
 }
 
-/* Mobile Responsiveness */
-@media (max-width: 767px) {
-  .navbar-nav {
-    display: flex !important;
-    flex-direction: row !important;
-    overflow-x: auto !important;
-    white-space: nowrap !important;
-    -webkit-overflow-scrolling: touch;
-    padding-bottom: 5px;
-  }
+/* The "More" dropdown toggle */
+.cat-nav-wrapper .nav-item.dropdown .dropdown-toggle::after {
+  margin-left: 5px;
+  vertical-align: middle;
+}
 
-  .navbar-nav::-webkit-scrollbar {
-    display: none;
-  }
+.cat-nav-wrapper .dropdown-menu {
+  min-width: 200px;
+  max-height: 60vh;
+  overflow-y: auto;
+  border-radius: 10px;
+  margin-top: 4px;
+}
+
+/* --- Hidden measuring copies --- */
+/* Rendered off-screen (but still laid out) so the component can measure the
+   real width of every category and of the "More" toggle. */
+.cat-measure {
+  position: absolute;
+  top: -9999px;
+  left: -9999px;
+  width: max-content;
+  visibility: hidden;
+  pointer-events: none;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  gap: 0;
+  padding: 0;
+  margin: 0;
+}
+
+.cat-measure .nav-item {
+  flex: 0 0 auto;
 }
 
 /* --- Admin Dashboard Styling --- */
