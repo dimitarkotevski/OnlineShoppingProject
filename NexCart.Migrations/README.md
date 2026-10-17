@@ -74,12 +74,115 @@ The nine baseline migrations create the original schema (`Roles`, `Payments`,
 targets exist before the tables that reference them, and each `up.sql` is guarded
 with `IF OBJECT_ID(...) IS NULL`, so re-applying is a no-op.
 
+## Database Schema (ShopDb)
+
+### Roles
+| Column | Type | Key/Constraint |
+| :--- | :--- | :--- |
+| `Id` | Guid | PK |
+| `Name` | string | |
+*Relationships: One-to-Many with Users.*
+
+### Users
+| Column | Type | Key/Constraint |
+| :--- | :--- | :--- |
+| `Id` | Guid | PK |
+| `Username` | string | |
+| `Password` | string | |
+| `Email` | string | |
+| `FirstName` | string | |
+| `LastName` | string | |
+| `Address` | string | |
+| `City` | string | |
+| `State` | string | |
+| `ZipCode` | string | |
+| `PhoneNumber` | string | |
+| `Description` | string | |
+| `Amount` | double | Default: 0 |
+| `RoleId` | Guid | FK $\rightarrow$ `Roles.Id` |
+*Relationships: Many-to-One with Roles; One-to-One with Payments; One-to-Many with Orders; Many-to-Many with Products via FavouriteProducts.*
+
+### Categories
+| Column | Type | Key/Constraint |
+| :--- | :--- | :--- |
+| `Id` | Guid | PK |
+| `Name` | string | |
+| `Url` | string | Default: '' |
+| `Status` | bool | Default: 1 |
+*Relationships: One-to-Many with Products.*
+
+### Products
+| Column | Type | Key/Constraint |
+| :--- | :--- | :--- |
+| `Id` | Guid | PK |
+| `Name` | string | |
+| `Price` | double | Default: 0 |
+| `ImageUrl` | string | |
+| `Description` | string | |
+| `Tags` | string | |
+| `Created` | DateTime | Default: GETDATE() |
+| `CategoryId` | Guid | FK $\rightarrow$ `Categories.Id` |
+*Relationships: Many-to-One with Categories; Many-to-Many with Orders; Many-to-Many with Users via FavouriteProducts.*
+
+### ShoppingCarts
+| Column | Type | Key/Constraint |
+| :--- | :--- | :--- |
+| `Id` | Guid | PK |
+| `Name` | string | |
+| `Active` | bool | Default: 1 |
+| `UserId` | Guid | FK $\rightarrow$ `Users.Id` |
+*Relationships: Many-to-One with Users; One-to-Many with ShoppingCartDetails.*
+
+### ShoppingCartDetails
+| Column | Type | Key/Constraint |
+| :--- | :--- | :--- |
+| `Id` | Guid | PK |
+| `Quantity` | int | Default: 1 |
+| `ShoppingCartId` | Guid | FK $\rightarrow$ `ShoppingCarts.Id` |
+| `ProductId` | Guid | FK $\rightarrow$ `Products.Id` |
+*Relationships: Many-to-One with ShoppingCarts; Many-to-One with Products.*
+
+### Orders
+| Column | Type | Key/Constraint |
+| :--- | :--- | :--- |
+| `Id` | Guid | PK |
+| `OrderName` | string | |
+| `TotalAmount` | double | Default: 0 |
+| `DateCreated` | DateTime | Default: GETDATE() |
+| `PaymentTypeId` | int | Enum |
+| `OrderStatusId` | int | Enum |
+| `UserId` | Guid | FK $\rightarrow$ `Users.Id` |
+| `ShoppingCartId` | Guid | FK $\rightarrow$ `ShoppingCarts.Id` |
+*Relationships: Many-to-One with Users; Many-to-One with ShoppingCarts.*
+
+### Payments
+| Column | Type | Key/Constraint |
+| :--- | :--- | :--- |
+| `Id` | Guid | PK |
+| `CardNumber` | string | |
+| `CardHolder` | string | |
+| `ExpirationDate` | DateTime | Default: GETDATE() |
+| `City` | string | |
+| `BillingAdress` | string | |
+| `ZipPostalCode` | string | |
+| `Country` | string | |
+| `PhoneNumber` | string | |
+*Relationships: One-to-One with Users.*
+
+### FavouriteProducts
+| Column | Type | Key/Constraint |
+| :--- | :--- | :--- |
+| `Id` | Guid | PK |
+| `UserId` | Guid | FK $\rightarrow$ `Users.Id` |
+| `ProductId` | Guid | FK $\rightarrow$ `Products.Id` |
+*Relationships: Many-to-One with Users; Many-to-One with Products.*
+
 ## Creating a migration
 
 New migrations are scaffolded with **`new-migration.tt`** (a T4 template):
 
 1. Open `new-migration.tt` in Visual Studio.
-2. Select it and press **Ctrl+Shift+P** (*Run Custom Tool*), or right-click it →
+2. Select it and press **Ctrl+Shift+P** (*Run Custom Tool*), or right-click it $\rightarrow$
    **Run Custom Tool**.
 
 It creates one folder per migration:
@@ -131,7 +234,7 @@ dotnet run --project NexCart.Migrations -- up "Data Source=.;Initial Catalog=Sho
 
 **Visual Studio 2022:** set `NexCart.Migrations` as the startup project and
 press F5 / Ctrl+F5 (runs `up`). For `down` / `list`, pass the argument under
-*Project Properties → Debug → Command line arguments*.
+*Project Properties $\rightarrow$ Debug $\rightarrow$ Command line arguments*.
 
 ## How it works
 
