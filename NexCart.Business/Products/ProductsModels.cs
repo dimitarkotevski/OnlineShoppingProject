@@ -1,10 +1,7 @@
-﻿using FluentValidation;
-using System;
-using System.Collections.Generic;
+﻿using System;
 
 namespace NexCart.Business.ViewModels
 {
-/*    [Validator(typeof(ProductsViewModelValidator))]*/    
     public class ProductViewModel
     {
         public Guid? Id { get; set; }
@@ -15,12 +12,5 @@ namespace NexCart.Business.ViewModels
         public string Image { get; set; }
         public DateTime DateCreated { get; set; }
         public CategoryLookupViewModel Category { get; set; }
-    }
-    public class ProductsViewModelValidator : AbstractValidator<ProductViewModel>
-    {
-        public ProductsViewModelValidator()
-        {
-            RuleFor(x => x.Name).NotEmpty().WithMessage("Name is required.");
-        }
     }
 }

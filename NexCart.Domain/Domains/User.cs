@@ -20,11 +20,9 @@ namespace NexCart.Domain
         private Payment _payment;
         private UserRole _role;
         private IList<Order> _orders;
-        //private IList<FavouriteProducts> _favouriteProducts;
         private IList<Product> _favouriteProducts;
         public User() 
         {
-            //_favouriteProducts = new List<FavouriteProducts>();
             _orders = new List<Order>();
         }
         public virtual string FirstName
@@ -82,11 +80,6 @@ namespace NexCart.Domain
             get => _amount; 
             set => _amount = value;
         }
-        /*public virtual IList<FavouriteProducts> FavouriteProducts
-        {
-            get => _favouriteProducts; 
-            set => _favouriteProducts = value;
-        }*/
         public virtual IList<Product> FavouriteProducts
         {
             get => _favouriteProducts;

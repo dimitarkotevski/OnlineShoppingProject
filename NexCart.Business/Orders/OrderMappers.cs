@@ -46,8 +46,6 @@ namespace NexCart.Business.Mappers
 
         public static OrderViewModelWithProducts MapToViewModelWithProducts(this Order model)
         {
-            //var sumProducts = model.ShoppingCart.ShoppingCartDetails.Select(x => x.Product.Price).Sum();
-
             return new OrderViewModelWithProducts
             {
                 Id = model.Id,

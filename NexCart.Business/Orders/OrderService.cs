@@ -74,7 +74,6 @@ namespace NexCart.Business.Services
                 var order = new Order
                 {
                     User =user,
-                    //ShoppingCart = model.ShoppingCart,
                     OrderStatus =model.OrderStatus,
                     PaymentType = model.PaymentType,
 

@@ -28,9 +28,7 @@ namespace NexCart.Business.Services
         bool Create(ProductViewModel model);
         bool Update(ProductViewModel model);
         bool Delete(Guid Id);
-        string GetProductImage(Guid Id);
         bool CheckNameExists(string Name);
-        List<ProductViewModel> GetAllTable();
         void UploadImage(Guid Id, string image);
         List<string> GetAllBrands(Guid categoryId);
     }
@@ -190,22 +188,6 @@ namespace NexCart.Business.Services
                 _unitOfWork.Commit();
 
                 return true;
-            }
-        }
-        public List<ProductViewModel> GetAllTable()
-        {
-            using (_unitOfWork.BeginTransaction())
-            {
-                return _productsRepository.All().Select(x => x.MapToViewModel()).ToList();
-            }
-        }
-        public string GetProductImage(Guid Id)
-        {
-            using (_unitOfWork.BeginTransaction())
-            {
-                var product = _productsRepository.FindBy(Id);
-
-                return null;
             }
         }
         public void UploadImage(Guid Id, string image)

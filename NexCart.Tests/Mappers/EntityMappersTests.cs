@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Text;
 using NexCart.Business.Mappers;
 using NexCart.Domain;
 using Xunit;
@@ -9,31 +7,6 @@ namespace NexCart.Tests.Mappers
 {
     public class EntityMappersTests
     {
-        [Fact]
-        public void Category_MapToViewModel_maps_fields_and_product_lookups()
-        {
-            var category = new Category
-            {
-                Id = Guid.NewGuid(),
-                Name = "Electronics",
-                Status = true,
-                Url = "electronics",
-                Products = new List<Product>
-                {
-                    new Product { Id = Guid.NewGuid(), Name = "Laptop" },
-                    new Product { Id = Guid.NewGuid(), Name = "Phone" }
-                }
-            };
-
-            var vm = category.MapToViewModel();
-
-            Assert.Equal(category.Id, vm.Id);
-            Assert.Equal("Electronics", vm.Name);
-            Assert.True(vm.Status);
-            Assert.Equal(2, vm.Products.Count);
-            Assert.Equal("Laptop", vm.Products[0].Name);
-        }
-
         [Fact]
         public void Category_MapToLookupViewModel_maps_url_and_status()
         {

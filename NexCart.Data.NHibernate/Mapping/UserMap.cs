@@ -95,13 +95,6 @@ namespace NexCart.Data.NHibernate.Mapping
                .ChildKeyColumn("ProductId")
                .Access.CamelCaseField(Prefix.Underscore);
 
-
-
-            /*HasMany(x => x.FavouriteProducts)
-               .Inverse()
-               .Cascade.AllDeleteOrphan()
-               .KeyColumn("UserId").LazyLoad();*/
-
             #endregion
 
         }
