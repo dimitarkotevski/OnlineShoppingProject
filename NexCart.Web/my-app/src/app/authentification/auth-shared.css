@@ -1,0 +1,243 @@
+/* ------------------------------------------------------------------
+   Shared styling for the authentication pages (login / register).
+   Imported by both components through their `styleUrls` arrays so the
+   two pages always stay visually consistent.
+   ------------------------------------------------------------------ */
+
+/* --- Page wrapper: centres the card and gives it breathing room --- */
+.auth-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3.5rem 1rem;
+}
+
+/* --- Card: form on the left, branded panel on the right (wide screens) --- */
+.auth-card {
+  display: flex;
+  width: 100%;
+  max-width: 940px;
+  background-color: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 15px 45px rgba(0, 0, 0, 0.08);
+}
+
+/* Branded column is hidden on small screens and revealed at lg and up. */
+.auth-brand {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  width: 40%;
+  padding: 3rem 2.5rem;
+  color: #ffffff;
+  background: linear-gradient(160deg, #ff8a5c 0%, coral 45%, chocolate 100%);
+}
+
+.auth-brand__logo {
+  display: inline-block;
+  margin-bottom: 0.85rem;
+  font-size: 1.9rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: #ffffff;
+  text-decoration: none;
+}
+
+.auth-brand__logo:hover {
+  color: #ffffff;
+  text-decoration: none;
+}
+
+.auth-brand__tagline {
+  margin-bottom: 2rem;
+  font-size: 1rem;
+  line-height: 1.6;
+  opacity: 0.92;
+}
+
+.auth-brand__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.auth-brand__list li {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+  font-size: 0.95rem;
+  opacity: 0.95;
+}
+
+.auth-brand__list i {
+  display: flex;
+  flex: 0 0 34px;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  margin-right: 0.85rem;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* --- Form column --- */
+.auth-form-panel {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 100%;
+  padding: 2.75rem 2rem;
+}
+
+.auth-title {
+  margin-bottom: 0.35rem;
+  font-size: 1.7rem;
+  font-weight: 700;
+  color: #212529;
+}
+
+.auth-subtitle {
+  margin-bottom: 1.75rem;
+  font-size: 0.95rem;
+  color: #6c757d;
+}
+
+/* --- Fields --- */
+.auth-label {
+  margin-bottom: 0.35rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  color: #495057;
+}
+
+.auth-required {
+  margin-left: 2px;
+  color: coral;
+}
+
+.auth-input-group {
+  border-radius: 10px;
+  transition: box-shadow 0.2s ease;
+}
+
+.auth-input-group .input-group-text,
+.auth-input-group .form-control,
+.auth-input-group .auth-toggle-btn {
+  background-color: #ffffff;
+  border-color: #dee2e6;
+}
+
+.auth-input-group .input-group-text {
+  padding-right: 0.25rem;
+  color: #adb5bd;
+}
+
+.auth-input-group .form-control {
+  padding-left: 0.5rem;
+  border-left: 0;
+  box-shadow: none;
+}
+
+.auth-input-group .form-control:focus {
+  border-color: #dee2e6;
+  box-shadow: none;
+}
+
+/* Highlight the whole group (icon + input + toggle) while typing. */
+.auth-input-group:focus-within {
+  box-shadow: 0 0 0 0.2rem rgba(255, 127, 80, 0.2);
+}
+
+.auth-input-group:focus-within .input-group-text,
+.auth-input-group:focus-within .form-control,
+.auth-input-group:focus-within .auth-toggle-btn {
+  border-color: coral;
+}
+
+.auth-input-group .form-control::placeholder {
+  color: #b6bcc2;
+}
+
+/* Password show/hide toggle */
+.auth-input-group .auth-toggle-btn {
+  border: 1px solid #dee2e6;
+  border-left: 0;
+  color: #adb5bd;
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
+}
+
+.auth-input-group .auth-toggle-btn:hover,
+.auth-input-group .auth-toggle-btn:focus {
+  color: coral;
+  box-shadow: none;
+}
+
+/* --- Alerts --- */
+.auth-alert {
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  font-size: 0.9rem;
+}
+
+.auth-alert ul {
+  margin-bottom: 0;
+  padding-left: 1.1rem;
+}
+
+/* --- Submit button (relies on global .solid_button_orange colours) --- */
+.auth-submit {
+  padding: 0.7rem 1rem;
+  border-radius: 10px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+
+/* --- Footer link --- */
+.auth-footer {
+  margin: 1.5rem 0 0;
+  font-size: 0.9rem;
+  text-align: center;
+  color: #6c757d;
+}
+
+.auth-footer a {
+  font-weight: 600;
+  color: coral;
+  text-decoration: none;
+}
+
+.auth-footer a:hover {
+  color: chocolate;
+  text-decoration: underline;
+}
+
+/* --- Responsive tweaks --- */
+@media (max-width: 575px) {
+  .auth-page {
+    padding: 2rem 0.75rem;
+  }
+
+  .auth-form-panel {
+    padding: 2rem 1.35rem;
+  }
+
+  .auth-card {
+    border-radius: 14px;
+  }
+}
+
+@media (min-width: 992px) {
+  .auth-brand {
+    display: flex;
+  }
+
+  .auth-form-panel {
+    width: 60%;
+    padding: 3rem;
+  }
+}

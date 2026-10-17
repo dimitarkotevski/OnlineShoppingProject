@@ -6,14 +6,16 @@ import { UserRegister } from 'src/app/models/register/register-user';
 @Component({ standalone: false,
   selector: 'app-register',
   templateUrl: './register.component.html',
-  styleUrls: ['./register.component.css']
+  styleUrls: ['./register.component.css', '../auth-shared.css']
 })
 export class RegisterComponent implements OnInit {
   errorMessage: string[] = [];
 
   registerUserModel: UserRegister = new UserRegister();
 
-  repaetPassword: string = "";
+  repeatPassword: string = "";
+  showPassword: boolean = false;
+  showRepeatPassword: boolean = false;
 
   constructor(
     private router: Router,
@@ -36,7 +38,12 @@ export class RegisterComponent implements OnInit {
     if(this.registerUserModel.Password ===""){
       this.errorMessage.push("Password is required");
     }
-    if(this.registerUserModel.Email === "" || this.registerUserModel.Username ==="" || this.registerUserModel.Password === ""){
+    if(this.repeatPassword ===""){
+      this.errorMessage.push("Please confirm your password");
+    }else if(this.repeatPassword !== this.registerUserModel.Password){
+      this.errorMessage.push("Passwords do not match");
+    }
+    if(this.errorMessage.length > 0){
       return;
     }
 

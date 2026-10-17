@@ -7,7 +7,7 @@ import { ToastrService } from 'ngx-toastr';
 @Component({ standalone: false,
   selector: 'app-login',
   templateUrl: './login.component.html',
-  styleUrls: ['./login.component.css']
+  styleUrls: ['./login.component.css', '../auth-shared.css']
 })
 export class LoginComponent implements OnInit {
 
@@ -16,6 +16,7 @@ export class LoginComponent implements OnInit {
   errorMessage?:string = "";
   username: string = "";
   password: string = "";
+  showPassword: boolean = false;
   constructor(
     private authService:AuthentificationService,
     private router:Router,

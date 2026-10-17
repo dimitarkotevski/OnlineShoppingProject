@@ -1,45 +1,113 @@
-<div class="container p-4">
-  <div class="row justify-content-center">
-    <div class="col-lg-6 col-md-10 col-sm-12">
-      <div class="card">
-        <div class="card-body">
-          <h1 class="form-label">Register</h1>
-          <hr />
-          <div *ngIf="errorMessage.length > 0" class="mb-3">
-            <div class="alert alert-danger">
-              <ul>
-                <li *ngFor="let error of errorMessage">{{error}}</li>
-              </ul>
-            </div>
-          </div>
-          <div class="mb-3">
-            <div class="form-floating mb-3">
-              <input [(ngModel)]="registerUserModel.Email" type="email" class="form-control" placeholder="Email *">
-            </div>
-            <div class="form-floating mb-3">
-              <input [(ngModel)]="registerUserModel.Username" type="username" class="form-control" placeholder="Username *">
-            </div>
-            <div class="form-floating mb-3">
-              <input [(ngModel)]="registerUserModel.FirstName" type="text" class="form-control" placeholder="First name">
-            </div>
-            <div class="form-floating mb-3">
-              <input [(ngModel)]="registerUserModel.LastName" type="text" class="form-control" placeholder="Last name">
-            </div>
-            <div class="form-floating">
-              <input [(ngModel)]="registerUserModel.Password" type="password" class="form-control" placeholder="Password *">
-            </div>
-            <div class="form-floating">
-              <input [(ngModel)]="repaetPassword" type="password" class="form-control" placeholder="Confirm Password *">
-            </div>
-          </div>
-          <div class="mb-3">
-            <button class="btn solid_button_orange w-100" (click)="registerUser()">Register</button>
+<div class="auth-page">
+  <div class="auth-card">
+
+    <!-- Branded side panel (large screens only) -->
+    <aside class="auth-brand">
+      <a class="auth-brand__logo" routerLink="/">ShoppingDev</a>
+      <p class="auth-brand__tagline">
+        Create your account and start shopping in seconds — it only takes a
+        minute.
+      </p>
+      <ul class="auth-brand__list">
+        <li><i class="fa-solid fa-bolt"></i><span>Fast and easy checkout</span></li>
+        <li><i class="fa-solid fa-shield-halved"></i><span>Secure account &amp; payments</span></li>
+        <li><i class="fa-solid fa-box-open"></i><span>Keep track of every order</span></li>
+      </ul>
+    </aside>
+
+    <!-- Form -->
+    <section class="auth-form-panel">
+      <h1 class="auth-title">Create your account</h1>
+      <p class="auth-subtitle">Join ShoppingDev and start shopping today.</p>
+
+      <div *ngIf="errorMessage.length > 0" class="alert alert-danger auth-alert" role="alert">
+        <ul class="mb-0">
+          <li *ngFor="let error of errorMessage">{{ error }}</li>
+        </ul>
+      </div>
+
+      <form (ngSubmit)="registerUser()" novalidate>
+        <div class="mb-3">
+          <label class="form-label auth-label" for="registerEmail">
+            Email <span class="auth-required">*</span>
+          </label>
+          <div class="input-group auth-input-group">
+            <span class="input-group-text"><i class="fa-solid fa-envelope"></i></span>
+            <input id="registerEmail" name="email" type="email" class="form-control" autocomplete="email"
+              placeholder="you@example.com" [(ngModel)]="registerUserModel.Email">
           </div>
         </div>
-        <div class="card-footer text-muted">
-          <span>Already have account?  <a [routerLink]="['/login']">Login here</a></span>
-      </div>
-      </div>
-  </div>
+
+        <div class="mb-3">
+          <label class="form-label auth-label" for="registerUsername">
+            Username <span class="auth-required">*</span>
+          </label>
+          <div class="input-group auth-input-group">
+            <span class="input-group-text"><i class="fa-solid fa-user"></i></span>
+            <input id="registerUsername" name="username" type="text" class="form-control" autocomplete="username"
+              placeholder="Choose a username" [(ngModel)]="registerUserModel.Username">
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-sm-6 mb-3">
+            <label class="form-label auth-label" for="registerFirstName">First name</label>
+            <div class="input-group auth-input-group">
+              <span class="input-group-text"><i class="fa-solid fa-address-card"></i></span>
+              <input id="registerFirstName" name="firstName" type="text" class="form-control"
+                autocomplete="given-name" placeholder="First name" [(ngModel)]="registerUserModel.FirstName">
+            </div>
+          </div>
+
+          <div class="col-sm-6 mb-3">
+            <label class="form-label auth-label" for="registerLastName">Last name</label>
+            <div class="input-group auth-input-group">
+              <span class="input-group-text"><i class="fa-solid fa-address-card"></i></span>
+              <input id="registerLastName" name="lastName" type="text" class="form-control" autocomplete="family-name"
+                placeholder="Last name" [(ngModel)]="registerUserModel.LastName">
+            </div>
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label auth-label" for="registerPassword">
+            Password <span class="auth-required">*</span>
+          </label>
+          <div class="input-group auth-input-group">
+            <span class="input-group-text"><i class="fa-solid fa-lock"></i></span>
+            <input id="registerPassword" name="password" [type]="showPassword ? 'text' : 'password'"
+              class="form-control" autocomplete="new-password" placeholder="Create a password"
+              [(ngModel)]="registerUserModel.Password">
+            <button class="btn auth-toggle-btn" type="button" (click)="showPassword = !showPassword"
+              [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'">
+              <i class="fa-solid" [ngClass]="showPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="mb-4">
+          <label class="form-label auth-label" for="registerRepeatPassword">
+            Confirm password <span class="auth-required">*</span>
+          </label>
+          <div class="input-group auth-input-group">
+            <span class="input-group-text"><i class="fa-solid fa-lock"></i></span>
+            <input id="registerRepeatPassword" name="repeatPassword" [type]="showRepeatPassword ? 'text' : 'password'"
+              class="form-control" autocomplete="new-password" placeholder="Re-enter your password"
+              [(ngModel)]="repeatPassword">
+            <button class="btn auth-toggle-btn" type="button" (click)="showRepeatPassword = !showRepeatPassword"
+              [attr.aria-label]="showRepeatPassword ? 'Hide password' : 'Show password'">
+              <i class="fa-solid" [ngClass]="showRepeatPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
+            </button>
+          </div>
+        </div>
+
+        <button class="btn solid_button_orange w-100 auth-submit" type="submit">Register</button>
+      </form>
+
+      <p class="auth-footer">
+        Already have an account? <a [routerLink]="['/login']">Log in here</a>
+      </p>
+    </section>
+
   </div>
 </div>
