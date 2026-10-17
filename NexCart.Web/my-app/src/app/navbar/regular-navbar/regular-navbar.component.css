@@ -16,6 +16,16 @@
     border-bottom: 1px solid rgba(255, 127, 80, 0.3);
     box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
     transition: all 0.3s ease;
+    /* `backdrop-filter` creates a stacking context, so the dropdown menu would
+       otherwise be painted underneath the categories navbar that follows this
+       element in the DOM. Lift the whole navbar above it. */
+    position: relative;
+    z-index: 1030;
+}
+
+/* Keep the user dropdown above the categories bar. */
+.navbar-modern .dropdown-menu {
+    z-index: 1031;
 }
 
 /* Brand Styling */

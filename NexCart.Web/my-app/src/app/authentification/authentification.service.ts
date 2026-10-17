@@ -9,6 +9,24 @@ import { UserRegister } from '../models/register/register-user';
 import { ChangePasswordViewModel } from '../models/change-password-view-model';
 import { PaymentInfoViewModel } from '../models/payment-info-view-model';
 
+/**
+ * Candidate claim names for each piece of identity. Both the short JWT names and the long .NET
+ * claim URIs are listed because the outbound claim-type mapping decides which one is emitted.
+ */
+const USERNAME_CLAIMS = [
+  'unique_name',
+  'name',
+  'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name',
+];
+const USER_ID_CLAIMS = [
+  'nameid',
+  'sub',
+  'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier',
+];
+const ROLE_CLAIMS = [
+  'role',
+  'http://schemas.microsoft.com/ws/2008/06/identity/claims/role',
+];
 
 @Injectable({
   providedIn: 'root'

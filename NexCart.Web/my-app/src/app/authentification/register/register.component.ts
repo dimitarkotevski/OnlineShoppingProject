@@ -4,6 +4,7 @@ import { AuthentificationService } from '../authentification.service';
 import { UserRegister } from 'src/app/models/register/register-user';
 import { PASSWORD_REQUIREMENTS, PasswordRequirement, validatePassword } from 'src/app/utils/password-policy';
 import { extractValidationMessages } from 'src/app/utils/error.interceptor';
+import { FlashMessageService } from 'src/app/utils/flash-message.service';
 
 @Component({ standalone: false,
   selector: 'app-register',
@@ -24,7 +25,8 @@ export class RegisterComponent implements OnInit {
 
   constructor(
     private router: Router,
-    private authService:AuthentificationService) 
+    private authService:AuthentificationService,
+    private flashMessage: FlashMessageService) 
     { }
 
   ngOnInit(): void {
@@ -55,6 +57,7 @@ export class RegisterComponent implements OnInit {
          this.errorMessage = ["Registration failed"];
          return;
        }
+       this.flashMessage.set("User successfully created! Please log in.");
        window.location.replace('/login')
       },
       (error) => {
