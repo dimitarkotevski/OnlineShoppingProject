@@ -1,47 +1,48 @@
-<div class="row">
-  <div
-    *ngFor="let product of products"
-    class="col-sm-6 col-md-6 col-lg-4 solid_pb_3"
-  >
-    <div
-      *ngIf="type == 'home' || type == 'favourite'"
-      class="shop__thumb h-100 d-flex flex-column"
-    >
-      <a [routerLink]="['/product-detail', product.Id]">
-        <div class="shop-thumb__img">
+<div class="products-grid">
+  <!-- Columns are sized by the space the grid actually gets (not the viewport), so cards keep
+       a usable width both full-width on home and next to the category side filter. -->
+  <div *ngIf="type == 'home' || type == 'favourite'" class="product-cards">
+  <div *ngFor="let product of products">
+    <div class="shop__thumb product-card h-100 d-flex flex-column">
+      <a class="product-card__link" [routerLink]="['/product-detail', product.Id]">
+        <div class="product-card__img">
           <img
+            *ngIf="product.Image; else noImage"
             [src]="product.Image | byPassSecurity"
-            class="img-responsive m-auto"
             alt="{{ product.Name }}"
+            loading="lazy"
           />
+          <ng-template #noImage>
+            <div class="product-card__placeholder" aria-hidden="true">
+              <i class="fa-regular fa-image"></i>
+            </div>
+          </ng-template>
         </div>
-        <h6 class="shop-thumb__title solid-color-a">
+        <span *ngIf="product.Category?.Name" class="product-card__category">
+          {{ product.Category?.Name }}
+        </span>
+        <h6 class="shop-thumb__title product-card__title solid-color-a" [title]="product.Name">
           {{ product.Name }}
         </h6>
       </a>
-      <hr class="solid-gray" />
-      
-      <div class="row mt-auto">
-        <div class="col-12">
-          <strong class="shop-thumb-price_new"
-            >${{ product.Price?.toFixed(2) || "/" }}</strong
-          >
-        </div>
-        <span class="col-lg-8 col-md-6 col p-2">
+
+      <div class="mt-auto">
+        <hr class="solid-gray" />
+        <strong class="shop-thumb-price_new product-card__price">
+          {{ product.Price != null ? '$' + product.Price.toFixed(2) : '/' }}
+        </strong>
+        <div class="product-card__actions">
           <button
             (click)="addToCart(product.Id)"
-            class="btn h-100 w-100 responsive-button solid_button"
+            class="btn solid_button product-card__cart"
           >
-            <span class="d-none text-uppercase strong d-lg-block"
-              ><strong>Add to cart</strong></span
-            >
-            <i class="d-block d-lg-none fa-solid fa-cart-shopping"></i>
+            <i class="fa-solid fa-cart-shopping me-2"></i>
+            <strong class="text-uppercase">Add to cart</strong>
           </button>
-        </span>
-        <span class="col-lg-4 col-md-6 col p-2">
           <button
             *ngIf="!hasRemoveProductButton"
-            class="btn h-100 w-100 solid_favourite"
+            class="btn solid_favourite product-card__fav"
+            title="Add to favourites"
             (click)="addToFavourite(product.Id)"
           >
             <i class="fa-regular fa-heart"></i>
@@ -49,16 +50,18 @@
           <button
             *ngIf="hasRemoveProductButton"
             (click)="deleteFavouriteProduct(product.Id)"
-            class="btn h-100 w-100 solid_favourite"
+            class="btn solid_favourite product-card__fav"
+            title="Remove from favourites"
           >
             <i class="fa-solid fa-trash"></i>
           </button>
-        </span>
+        </div>
       </div>
     </div>
   </div>
+  </div>
 
-  <div *ngIf="(type == 'home' || type == 'favourite') && !isLoading && (!products || products.length === 0)" class="col-12">
+  <div *ngIf="(type == 'home' || type == 'favourite') && !isLoading && (!products || products.length === 0)">
     <app-no-data
       [title]="emptyTitle"
       [message]="emptyMessage"
