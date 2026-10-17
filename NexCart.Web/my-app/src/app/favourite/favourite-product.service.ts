@@ -1,6 +1,7 @@
-import { HttpClient } from "@angular/common/http";
+import { HttpClient, HttpContext } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { Observable, of } from "rxjs";
+import { SKIP_ERROR_TOAST } from "../utils/error.interceptor";
 
 @Injectable({
     providedIn: 'root'
@@ -18,7 +19,11 @@ export class FavouriteProductService{
     
       addFavouriteProducts(userId:string | null, productId: string | null): Observable<any>  {
         if(userId && productId){
-          return this.http.post<any>(this.baseApi+'UserAddFavouriteProduct',{userId: userId, productId: productId})
+          // A duplicate favourite comes back as an error; the caller shows a friendlier
+          // "already in favourites" warning, so keep the global toastr quiet here.
+          return this.http.post<any>(this.baseApi+'UserAddFavouriteProduct',{userId: userId, productId: productId}, {
+            context: new HttpContext().set(SKIP_ERROR_TOAST, true),
+          })
         }
         else{
           return of(null);

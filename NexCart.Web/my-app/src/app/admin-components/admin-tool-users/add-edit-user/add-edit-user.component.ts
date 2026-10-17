@@ -1,6 +1,5 @@
 import { Component, Inject, Input, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { ToastrService } from 'ngx-toastr';
 import { RoleModel } from 'src/app/models/role-model';
 import { UserGridModel } from 'src/app/models/user-grid-model';
 import { AdminToolUserService } from '../admin-tool-user-service/admin-tool-user.service';
@@ -19,7 +18,6 @@ export class AddEditUserComponent implements OnInit {
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
     private adminToolUserService: AdminToolUserService,
-    private toastr: ToastrService,
   ) { 
     this.model = data.user;
   }
@@ -34,7 +32,7 @@ export class AddEditUserComponent implements OnInit {
     this.adminToolUserService.getRoles().subscribe((res: RoleModel[]) => {
       this.roles = res;
     }, () => {
-      this.toastr.error("Failed to load roles");
+      // The failure is reported globally by the error interceptor.
     })
   }
 

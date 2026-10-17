@@ -101,7 +101,7 @@ export class AdminToolOrdersComponent implements OnInit {
     this.adminToolOrderService.getTable(this.request).subscribe((response: ResponseModel<OrderGridViewModel>)=>{
       this.response = response
     }, ()=>{
-      this.toastr.error("Failed to load orders");
+      // The failure is reported globally by the error interceptor.
     })
   }
 

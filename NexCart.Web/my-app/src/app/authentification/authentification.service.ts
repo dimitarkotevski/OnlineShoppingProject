@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpContext } from '@angular/common/http';
 import { Observable, map, of } from 'rxjs';
 import { JwtHelperService } from '@auth0/angular-jwt';
+import { SKIP_ERROR_TOAST } from '../utils/error.interceptor';
 import { UserTokenInfo } from '../models/login/user-token-info';
 import { UserDetails } from '../models/login/user-details';
 import { UserRegister } from '../models/register/register-user';
@@ -33,7 +34,10 @@ export class AuthentificationService {
   }
 
   login(username:string,password:string): Observable<boolean> {
-    return this.http.post<any>(this.baseApi+"/Login", {Username:username, Password:password}).pipe(
+    // The login page renders the failure inline, so keep the global toastr quiet.
+    return this.http.post<any>(this.baseApi+"/Login", {Username:username, Password:password}, {
+      context: new HttpContext().set(SKIP_ERROR_TOAST, true),
+    }).pipe(
       map((response : UserTokenInfo) => {
         if (response.Id && response.Token && response.Username && response.Role) {
           localStorage.setItem('id', response.Id);
@@ -79,7 +83,10 @@ export class AuthentificationService {
 
   registerUser(userRegister: UserRegister): Observable<boolean> {
     // Registration only returns a boolean on success (no token is issued here).
-    return this.http.post<boolean>(this.baseApi+"/Registration", {model:userRegister});
+    // The register page renders the failure inline, so keep the global toastr quiet.
+    return this.http.post<boolean>(this.baseApi+"/Registration", {model:userRegister}, {
+      context: new HttpContext().set(SKIP_ERROR_TOAST, true),
+    });
   }
 
   getAmountMoneyOfUser(userId: string | null){

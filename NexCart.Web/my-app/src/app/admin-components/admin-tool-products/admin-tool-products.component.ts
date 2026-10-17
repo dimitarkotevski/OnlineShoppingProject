@@ -67,7 +67,7 @@ export class AdminToolProductsComponent implements OnInit {
     this.adminToolProductService.getTable(this.request).subscribe((response: ResponseModel<ProductGridModel>)=>{
       this.response = response;
     }, ()=>{
-      this.toastr.error("Failed to load products");
+      // The failure is reported globally by the error interceptor.
     })
   }
 

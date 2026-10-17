@@ -56,7 +56,7 @@ export class AdminToolUsersComponent implements OnInit {
     this.adminToolUserService.getTable(this.request).subscribe((res: ResponseModel<UserGridModel>)=>{
       this.response = res;
     }, ()=>{
-      this.toastr.error("Failed to load users");
+      // The failure is reported globally by the error interceptor.
     })
   }
 

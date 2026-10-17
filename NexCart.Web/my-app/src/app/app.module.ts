@@ -10,6 +10,7 @@ import { FormsModule } from '@angular/forms';
 import { ProductService } from './customer-components/product-components/product.service';
 import { JwtHelperService, JWT_OPTIONS  } from '@auth0/angular-jwt';
 import { AuthInterceptor } from './utils/auth.interceptor';
+import { ErrorInterceptor } from './utils/error.interceptor';
 import { ProfileComponent } from './profile/profile.component';
 import { FavouriteComponent } from './favourite/favourite.component';
 import { SettingsComponent } from './settings/settings.component';
@@ -124,6 +125,9 @@ import { NoDataComponent } from './customer-components/no-data/no-data.component
     ProductService,
     OrderService,
     CategoryService,
+    // ErrorInterceptor runs first on the response path so the toastr notification
+    // reflects the final error, after AuthInterceptor has cleared an expired session.
+    { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
     { provide: JWT_OPTIONS, useValue: JWT_OPTIONS },
     JwtHelperService
