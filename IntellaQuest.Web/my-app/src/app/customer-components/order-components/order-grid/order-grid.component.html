@@ -2,10 +2,10 @@
     <app-breadcrumb [isItem]="false" [itemDetail]="'My old orders'"></app-breadcrumb>
     
     <div class="card">
-        <div *ngIf="orders" class="card-body">
+        <div *ngIf="!isLoading && orders" class="card-body">
             <h1>My old orders</h1>
                           
-              <table class="table table-responsive-md table-hover">
+              <table *ngIf="orders.length > 0" class="table table-responsive-md table-hover">
                 <thead>
                   <tr>
                     <th scope="col">Order name</th>
@@ -15,7 +15,7 @@
                     <th scope="col" class="text-center">Status</th>
                   </tr>
                 </thead>
-                <tbody *ngIf="orders">
+                <tbody>
                   <tr *ngFor="let order of orders">
                     <td>{{order.OrderName}}</td>
                     <td *ngIf="order.DateCreated">{{(order.DateCreated | dateConverter) || '/'}}</td>
@@ -32,6 +32,17 @@
                   </tr>
                 </tbody>
               </table>
+
+              <app-no-data *ngIf="orders.length === 0"
+                  title="No Orders Found"
+                  message="There are no past orders in the database for your account."
+                  icon="fa-solid fa-receipt"
+                  buttonText="Start Shopping"
+                  buttonRoute="/">
+              </app-no-data>
+        </div>
+        <div *ngIf="isLoading" class="p-4">
+            <app-loading-grid [isGridLoading]="false"></app-loading-grid>
         </div>
     </div>
 </div>

@@ -23,7 +23,10 @@ export class ProductsGridComponent implements OnInit {
   @Input() type: "home" | "cart" | "favourite" | "order" | undefined;
   @Output() refreshState = new EventEmitter<any>();
 
-  isLoading: boolean = true;
+  @Input() isLoading: boolean = false;
+  @Input() emptyTitle: string = 'No Products in Database';
+  @Input() emptyMessage: string = 'There are currently no products available in the database.';
+  @Input() emptyIcon: string = 'fa-solid fa-box-open';
   
   constructor(
     private router: Router,

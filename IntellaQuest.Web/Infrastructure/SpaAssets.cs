@@ -18,12 +18,15 @@ namespace IntellaQuest.Web.Infrastructure
 
             Styles = Find(directory, "styles*.css");
             Polyfills = Find(directory, "polyfills*.js");
+            Scripts = Find(directory, "scripts*.js");
             Main = Find(directory, "main*.js");
         }
 
         public string Styles { get; }
 
         public string Polyfills { get; }
+
+        public string Scripts { get; }
 
         public string Main { get; }
 

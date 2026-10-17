@@ -11,15 +11,23 @@ import { OrderService } from '../order.service';
 })
 export class OrderGridComponent implements OnInit {
   orders?: OrderGridViewModel[] | null;
+  isLoading: boolean = true;
+
   constructor(
     private orderService: OrderService,
     private authService: AuthentificationService,
   ) { }
 
   ngOnInit(): void {
-    this.orderService.GetUserNotActiveOrders(this.authService.getLoggedUserId()).subscribe((res:ResponseListModel<OrderGridViewModel>)=>{
-      this.orders = res.Items;
-    })
+    this.orderService.GetUserNotActiveOrders(this.authService.getLoggedUserId()).subscribe({
+      next: (res: ResponseListModel<OrderGridViewModel>) => {
+        this.orders = res.Items;
+        this.isLoading = false;
+      },
+      error: () => {
+        this.isLoading = false;
+      }
+    });
   }
 
 }

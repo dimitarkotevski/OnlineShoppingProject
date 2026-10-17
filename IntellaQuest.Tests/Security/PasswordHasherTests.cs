@@ -56,5 +56,16 @@ namespace IntellaQuest.Tests.Security
             Assert.False(PasswordHasher.MeetsPolicy("short"));
             Assert.True(PasswordHasher.MeetsPolicy("long enough"));
         }
+
+        [Fact]
+        public void Verify_supports_legacy_aes_passwords()
+        {
+            string plaintext = "my-secret-pass";
+            string legacyCipher = PasswordEncryption.Encryption(plaintext);
+
+            Assert.True(PasswordHasher.Verify(plaintext, legacyCipher));
+            Assert.False(PasswordHasher.Verify("wrong-pass", legacyCipher));
+            Assert.True(PasswordHasher.NeedsRehash(legacyCipher));
+        }
     }
 }

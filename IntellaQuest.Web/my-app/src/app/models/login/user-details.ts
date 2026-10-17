@@ -7,7 +7,6 @@ export class UserDetails{
     Email?: string;
     Description?:string;
     Username?: string;
-    Password?: string;
     Payment?: PaymentInfoViewModel;
     Address?:string; 
     State?:string;

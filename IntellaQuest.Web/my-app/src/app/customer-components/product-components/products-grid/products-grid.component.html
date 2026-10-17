@@ -58,6 +58,16 @@
     </div>
   </div>
 
+  <div *ngIf="(type == 'home' || type == 'favourite') && !isLoading && (!products || products.length === 0)" class="col-12">
+    <app-no-data
+      [title]="emptyTitle"
+      [message]="emptyMessage"
+      [icon]="emptyIcon"
+      buttonText="Back to Home"
+      buttonRoute="/"
+    ></app-no-data>
+  </div>
+
   <!-- HTML FOR CART -->
   <div *ngIf="type == 'cart'">
     <div

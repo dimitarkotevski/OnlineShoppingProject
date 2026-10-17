@@ -64,10 +64,16 @@ export class CategoryProductsComponent implements OnInit {
     }
 
     this.isLoading = true;
-    this.categoryService.getProductsByCategory(this.categoryId,filter).subscribe((res : ResponseListModel<ProductGridModel>)=>{
-      this.products = res;
-      this.isLoading=false;
-    })
+    this.categoryService.getProductsByCategory(this.categoryId,filter).subscribe({
+      next: (res: ResponseListModel<ProductGridModel>) => {
+        this.products = res;
+        this.isLoading = false;
+      },
+      error: () => {
+        this.products = { Items: [], TotalItems: 0 };
+        this.isLoading = false;
+      }
+    });
   }
 
 }

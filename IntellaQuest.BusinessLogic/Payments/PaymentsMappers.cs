@@ -1,4 +1,4 @@
-﻿using IntellaQuest.BusinessLogic.ViewModels;
+using IntellaQuest.BusinessLogic.ViewModels;
 using IntellaQuest.Domain;
 using IntellaQuest.Domain.Enum;
 
@@ -13,7 +13,6 @@ namespace IntellaQuest.BusinessLogic.Mappers
                 Id = payment.Id,
                 CardNumber = payment.CardNumber,
                 ExpirationDate = payment.ExpirationDate,
-                SecurityCode = payment.SecurityCode,
             };
         }
         public static PaymentsViewModelInfo MapToViewModelInfo(this Payment payment)
@@ -23,7 +22,6 @@ namespace IntellaQuest.BusinessLogic.Mappers
                 Id = payment.Id,
                 CardNumber = payment.CardNumber,
                 ExpirationDate = payment.ExpirationDate,
-                SecurityCode = payment.SecurityCode,
                 City = payment.City,
                 BillingAddress = payment.BillingAdress,
                 ZipPostalCode = payment.ZipPostalCode,
@@ -38,7 +36,6 @@ namespace IntellaQuest.BusinessLogic.Mappers
                 Id = payment.Id,
                 CardNumber = payment.CardNumber,
                 ExpirationDate = payment.ExpirationDate,
-                SecurityCode = payment.SecurityCode,
             };
         }
     }

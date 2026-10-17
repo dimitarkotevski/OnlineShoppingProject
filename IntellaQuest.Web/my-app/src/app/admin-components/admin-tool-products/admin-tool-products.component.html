@@ -16,7 +16,7 @@
     </div>
   </div>
   
-    <div>
+    <div *ngIf="response.TotalItems > 0">
       <table class="table table-hover">
         <thead>
           <tr>
@@ -48,24 +48,34 @@
           </tr>
         </tbody>
       </table>
+
+      <div class="row">
+        <div class="col">
+          <ngb-pagination
+          [(page)]="response.CurrentPage" 
+          [pageSize]="response.Size" 
+          [collectionSize]="response.TotalItems" 
+          [rotate]="true" 
+          [boundaryLinks]="true"
+          (pageChange)="onPageChange($event)"
+          ></ngb-pagination>
+        </div>
+        <mat-form-field>
+          <mat-label>Page Size</mat-label>
+          <mat-select [(value)]="response.Size" (selectionChange)="onPageSizeChange($event.value)">
+            <mat-option *ngFor="let option of pagination" [value]="option">{{ option }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
     </div>
-   <div class="row">
-    <div class="col">
-      <ngb-pagination
-      [(page)]="response.CurrentPage" 
-      [pageSize]="response.Size" 
-      [collectionSize]="response.TotalItems" 
-      [rotate]="true" 
-      [boundaryLinks]="true"
-      (pageChange)="onPageChange($event)"
-      ></ngb-pagination>
-    </div>
-    <mat-form-field>
-      <mat-label>Page Size</mat-label>
-      <mat-select [(value)]="response.Size" (selectionChange)="onPageSizeChange($event.value)">
-        <mat-option *ngFor="let option of pagination" [value]="option">{{ option }}</mat-option>
-      </mat-select>
-    </mat-form-field>
-   </div>
+
+    <app-no-data *ngIf="response.TotalItems === 0"
+      title="No Products in Database"
+      message="There are currently no products found in the database matching your criteria."
+      icon="fa-solid fa-database"
+      buttonText="Add Product"
+      buttonIcon="fa-solid fa-plus"
+      (buttonClick)="addEditProduct(newItem)"
+    ></app-no-data>
   </div>
 

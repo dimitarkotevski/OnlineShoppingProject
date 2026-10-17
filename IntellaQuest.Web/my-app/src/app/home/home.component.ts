@@ -52,10 +52,17 @@ export class HomeComponent implements OnInit {
     };
 
     this.isLoading = true;
-    this.productService.getAll(filter).subscribe((result: ResponseListModel<ProductGridModel>) => {
-      this.products = result.Items;
-      this.totalItems = result.TotalItems;
-      this.isLoading = false;
+    this.productService.getAll(filter).subscribe({
+      next: (result: ResponseListModel<ProductGridModel>) => {
+        this.products = result?.Items || [];
+        this.totalItems = result?.TotalItems || 0;
+        this.isLoading = false;
+      },
+      error: () => {
+        this.products = [];
+        this.totalItems = 0;
+        this.isLoading = false;
+      }
     });
   }
 

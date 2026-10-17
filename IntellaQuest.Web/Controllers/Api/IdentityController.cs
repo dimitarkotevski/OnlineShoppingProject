@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using IntellaQuest.BusinessLogic.ViewModels;
 using IntellaQuest.BusinessLogic.Services;
 using IntellaQuest.BusinessLogic.ViewModels;
@@ -55,6 +55,7 @@ namespace IntellaQuest.Web.Controllers
 
         [HttpPost]
         [Authorize]
+        [EnableRateLimiting("auth")]
         public IActionResult ChangePassword(ChangePasswordUserViewModel model)
         {
             if (!ModelState.IsValid)
@@ -90,15 +91,6 @@ namespace IntellaQuest.Web.Controllers
             model.Password = null;
 
             _userService.Update(model);
-            return Json(true);
-        }
-
-        [HttpPost]
-        [Authorize]
-        public IActionResult UpdatePassword(ChangePasswordUserViewModel model)
-        {
-            model.Id = CurrentUserId;
-            _userService.UpdatePassword(model);
             return Json(true);
         }
 

@@ -1,4 +1,4 @@
-﻿using IntellaQuest.Domain.Enum;
+using IntellaQuest.Domain.Enum;
 using System;
 
 namespace IntellaQuest.Domain
@@ -7,7 +7,6 @@ namespace IntellaQuest.Domain
     {
         private string _cardNumber;
         private DateTime _expirationDate;
-        private string _securityCode;
         private string _cardHolder;
         private string _city;
         private string _billingAdress;
@@ -29,11 +28,6 @@ namespace IntellaQuest.Domain
         {
             get => _expirationDate;
             set => _expirationDate = value;
-        }
-        public virtual string SecurityCode
-        {
-            get => _securityCode;
-            set => _securityCode = value;
         }
         public virtual string CardHolder
         {

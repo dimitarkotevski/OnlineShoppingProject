@@ -10,22 +10,14 @@
         [products]="responseModel?.Items"></app-products-grid>
   </div>
 
-  <div *ngIf="!isLoading">
-    <div *ngIf="responseModel?.TotalItems === 0">
-      <div class="text-center">
-        <div class="card" style="text-align: -webkit-center;">
-          <div class="card-body">
-            <div class="circle">
-              <i class='fa-regular fa-5x fa-heart'></i>
-            </div>
-            <div class="p-3">
-              <div>List of favourite product is empty!</div>
-              <a class="solid_color" routerLink="/"><strong>Keep buying</strong></a>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+  <div *ngIf="!isLoading && responseModel?.TotalItems === 0">
+    <app-no-data
+      title="List of favourite products is empty!"
+      message="You haven't added any products to your favourites yet."
+      icon="fa-regular fa-heart"
+      buttonText="Keep buying"
+      buttonRoute="/"
+    ></app-no-data>
   </div>
 
   <app-loading-grid *ngIf="isLoading"></app-loading-grid>

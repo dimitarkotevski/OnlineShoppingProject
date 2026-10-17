@@ -1,4 +1,4 @@
-﻿using FluentValidation;
+using FluentValidation;
 using IntellaQuest.BusinessLogic;
 using IntellaQuest.BusinessLogic.Validation;
 using IntellaQuest.BusinessLogic.ViewModels;
@@ -8,6 +8,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace IntellaQuest.BusinessLogic.ViewModels
 {
+    [FluentValidator(typeof(UserRegistrationViewModelValidator))]
     public class UserRegistrationViewModel
     {
         public string Email { get; set; }
@@ -42,7 +43,7 @@ namespace IntellaQuest.BusinessLogic.ViewModels
         public string ZipCode { get; set; }
         public string Role { get; set; }
     }
-    //[Validator(typeof(UserViewModelValidator))]
+    [FluentValidator(typeof(UserViewModelValidator))]
     public class UserViewModel
     {
         public Guid Id { get; set; }
@@ -68,7 +69,6 @@ namespace IntellaQuest.BusinessLogic.ViewModels
         public string LastName { get; set; }
         public string Email { get; set; }
         public string Username { get; set; }
-        public string Password { get; set; }
         public string Address { get; set; }
         public string Description { get; set; }
         public string State { get; set; }
@@ -86,13 +86,24 @@ namespace IntellaQuest.BusinessLogic.ViewModels
         public string Token { get; set; }
         public string Role { get; set; }
     }
+    public class UserRegistrationViewModelValidator : AbstractValidator<UserRegistrationViewModel>
+    {
+        public UserRegistrationViewModelValidator()
+        {
+            RuleFor(x => x.Email).NotEmpty().WithMessage("Email is required.").EmailAddress().WithMessage("Invalid email address.");
+            RuleFor(x => x.Username).NotEmpty().WithMessage("Username is required.");
+            RuleFor(x => x.Password).NotEmpty().WithMessage("Password is required.");
+            RuleFor(x => x.FirstName).NotEmpty().WithMessage("First Name is required.");
+            RuleFor(x => x.LastName).NotEmpty().WithMessage("Last Name is required.");
+        }
+    }
     public class UserViewModelValidator : AbstractValidator<UserViewModel>
     {
         public UserViewModelValidator()
         {
             RuleFor(x => x.FirstName).NotEmpty().WithMessage("First Name is required.");
             RuleFor(x => x.LastName).NotEmpty().WithMessage("Last Name is required.");
-            RuleFor(x => x.Email).EmailAddress().WithMessage("Invalid email address.");
+            RuleFor(x => x.Email).NotEmpty().WithMessage("Email is required.").EmailAddress().WithMessage("Invalid email address.");
             RuleFor(x => x.Username).NotEmpty().WithMessage("Username is required.");
             //RuleFor(x => x.Password).NotEmpty().WithMessage("Password is required.");
         }

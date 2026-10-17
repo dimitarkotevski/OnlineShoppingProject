@@ -13,7 +13,7 @@
     
   </div>
 
-    <div>
+    <div *ngIf="response && response.TotalItems > 0">
       <table class="table table-hover">
         <thead>
           <tr>
@@ -79,4 +79,11 @@
         </mat-form-field>
        </div>
     </div>
+
+    <app-no-data *ngIf="response && response.TotalItems === 0"
+      title="No Orders in Database"
+      message="There are currently no orders found in the database."
+      icon="fa-solid fa-database"
+      [showButton]="false"
+    ></app-no-data>
   </div>
