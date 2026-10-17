@@ -94,13 +94,13 @@ namespace NexCart.Web.Infrastructure
             {
                 if (!string.IsNullOrEmpty(name) && TryGetPropertyIgnoreCase(body.RootElement, name, out var property))
                 {
-                    bindingContext.Result = ModelBindingResult.Success(Deserialize(property, modelType));
+                    TryBind(bindingContext, name, property, modelType);
                     return;
                 }
 
                 if (IsComplexType(modelType))
                 {
-                    bindingContext.Result = ModelBindingResult.Success(Deserialize(body.RootElement, modelType));
+                    TryBind(bindingContext, name, body.RootElement, modelType);
                     return;
                 }
             }
@@ -133,6 +133,28 @@ namespace NexCart.Web.Infrastructure
 
             value = default;
             return false;
+        }
+
+        /// <summary>
+        /// Deserializes <paramref name="element"/> into the parameter. A value of the wrong shape
+        /// (e.g. <c>{ "model": "" }</c> for a view model) is a client error, so it is recorded on
+        /// ModelState with the <see cref="JsonException"/> instead of escaping model binding;
+        /// <c>BaseController</c> turns that into a 400 response.
+        /// </summary>
+        private static void TryBind(ModelBindingContext bindingContext, string name, JsonElement element, Type type)
+        {
+            try
+            {
+                bindingContext.Result = ModelBindingResult.Success(Deserialize(element, type));
+            }
+            catch (JsonException exception)
+            {
+                bindingContext.ModelState.AddModelError(
+                    name ?? string.Empty,
+                    exception,
+                    bindingContext.ModelMetadata);
+                bindingContext.Result = ModelBindingResult.Failed();
+            }
         }
 
         private static object Deserialize(JsonElement element, Type type)

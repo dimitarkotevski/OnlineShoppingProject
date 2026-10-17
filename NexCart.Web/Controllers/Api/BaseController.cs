@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Text.Json;
 using NexCart.Business.Exceptions;
 using NexCart.Web.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
@@ -23,6 +24,28 @@ namespace NexCart.Web.Controllers.Api
         protected bool IsSelfOrAdmin(Guid ownerId)
         {
             return IsAdmin || (ownerId != Guid.Empty && ownerId == CurrentUserId);
+        }
+
+        /// <summary>
+        /// Rejects a request whose body could not be deserialized into an action parameter
+        /// (recorded by <see cref="JsonBodyModelBinder"/>) before the action runs, so actions
+        /// never receive a null model for a malformed payload. Ordinary validation errors are
+        /// still left to the actions.
+        /// </summary>
+        [NonAction]
+        public override void OnActionExecuting(ActionExecutingContext context)
+        {
+            var hasMalformedBody = ModelState.Values
+                .SelectMany(entry => entry.Errors)
+                .Any(error => error.Exception is JsonException);
+
+            if (hasMalformedBody)
+            {
+                context.Result = ErrorNotAcceptable();
+                return;
+            }
+
+            base.OnActionExecuting(context);
         }
 
         /// <summary>
@@ -53,7 +76,9 @@ namespace NexCart.Web.Controllers.Api
             var errors = ModelState.ToDictionary(
                 kvp => kvp.Key,
                 kvp => kvp.Value.Errors
-                    .Select(e => string.IsNullOrEmpty(e.ErrorMessage) ? e.Exception?.Message : e.ErrorMessage)
+                    .Select(e => e.Exception is JsonException
+                        ? "The request body is not in the expected format."
+                        : string.IsNullOrEmpty(e.ErrorMessage) ? e.Exception?.Message : e.ErrorMessage)
                     .ToArray());
 
             return BadRequest(new { Success = false, Errors = errors });
