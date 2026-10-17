@@ -1,0 +1,113 @@
+/* Base Footer Styles */
+.custom-footer {
+  background-color: #1a1d20;
+  color: #dee2e6;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* CTA Section */
+.footer-cta {
+  background-color: #212529;
+  border-bottom: 1px solid #343a40;
+}
+
+.text-light-muted {
+  color: #adb5bd;
+}
+
+.btn-coral {
+  background-color: coral;
+  color: white;
+  border: none;
+  font-weight: 600;
+  transition: background-color 0.3s ease;
+}
+
+.btn-coral:hover {
+  background-color: #ff6347;
+  color: white;
+}
+
+/* Main Links Section */
+.footer-heading {
+  color: white;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 0.9rem;
+  letter-spacing: 1px;
+  margin-bottom: 1.5rem;
+}
+
+.footer-text {
+  color: #adb5bd;
+  line-height: 1.6;
+  font-size: 0.95rem;
+}
+
+.footer-links {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.footer-links li {
+  margin-bottom: 0.75rem;
+}
+
+.footer-links a {
+  color: #adb5bd;
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  display: inline-block;
+}
+
+.footer-links a:hover {
+  color: coral;
+  transform: translateX(5px);
+}
+
+.footer-contact {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.footer-contact li {
+  color: #adb5bd;
+  font-size: 0.9rem;
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+}
+
+.footer-contact i {
+  color: coral;
+}
+
+/* Social Icons */
+.social-icon {
+  width: 36px;
+  height: 36px;
+  background-color: #343a40;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.social-icon:hover {
+  background-color: coral;
+  color: white;
+  transform: translateY(-3px);
+}
+
+/* Bottom Copyright */
+.footer-bottom {
+  background-color: #141619;
+  border-top: 1px solid #343a40;
+  font-size: 0.85rem;
+}
