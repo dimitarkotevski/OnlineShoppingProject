@@ -263,6 +263,24 @@ namespace NexCart.Business.Services
                     listProductForFiltering = listProductForFiltering.Where(x => x.Price <= request.PriceTo.Value);
                 }
 
+                if (request.HasImage.HasValue)
+                {
+                    listProductForFiltering = request.HasImage.Value
+                        ? listProductForFiltering.Where(x => x.Image != null && x.Image != "")
+                        : listProductForFiltering.Where(x => x.Image == null || x.Image == "");
+                }
+
+                if (request.DateFrom.HasValue)
+                {
+                    var from = request.DateFrom.Value.Date;
+                    listProductForFiltering = listProductForFiltering.Where(x => x.Created >= from);
+                }
+                if (request.DateTo.HasValue)
+                {
+                    var toExclusive = request.DateTo.Value.Date.AddDays(1);
+                    listProductForFiltering = listProductForFiltering.Where(x => x.Created < toExclusive);
+                }
+
                 // Brand Filtering (Brands are assumed to be the first word of the Product Name)
                 if (request.SearchBrands != null && request.SearchBrands.Any())
                 {

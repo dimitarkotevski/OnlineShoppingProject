@@ -62,16 +62,66 @@
         placeholder="Search products..."
         type="search"
         id="example-search-input"
-        (keyup.enter)="getData()"
+        maxlength="100"
+        (keyup.enter)="applyFilters()"
       />
     </div>
     <div class="toolbar__actions">
-      <button class="btn btn-coral" (click)="getData()">
+      <button class="btn btn-outline-secondary" (click)="showFilters = !showFilters" [attr.aria-expanded]="showFilters">
+        <i class="fa-solid fa-filter me-1"></i> Filters
+        <span class="filter-badge" *ngIf="activeFilters">{{ activeFilters }}</span>
+      </button>
+      <button class="btn btn-coral" (click)="applyFilters()" [disabled]="hasFilterErrors">
         <i class="fa-solid fa-magnifying-glass me-1"></i> Search
       </button>
-      <button class="btn btn-outline-secondary" (click)="resetSearchString()">
+      <button class="btn btn-outline-secondary" (click)="resetFilters()">
         <i class="fa-solid fa-rotate-left me-1"></i> Reset
       </button>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters" *ngIf="showFilters">
+    <div class="filters__field">
+      <label class="filters__label" for="f-category">Category</label>
+      <select id="f-category" class="form-select" [(ngModel)]="request.EntityId" (ngModelChange)="applyFilters()">
+        <option [ngValue]="null">All categories</option>
+        <option *ngFor="let category of categories" [ngValue]="category.Id">{{ category.Name }}</option>
+      </select>
+    </div>
+    <div class="filters__field">
+      <label class="filters__label" for="f-price-from">Min price</label>
+      <input id="f-price-from" class="form-control" type="number" min="0" step="0.01" placeholder="0.00"
+        [(ngModel)]="request.PriceFrom" (ngModelChange)="revalidate()" (keyup.enter)="applyFilters()"
+        [class.is-invalid]="filterErrors['PriceFrom']" />
+      <div class="invalid-feedback">{{ filterErrors['PriceFrom'] }}</div>
+    </div>
+    <div class="filters__field">
+      <label class="filters__label" for="f-price-to">Max price</label>
+      <input id="f-price-to" class="form-control" type="number" min="0" step="0.01" placeholder="Any"
+        [(ngModel)]="request.PriceTo" (ngModelChange)="revalidate()" (keyup.enter)="applyFilters()"
+        [class.is-invalid]="filterErrors['PriceTo']" />
+      <div class="invalid-feedback">{{ filterErrors['PriceTo'] }}</div>
+    </div>
+    <div class="filters__field">
+      <label class="filters__label" for="f-image">Image</label>
+      <select id="f-image" class="form-select" [(ngModel)]="request.HasImage" (ngModelChange)="applyFilters()">
+        <option [ngValue]="null">Any</option>
+        <option [ngValue]="true">With image</option>
+        <option [ngValue]="false">Without image</option>
+      </select>
+    </div>
+    <div class="filters__field">
+      <label class="filters__label" for="f-date-from">Added from</label>
+      <input id="f-date-from" class="form-control" type="date"
+        [(ngModel)]="request.DateFrom" (ngModelChange)="revalidate()" />
+    </div>
+    <div class="filters__field">
+      <label class="filters__label" for="f-date-to">Added to</label>
+      <input id="f-date-to" class="form-control" type="date" [min]="request.DateFrom || ''"
+        [(ngModel)]="request.DateTo" (ngModelChange)="revalidate()"
+        [class.is-invalid]="filterErrors['DateTo']" />
+      <div class="invalid-feedback">{{ filterErrors['DateTo'] }}</div>
     </div>
   </div>
 

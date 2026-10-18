@@ -59,16 +59,47 @@
         [(ngModel)]="request.SearchString"
         placeholder="Search users..."
         type="search"
-        (keyup.enter)="getData()"
+        maxlength="100"
+        (keyup.enter)="applyFilters()"
       />
     </div>
     <div class="toolbar__actions">
-      <button class="btn btn-coral" (click)="getData()">
+      <button class="btn btn-outline-secondary" (click)="showFilters = !showFilters" [attr.aria-expanded]="showFilters">
+        <i class="fa-solid fa-filter me-1"></i> Filters
+        <span class="filter-badge" *ngIf="activeFilters">{{ activeFilters }}</span>
+      </button>
+      <button class="btn btn-coral" (click)="applyFilters()" [disabled]="hasFilterErrors">
         <i class="fa-solid fa-magnifying-glass me-1"></i> Search
       </button>
-      <button class="btn btn-outline-secondary" (click)="resetSearchString()">
+      <button class="btn btn-outline-secondary" (click)="resetFilters()">
         <i class="fa-solid fa-rotate-left me-1"></i> Reset
       </button>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters" *ngIf="showFilters">
+    <div class="filters__field">
+      <label class="filters__label" for="f-role">Role</label>
+      <select id="f-role" class="form-select" [(ngModel)]="request.Role" (ngModelChange)="applyFilters()">
+        <option [ngValue]="null">All roles</option>
+        <option [ngValue]="1">Admin</option>
+        <option [ngValue]="2">User</option>
+      </select>
+    </div>
+    <div class="filters__field">
+      <label class="filters__label" for="f-city">City</label>
+      <input id="f-city" class="form-control" type="text" maxlength="100" placeholder="e.g. Skopje"
+        [(ngModel)]="request.City" (ngModelChange)="revalidate()" (keyup.enter)="applyFilters()"
+        [class.is-invalid]="filterErrors['City']" />
+      <div class="invalid-feedback">{{ filterErrors['City'] }}</div>
+    </div>
+    <div class="filters__field">
+      <label class="filters__label" for="f-email">Email domain</label>
+      <input id="f-email" class="form-control" type="text" maxlength="100" placeholder="e.g. @gmail.com"
+        [(ngModel)]="request.EmailEnding" (ngModelChange)="revalidate()" (keyup.enter)="applyFilters()"
+        [class.is-invalid]="filterErrors['EmailEnding']" />
+      <div class="invalid-feedback">{{ filterErrors['EmailEnding'] }}</div>
     </div>
   </div>
 

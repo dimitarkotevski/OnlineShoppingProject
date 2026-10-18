@@ -337,7 +337,16 @@ namespace NexCart.Business.Services
                 }
                 if (!string.IsNullOrEmpty(request.EmailEnding))
                 {
-                    listUsersForFiltering = listUsersForFiltering.Where(x => x.FirstName.EndsWith(request.EmailEnding));
+                    listUsersForFiltering = listUsersForFiltering.Where(x => x.Email.EndsWith(request.EmailEnding));
+                }
+                if (request.Role.HasValue)
+                {
+                    var role = request.Role.Value;
+                    listUsersForFiltering = listUsersForFiltering.Where(x => x.Role == role);
+                }
+                if (!string.IsNullOrEmpty(request.City))
+                {
+                    listUsersForFiltering = listUsersForFiltering.Where(x => x.City.Contains(request.City));
                 }
 
 

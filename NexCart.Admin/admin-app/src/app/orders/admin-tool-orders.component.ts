@@ -10,15 +10,16 @@ import { ToastrService } from 'ngx-toastr';
 import { MatDialog } from '@angular/material/dialog';
 import { AddEditOrderComponent } from './add-edit-order/add-edit-order.component';
 import { OrderStatus } from 'src/app/models/enum/order-status';
+import { PaymentType } from 'src/app/models/enum/payment-type';
+import { FilterableGrid } from 'src/app/shared/filterable-grid';
 
 @Component({ standalone: false,
   selector: 'app-admin-tool-orders',
   templateUrl: './admin-tool-orders.component.html',
   styleUrls: ['./admin-tool-orders.component.css']
 })
-export class AdminToolOrdersComponent implements OnInit {
+export class AdminToolOrdersComponent extends FilterableGrid implements OnInit {
 
-  request: RequestModel;
   response: ResponseModel<OrderGridViewModel>
   newItem: OrderViewModel;
   /** Rows ticked for bulk delete (current page only). */
@@ -26,12 +27,24 @@ export class AdminToolOrdersComponent implements OnInit {
 
   pagination: number[] = [5 , 10, 20, 50, 100]
 
+  /** Options for the status and payment filters (values match the API enums). */
+  readonly statusOptions = [
+    { value: OrderStatus.PendingPayment, label: 'Pending payment' },
+    { value: OrderStatus.OnHold, label: 'On hold' },
+    { value: OrderStatus.Completed, label: 'Completed' },
+    { value: OrderStatus.Canceled, label: 'Canceled' },
+  ];
+  readonly paymentOptions = [
+    { value: PaymentType.Cash, label: 'Cash' },
+    { value: PaymentType.Card, label: 'Card' },
+  ];
+
   constructor(
     private dialog: MatDialog,
     private toastr: ToastrService,
     private adminToolOrderService: AdminToolOrderService,
-    ) { 
-      this.request = new RequestModel();
+    ) {
+      super();
       this.response = new ResponseModel<OrderGridViewModel>()
       this.newItem = new OrderViewModel();
     }
@@ -112,7 +125,7 @@ export class AdminToolOrdersComponent implements OnInit {
   }
 
   getData(){
-    this.adminToolOrderService.getTable(this.request).subscribe((response: ResponseModel<OrderGridViewModel>)=>{
+    this.adminToolOrderService.getTable(this.apiRequest()).subscribe((response: ResponseModel<OrderGridViewModel>)=>{
       this.response = response
       this.selection.clear();
     }, ()=>{
@@ -145,11 +158,6 @@ export class AdminToolOrdersComponent implements OnInit {
         })
       }
     });
-  }
-
-  resetSearchString(){
-    this.request.SearchString = '';
-    this.getData();
   }
 
   onPageChange(value: number){

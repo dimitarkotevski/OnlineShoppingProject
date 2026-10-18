@@ -144,6 +144,37 @@ namespace NexCart.Business.Services
                                                     x.ShoppingCart.Name.Contains(request.SearchString));
                 }
 
+                if (request.OrderStatus.HasValue)
+                {
+                    var status = request.OrderStatus.Value;
+                    ordersListForFiltering = ordersListForFiltering.Where(x => x.OrderStatus == status);
+                }
+                if (request.PaymentType.HasValue)
+                {
+                    var paymentType = request.PaymentType.Value;
+                    ordersListForFiltering = ordersListForFiltering.Where(x => x.PaymentType == paymentType);
+                }
+                if (request.PriceFrom.HasValue)
+                {
+                    var minTotal = request.PriceFrom.Value;
+                    ordersListForFiltering = ordersListForFiltering.Where(x => x.TotalAmount >= minTotal);
+                }
+                if (request.PriceTo.HasValue)
+                {
+                    var maxTotal = request.PriceTo.Value;
+                    ordersListForFiltering = ordersListForFiltering.Where(x => x.TotalAmount <= maxTotal);
+                }
+                if (request.DateFrom.HasValue)
+                {
+                    var from = request.DateFrom.Value.Date;
+                    ordersListForFiltering = ordersListForFiltering.Where(x => x.DateCreated >= from);
+                }
+                if (request.DateTo.HasValue)
+                {
+                    var toExclusive = request.DateTo.Value.Date.AddDays(1);
+                    ordersListForFiltering = ordersListForFiltering.Where(x => x.DateCreated < toExclusive);
+                }
+
 
                 switch (request.SortName)
                 {

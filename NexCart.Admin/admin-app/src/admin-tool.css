@@ -176,7 +176,56 @@
 
 .admin-page .toolbar__actions {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
+}
+
+/* ---- Filter panel (opened by the toolbar's Filters button) ---- */
+.admin-page .filter-badge {
+  display: inline-block;
+  min-width: 20px;
+  margin-left: 6px;
+  padding: 0 6px;
+  border-radius: 10px;
+  background-color: coral;
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 20px;
+  text-align: center;
+}
+
+.admin-page .filters {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 12px 16px;
+  margin-bottom: 16px;
+  padding: 16px;
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.07);
+  border-radius: 10px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+}
+
+.admin-page .filters__label {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #6c757d;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.admin-page .filters .form-control,
+.admin-page .filters .form-select {
+  border-radius: 8px;
+}
+
+.admin-page .filters .form-control:focus,
+.admin-page .filters .form-select:focus {
+  border-color: coral;
+  box-shadow: 0 0 0 3px rgba(255, 127, 80, 0.18);
 }
 
 /* ---- Table card ---- */

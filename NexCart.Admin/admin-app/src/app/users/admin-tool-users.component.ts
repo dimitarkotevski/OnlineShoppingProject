@@ -9,15 +9,15 @@ import { ToastrService } from 'ngx-toastr';
 import { AddEditUserComponent } from './add-edit-user/add-edit-user.component';
 import { GridSelection } from 'src/app/shared/grid-selection';
 import { AuthService } from 'src/app/core/auth.service';
+import { FilterableGrid } from 'src/app/shared/filterable-grid';
 
 @Component({ standalone: false,
   selector: 'app-admin-tool-users',
   templateUrl: './admin-tool-users.component.html',
   styleUrls: ['./admin-tool-users.component.css']
 })
-export class AdminToolUsersComponent implements OnInit {
+export class AdminToolUsersComponent extends FilterableGrid implements OnInit {
 
-  request: RequestModel;
   response: ResponseModel<UserGridModel>
 
   pagination: number[] = [5 , 10, 20, 50, 100]
@@ -33,9 +33,9 @@ export class AdminToolUsersComponent implements OnInit {
     private adminToolUserService: AdminToolUserService,
     private authService: AuthService
   ) { 
+    super();
     this.selection = new GridSelection(
       id => id.toLowerCase() !== (this.authService.getLoggedUserId() || '').toLowerCase());
-    this.request = new RequestModel();
       this.response = new ResponseModel<UserGridModel>()
       this.newItem = new UserGridModel();
   }
@@ -68,7 +68,7 @@ export class AdminToolUsersComponent implements OnInit {
   }
 
   getData(){
-    this.adminToolUserService.getTable(this.request).subscribe((res: ResponseModel<UserGridModel>)=>{
+    this.adminToolUserService.getTable(this.apiRequest()).subscribe((res: ResponseModel<UserGridModel>)=>{
       this.response = res;
       this.selection.clear();
     }, ()=>{
@@ -157,11 +157,6 @@ export class AdminToolUsersComponent implements OnInit {
         })
       }
     });
-  }
-
-  resetSearchString(){
-    this.request.SearchString = '';
-    this.getData();
   }
 
   onPageChange(value: number){

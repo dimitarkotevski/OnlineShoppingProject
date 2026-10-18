@@ -26,6 +26,11 @@ namespace NexCart.Admin.Controllers
         [HttpPost]
         public IActionResult All(RequestModel request)
         {
+            if (!ModelState.IsValid)
+            {
+                return ErrorNotAcceptable();
+            }
+
             return Ok(_usersService.GetAll(request));
         }
 

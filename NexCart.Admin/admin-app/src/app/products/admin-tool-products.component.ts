@@ -10,13 +10,16 @@ import { AddEditProductDialogComponent } from './add-edit-product-dialog/add-edi
 import { ToastrService } from 'ngx-toastr';
 import { YesNoDialogComponent } from 'src/app/shared/yes-no-dialog/yes-no-dialog.component';
 import { GridSelection } from 'src/app/shared/grid-selection';
+import { FilterableGrid } from 'src/app/shared/filterable-grid';
+import { CategoryService } from 'src/app/core/category.service';
+import { CategoryViewModel } from 'src/app/models/category';
 
 @Component({ standalone: false,
   selector: 'app-admin-tool-products',
   templateUrl: './admin-tool-products.component.html',
   styleUrls: ['./admin-tool-products.component.css']
 })
-export class AdminToolProductsComponent implements OnInit {
+export class AdminToolProductsComponent extends FilterableGrid implements OnInit {
 
   // columns = [
   //   { prop: 'Name', name: 'Name' },
@@ -27,7 +30,6 @@ export class AdminToolProductsComponent implements OnInit {
   //   { prop: 'Edit', name: 'Edit' },
   //   { prop: 'Delete', name: 'Delete' },
   // ]
-  request: RequestModel;
   response: ResponseModel<ProductGridModel>
   newItem: ProductViewModel;
   /** Rows ticked for bulk delete (current page only). */
@@ -35,12 +37,16 @@ export class AdminToolProductsComponent implements OnInit {
 
   pagination: number[] = [5 , 10, 20, 50, 100]
 
+  /** Options for the category filter. */
+  categories: CategoryViewModel[] = [];
+
   constructor(
     private dialog: MatDialog,
     private toastr: ToastrService,
     private adminToolProductService: AdminToolProductService,
-    ) { 
-      this.request = new RequestModel();
+    private categoryService: CategoryService,
+    ) {
+      super();
       this.response = new ResponseModel<ProductGridModel>()
       this.newItem = new ProductViewModel;
     }
@@ -52,6 +58,10 @@ export class AdminToolProductsComponent implements OnInit {
       Size: 10,
     }
 
+    this.categoryService.getAllCategories().subscribe((res: any) => {
+      this.categories = res?.Items || [];
+    });
+
     this.getData();
   }
 
@@ -60,7 +70,7 @@ export class AdminToolProductsComponent implements OnInit {
   }
 
   getData(){
-    this.adminToolProductService.getTable(this.request).subscribe((response: ResponseModel<ProductGridModel>)=>{
+    this.adminToolProductService.getTable(this.apiRequest()).subscribe((response: ResponseModel<ProductGridModel>)=>{
       this.response = response;
       this.selection.clear();
     }, ()=>{
@@ -154,11 +164,6 @@ export class AdminToolProductsComponent implements OnInit {
         })
       }
     });
-  }
-
-  resetSearchString(){
-    this.request.SearchString = '';
-    this.getData();
   }
 
   onPageChange(value: number){
