@@ -44,7 +44,7 @@ export class AdminToolUsersComponent implements OnInit {
 
     this.request = {
       PageNeeded: 1,
-      Size: 5,
+      Size: 10,
     }
 
     this.getData();
