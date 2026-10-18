@@ -11,11 +11,12 @@ A full-stack online shopping application: **ASP.NET Core (.NET 10) backend** wit
 - FluentValidation (model validation)
 - JWT (HMAC-SHA256) for authentication
 
-**Frontend** (`NexCart.Web/my-app/`)
-- Angular 20 SPA, Angular Material, Bootstrap 5
+**Frontend**
+- `NexCart.Web/my-app/`: the customer shop, an Angular 20 SPA (Angular Material, Bootstrap 5)
+- `NexCart.Admin/admin-app/`: the admin tool, an Angular 20 SPA served by the NexCart.Admin site
 - @auth0/angular-jwt for JWT handling (admin grids use plain HTML tables)
 
-**Solution:** `NexCartProject.sln` (6 projects)
+**Solution:** `NexCart.sln` (7 projects)
 
 ## Solution Structure
 
@@ -25,7 +26,8 @@ A full-stack online shopping application: **ASP.NET Core (.NET 10) backend** wit
 | `NexCart.Business` | `NexCart.Business/` | Services, view models, mappers, security, exceptions |
 | `NexCart.Data.NHibernate` | `NexCart.Data.NHibernate/` | Generic `Repository<T>`, `IUnitOfWork`, `NHibernateContext`, mappings |
 | `NexCart.Migrations` | `NexCart.Migrations/` | SQL migration scripts + console runner that applies them to `ShopDb` |
-| `NexCart.Web` | `NexCart.Web/` | ASP.NET Core host, API controllers, Autofac wiring, Angular app |
+| `NexCart.Web` | `NexCart.Web/` | ASP.NET Core host for the shop: API controllers, Autofac wiring, shop Angular app |
+| `NexCart.Admin` | `NexCart.Admin/` | ASP.NET Core host for administrators: admin-only API controllers, admin Angular app |
 | `NexCart.Tests` | `NexCart.Tests/` | xUnit tests for the business layer |
 
 **Architecture:** layered, dependency direction `Web → BusinessLogic → Data.NHibernate → Domain`
@@ -45,7 +47,7 @@ A full-stack online shopping application: **ASP.NET Core (.NET 10) backend** wit
 2. `{*path}` → `Home/Home` — catch-all serving the Angular SPA, constrained by `SpaFallbackConstraint` so unknown `/api/...` URLs return 404 instead of the shell
 
 **API controllers** (`Controllers/Api/`, all extend `BaseController`):
-`Identity` (auth, profile, payments), `Users`, `Products`, `Categories`, `Orders`, `ShoppingCarts`, `FavouriteProducts`, `ApplicationSettings`.
+`Identity` (shop sign-in, registration, profile, payments), `Products`, `Categories`, `Orders`, `ShoppingCarts`, `FavouriteProducts`. Admin operations live in NexCart.Admin's own API, not here.
 
 - **Request binding:** a custom `JsonBodyModelBinderProvider` reproduces the old MVC 5 behaviour — action values are resolved from the route, then the query string, then a matching JSON body property, and finally the whole body (so flat bodies, `{model: ...}` wrappers, and route ids all bind).
 - **Error handling:** unhandled exceptions → HTTP 409 + `{success, exception}` (controller `IExceptionFilter`, plus `ApiExceptionMiddleware` for failures that happen before an action runs, e.g. database errors); validation errors → HTTP 400 + `{Success, Errors}`
@@ -55,7 +57,11 @@ A full-stack online shopping application: **ASP.NET Core (.NET 10) backend** wit
 - **Customer features:** browse categories/products, product detail, shopping cart, orders, favourite products, profile, payment methods, settings.
 - **Admin features:** user / product / order management with filterable, sortable, paginated grids (`RequestModel` / `ResponseModel`).
 
-**Frontend** (`NexCart.Web/my-app/`): `authentification/` (login/register), customer pages (`home`, `category-products`, `product-components`, `cart`, `order`, `favourite`, `profile`, `settings`), and `admin-components/` (admin-tool shell with CRUD dialogs). Routing in `app-routing.module.ts`.
+**Shop frontend** (`NexCart.Web/my-app/`): `authentification/` (login/register) and customer pages (`home`, `category-products`, `product-components`, `cart`, `order`, `favourite`, `profile`, `settings`). Routing in `app-routing.module.ts`.
+
+**Admin site** (`NexCart.Admin/`): a separate ASP.NET Core host (http://localhost:5090) built like NexCart.Web, with the same Autofac / JSON / JWT setup and its own admin-only API (`AdminLogin`, `Products`, `Orders`, `Users`, `Roles`, `Categories`; everything except sign-in requires the `AdminOnly` policy). The API plumbing (`BaseController`, `ApiExceptionMiddleware`, `JsonBodyModelBinder`, `ValidationFilter`, `UserTokenValidation`, ...) is linked from NexCart.Web rather than copied. Its web root is `NexCart.Web/wwwroot`, so product photos uploaded in the admin site are served by the shop too.
+
+**Admin frontend** (`NexCart.Admin/admin-app/`): its own login page, a sidebar layout and the `products`, `orders` and `users` pages with their CRUD dialogs. Built to `NexCart.Admin/admin-app/bundles/browser` and served from the root of the admin site. The shop redirects old `/admin/...` and `/admin-tool/...` links there (override the target with `AdminSite:Url`).
 
 ## How to Run
 
@@ -81,6 +87,21 @@ cd NexCart.Web/my-app
 npm install
 npm run build    # outputs to bundles/browser, which NexCart.Web serves
 # or: ng serve   # dev server on port 4200
+```
+
+**Admin site:**
+
+```bash
+dotnet run --project NexCart.Admin    # http://localhost:5090
+```
+
+**Admin frontend** (only needed when changing the admin UI):
+
+```bash
+cd NexCart.Admin/admin-app
+npm install
+npm run build    # outputs to bundles/browser, which NexCart.Admin serves
+# or: npm run watch   # rebuilds on every change; refresh the admin site to see it
 ```
 
 **Tests:**

@@ -2,12 +2,9 @@
 
   <app-regular-navbar 
     [isUserAuthenticated]="isUserAuthenticated" 
-    (refreshState)="refreshState.emit()"
-    [categoryNavBar] = "categoryNavBar"
-    (changeCategoryNavBar) = "changeCategoryNavBar()"></app-regular-navbar>
+    (refreshState)="refreshState.emit()"></app-regular-navbar>
   
   <app-categories-navbar 
-    class="solid-hide-on-sm"
-    [categoryNavBar]="categoryNavBar"></app-categories-navbar>  
+    class="solid-hide-on-sm"></app-categories-navbar>  
 
 </header>

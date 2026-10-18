@@ -45,6 +45,13 @@ export class AuthentificationService {
     localStorage.removeItem('id');
     localStorage.removeItem('username');
     localStorage.removeItem('role');
+
+    // Administrators may not use the shop (they sign in to the admin tool at /admin). Drop an
+    // admin session left over from before that rule, before anything reads claims from it.
+    const token = this.getToken();
+    if (token && this.isAdminToken(token)) {
+      this.logout();
+    }
   }
     
   getUserDetails(id:string | null) : Observable<UserDetails>{
@@ -86,13 +93,6 @@ export class AuthentificationService {
   getRole(): string | null {
     return this.getClaim(ROLE_CLAIMS);
   }
-  /**
-   * True when the logged-in user holds the administrator role (case-insensitive) *and* still
-   * has a valid session, so a stale/expired admin token cannot unlock the admin screens.
-   */
-  isAdmin(): boolean {
-    return this.isAuthenticated() && (this.getRole() || '').toLowerCase() === 'admin';
-  }
   getToken(): string | null  {
     return localStorage.getItem('token') || null;
   }
@@ -126,18 +126,29 @@ export class AuthentificationService {
   /**
    * True when a token is stored *and* still valid. An expired (or undecodable) token is
    * treated as no session at all and is cleared, so the UI never shows the app as
-   * authenticated while the API would reject the caller with a 401.
+   * authenticated while the API would reject the caller with a 401. An administrator token
+   * is cleared too: administrators can't use the shop.
    */
   isAuthenticated(): boolean {
     const token = this.getToken();
     if (!token) {
       return false;
     }
-    if (this.isTokenExpired(token)) {
+    if (this.isTokenExpired(token) || this.isAdminToken(token)) {
       this.logout();
       return false;
     }
     return true;
+  }
+
+  /** True when the token was issued to an administrator (unreadable tokens count as not). */
+  private isAdminToken(token: string): boolean {
+    try {
+      const payload = this.tokenHelper.decodeToken(token);
+      return !!payload && ROLE_CLAIMS.some(key => String(payload[key] ?? '').toLowerCase() === 'admin');
+    } catch {
+      return false;
+    }
   }
 
   /** Guards against a malformed token by treating anything we cannot read as expired. */

@@ -1,0 +1,45 @@
+<div class="login-page">
+  <form class="login-card" (ngSubmit)="submit()" #loginForm="ngForm">
+    <div class="login-card__brand">
+      <span class="login-card__logo">ShoppingDev</span>
+      <span class="login-card__badge">Admin</span>
+    </div>
+    <h1 class="login-card__title">Sign in to the admin tool</h1>
+    <p class="login-card__subtitle">Use an administrator account.</p>
+
+    <div *ngIf="errorMessage" class="alert alert-danger py-2" role="alert">
+      <i class="fa-solid fa-circle-exclamation me-1"></i> {{ errorMessage }}
+    </div>
+
+    <label class="form-label" for="username">Username</label>
+    <input
+      id="username"
+      name="username"
+      class="form-control mb-3"
+      [(ngModel)]="username"
+      autocomplete="username"
+      required
+      autofocus
+    />
+
+    <label class="form-label" for="password">Password</label>
+    <input
+      id="password"
+      name="password"
+      type="password"
+      class="form-control mb-4"
+      [(ngModel)]="password"
+      autocomplete="current-password"
+      required
+    />
+
+    <button type="submit" class="btn login-card__submit w-100" [disabled]="loginForm.invalid || isSubmitting">
+      <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+      Sign in
+    </button>
+
+    <a class="login-card__back" href="/">
+      <i class="fa-solid fa-arrow-left me-1"></i> Back to the shop
+    </a>
+  </form>
+</div>

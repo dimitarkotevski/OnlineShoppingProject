@@ -244,6 +244,14 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+// The admin tool is its own site (NexCart.Admin). Old shop links (/admin/..., and the even older
+// /admin-tool/...) are sent there; override the target with AdminSite:Url.
+var adminSiteUrl = (app.Configuration["AdminSite:Url"] ?? "http://localhost:5090").TrimEnd('/');
+app.MapGet("/admin/{**rest}", (string rest) =>
+    Results.Redirect(adminSiteUrl + "/" + (rest ?? string.Empty)));
+app.MapGet("/admin-tool/{**rest}", (string rest) =>
+    Results.Redirect(adminSiteUrl + "/" + (rest ?? string.Empty)));
+
 // Everything that is not an API call or a static file is served by the SPA shell.
 app.MapControllerRoute(
     name: "spa",

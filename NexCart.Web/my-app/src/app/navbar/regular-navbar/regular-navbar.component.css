@@ -252,18 +252,6 @@
 }
 
 /* Admin Tool Integration */
-.admin-tool-btn {
-    border: 1px solid coral !important;
-    color: coral !important;
-    border-radius: 50px !important;
-    margin-left: 10px;
-    transition: all 0.3s ease !important;
-}
-.admin-tool-btn:hover {
-    background-color: coral !important;
-    color: white !important;
-}
-
 .dropdownmenu ul, .dropdownmenu li {
     margin: 0;
     padding: 0;

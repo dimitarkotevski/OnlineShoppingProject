@@ -1,0 +1,25 @@
+@import '@fortawesome/fontawesome-free/css/all.min.css';
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: #f1f1f1;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+/* Used by the no-data component's call-to-action button. */
+.solid_button_orange {
+  border-radius: 3px;
+  background-color: coral;
+  color: white;
+}
+
+.solid_button_orange:hover {
+  border-radius: 3px;
+  background-color: chocolate;
+  color: white;
+}

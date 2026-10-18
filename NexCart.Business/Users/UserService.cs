@@ -29,7 +29,7 @@ namespace NexCart.Business.Services
     public interface IUserService
     {
         void Registration(UserRegistrationViewModel registrationModel);
-        UserTokenInformation Login(UserLoginViewModel loginModel);
+        UserTokenInformation Login(UserLoginViewModel loginModel, LoginPortal portal);
         void UpdatePassword(ChangePasswordUserViewModel model);
         ResponseModel<UserGridModel> GetAll(RequestModel request);
         UserDetailsModel Get(Guid Id);
@@ -41,6 +41,7 @@ namespace NexCart.Business.Services
         bool Create(UserViewModel model);
         void Update(UserViewModel model);
         void Delete(Guid Id);
+        void DeleteMany(IEnumerable<Guid> ids);
         double GetAmountMoneyOfUser(Guid userId);
         void AddPayment(Guid userId, PaymentsViewModelInfo model);
         void DeletePayment(Guid userId);
@@ -124,7 +125,7 @@ namespace NexCart.Business.Services
                 _unitOfWork.Commit();
             }
         }
-        public UserTokenInformation Login(UserLoginViewModel loginModel)
+        public UserTokenInformation Login(UserLoginViewModel loginModel, LoginPortal portal)
         {
             if (string.IsNullOrWhiteSpace(loginModel.Username) || string.IsNullOrWhiteSpace(loginModel.Password))
             {
@@ -142,6 +143,18 @@ namespace NexCart.Business.Services
                 if (user == null || !PasswordHasher.Verify(loginModel.Password, user.Password))
                 {
                     throw new BllException(ShopExceptionMassages.UserExceptionMassages.USERNAME_PASSWORD_INCORRECT);
+                }
+
+                // Administrators sign in only through the admin tool, customers only through the shop.
+                // Checked after the password, so the role of an account is never revealed without it.
+                var isAdmin = user.Role == UserRole.Admin;
+                if (portal == LoginPortal.Shop && isAdmin)
+                {
+                    throw new BllException(ShopExceptionMassages.UserExceptionMassages.ADMIN_MUST_USE_ADMIN_TOOL);
+                }
+                if (portal == LoginPortal.Admin && !isAdmin)
+                {
+                    throw new BllException(ShopExceptionMassages.UserExceptionMassages.ADMIN_ACCESS_REQUIRED);
                 }
 
                 // Transparently upgrade legacy (reversible-AES) hashes to salted PBKDF2.
@@ -483,6 +496,24 @@ namespace NexCart.Business.Services
             using (_unitOfWork.BeginTransaction())
             {
                 _userRepository.Delete(Id);
+                _unitOfWork.Commit();
+            }
+        }
+        /// <summary>Deletes all the given users in one transaction (all or nothing).</summary>
+        public void DeleteMany(IEnumerable<Guid> ids)
+        {
+            var distinctIds = (ids ?? Enumerable.Empty<Guid>()).Distinct().ToList();
+            if (distinctIds.Count == 0)
+            {
+                return;
+            }
+
+            using (_unitOfWork.BeginTransaction())
+            {
+                foreach (var id in distinctIds)
+                {
+                    _userRepository.Delete(id);
+                }
                 _unitOfWork.Commit();
             }
         }

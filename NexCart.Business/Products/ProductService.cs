@@ -28,6 +28,7 @@ namespace NexCart.Business.Services
         bool Create(ProductViewModel model);
         bool Update(ProductViewModel model);
         bool Delete(Guid Id);
+        void DeleteMany(IEnumerable<Guid> ids);
         bool CheckNameExists(string Name);
         void UploadImage(Guid Id, string image);
         List<string> GetAllBrands(Guid categoryId);
@@ -136,6 +137,29 @@ namespace NexCart.Business.Services
                 _productsRepository.Delete(productEntity);
                 _unitOfWork.Commit();
                 return true;
+            }
+        }
+        /// <summary>
+        /// Deletes all the given products in one transaction: if any of them is missing (or a
+        /// delete fails) nothing is deleted.
+        /// </summary>
+        public void DeleteMany(IEnumerable<Guid> ids)
+        {
+            var distinctIds = (ids ?? Enumerable.Empty<Guid>()).Distinct().ToList();
+            if (distinctIds.Count == 0)
+            {
+                return;
+            }
+
+            using (_unitOfWork.BeginTransaction())
+            {
+                foreach (var id in distinctIds)
+                {
+                    var productEntity = _productsRepository.FindBy(id)
+                        ?? throw new BllException(ShopExceptionMassages.ProductsExceptionMassages.NOT_FOUND_EXCEPTION);
+                    _productsRepository.Delete(productEntity);
+                }
+                _unitOfWork.Commit();
             }
         }
         public ProductViewModel Get(Guid Id)

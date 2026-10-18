@@ -6,8 +6,6 @@
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-      <a class="solid-color-a btn admin-tool-btn" *ngIf="categoryNavBar && canAccessToAdminTool" (click)="disableNavbar()" routerLink="/admin-tool" >Go to admin tool</a>
-      <a class="solid-color-a btn admin-tool-btn" *ngIf="!categoryNavBar && canAccessToAdminTool" (click)="disableNavbar()" routerLink="/" >Back to user mode</a>
       <div class="navbar-nav ms-auto">
         <div *ngIf="!isUserAuthenticated" class="nav-item">
           <a class="nav-link navbar-action" routerLink="/login" routerLinkActive="navbar-action--active">

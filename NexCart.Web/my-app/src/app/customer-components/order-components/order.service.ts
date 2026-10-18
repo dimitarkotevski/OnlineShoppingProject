@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { OrderViewModel } from 'src/app/admin-components/admin-tool-models/order-view-model';
+import { OrderViewModel } from 'src/app/models/order-view-model';
 
 @Injectable({
     providedIn: 'root'

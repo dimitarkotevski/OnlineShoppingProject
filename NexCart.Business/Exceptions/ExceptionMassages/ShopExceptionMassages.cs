@@ -8,6 +8,8 @@
             public static string ID_NOT_FOUND_EXCEPTION = "User with Id: {0} not found";
             public static string NOT_FOUND_EXCEPTION = "User not found";
             public static string USERNAME_PASSWORD_INCORRECT = "Username or password are incorrect";
+            public static string ADMIN_MUST_USE_ADMIN_TOOL = "Administrator accounts can't sign in to the shop. Use the admin tool instead.";
+            public static string ADMIN_ACCESS_REQUIRED = "This account does not have administrator access.";
             public static string SAME_OLD_AND_NEW_PASWORD = "Old password and new password are the same.";
 
             public static string EMAIL_ALREADY_EXIST = "Email '{0}'  already exist";

@@ -12,12 +12,9 @@ export class RegularNavbarComponent implements OnInit {
 
   @Input() isUserAuthenticated?: boolean;
   @Output() refreshState = new EventEmitter<any>();
-  @Output() changeCategoryNavBar = new EventEmitter<any>();
-  @Input() categoryNavBar?: boolean ;
   
   categories?: CategoryViewModel[] | null | undefined;
   username?: string;
-  canAccessToAdminTool: boolean = false;
   amount: any;
   id?: string | null;
 
@@ -29,10 +26,6 @@ export class RegularNavbarComponent implements OnInit {
   ngOnInit(): void {
     this.username = this.authService.getLoggedUsername();
     this.id = this.authService.getLoggedUserId();
-
-    if(this.authService.isAdmin()){
-      this.canAccessToAdminTool = true;
-    }
 
     this.authService.getAmountMoneyOfUser(this.id)?.subscribe(res=>{
       if(res === 0){
@@ -47,10 +40,6 @@ export class RegularNavbarComponent implements OnInit {
     this.authService.logout();
     this.refreshState.emit();
     window.location.replace('/')
-  }
-
-  disableNavbar(){
-    this.changeCategoryNavBar.emit();
   }
 }
 

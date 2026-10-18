@@ -1,0 +1,50 @@
+<div class="no-data-wrapper" [style.min-height]="minHeight">
+  <div class="no-data-card">
+    <div class="no-data-icon-container">
+      <div class="no-data-circle">
+        <i [class]="icon" aria-hidden="true"></i>
+      </div>
+    </div>
+
+    <h3 class="no-data-title">{{ title }}</h3>
+    <p class="no-data-message" *ngIf="message">{{ message }}</p>
+
+    <!-- Custom content slot for consumer-defined elements -->
+    <div class="no-data-content">
+      <ng-content></ng-content>
+    </div>
+
+    <!-- Action buttons -->
+    <div class="no-data-actions" *ngIf="showButton || secondaryButtonText">
+      <a
+        *ngIf="showButton && buttonRoute"
+        [routerLink]="buttonRoute"
+        (click)="onButtonClick()"
+        class="btn solid_button_orange no-data-btn"
+      >
+        <i *ngIf="buttonIcon" [class]="buttonIcon + ' me-2'"></i>
+        {{ buttonText }}
+      </a>
+
+      <button
+        *ngIf="showButton && !buttonRoute"
+        type="button"
+        (click)="onButtonClick()"
+        class="btn solid_button_orange no-data-btn"
+      >
+        <i *ngIf="buttonIcon" [class]="buttonIcon + ' me-2'"></i>
+        {{ buttonText }}
+      </button>
+
+      <button
+        *ngIf="secondaryButtonText"
+        type="button"
+        (click)="onSecondaryButtonClick()"
+        class="btn btn-outline-secondary no-data-btn"
+      >
+        <i *ngIf="secondaryButtonIcon" [class]="secondaryButtonIcon + ' me-2'"></i>
+        {{ secondaryButtonText }}
+      </button>
+    </div>
+  </div>
+</div>

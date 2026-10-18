@@ -3,7 +3,6 @@ import {
   ChangeDetectorRef,
   Component,
   ElementRef,
-  Input,
   OnDestroy,
   OnInit,
   ViewChild
@@ -19,8 +18,6 @@ import { CategoryService } from 'src/app/category-products/category.service';
   styleUrls: ['./categories-navbar.component.css']
 })
 export class CategoriesNavbarComponent implements OnInit, AfterViewInit, OnDestroy {
-
-  @Input() categoryNavBar?: boolean;
 
   categories?: CategoryViewModel[] | null | undefined;
 

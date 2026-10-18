@@ -1,0 +1,52 @@
+<div class="shell">
+  <aside class="sidebar" [class.sidebar--open]="menuOpen">
+    <a class="sidebar__brand" routerLink="/products" (click)="menuOpen = false">
+      <span class="sidebar__logo">ShoppingDev</span>
+      <span class="sidebar__badge">Admin</span>
+    </a>
+
+    <nav class="sidebar__nav" aria-label="Admin sections">
+      <a
+        *ngFor="let item of navItems"
+        class="sidebar__link"
+        [routerLink]="item.path"
+        routerLinkActive="sidebar__link--active"
+        (click)="menuOpen = false"
+      >
+        <i class="fa-solid" [ngClass]="item.icon"></i>
+        <span>{{ item.label }}</span>
+      </a>
+    </nav>
+
+    <div class="sidebar__footer">
+      <div class="sidebar__user">
+        <span class="sidebar__avatar"><i class="fa-solid fa-user-shield"></i></span>
+        <div class="sidebar__user-text">
+          <span class="sidebar__username">{{ username || "Administrator" }}</span>
+          <span class="sidebar__role">Administrator</span>
+        </div>
+      </div>
+      <a class="sidebar__action" href="/">
+        <i class="fa-solid fa-store"></i> Back to shop
+      </a>
+      <button type="button" class="sidebar__action sidebar__action--logout" (click)="logout()">
+        <i class="fa-solid fa-right-from-bracket"></i> Log out
+      </button>
+    </div>
+  </aside>
+
+  <div class="sidebar-backdrop" *ngIf="menuOpen" (click)="menuOpen = false"></div>
+
+  <div class="main">
+    <header class="topbar">
+      <button type="button" class="topbar__menu" (click)="menuOpen = !menuOpen" aria-label="Toggle menu">
+        <i class="fa-solid fa-bars"></i>
+      </button>
+      <span class="topbar__title">ShoppingDev Admin</span>
+    </header>
+
+    <main class="content">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>

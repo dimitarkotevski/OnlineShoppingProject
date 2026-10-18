@@ -23,8 +23,13 @@ namespace NexCart.Web.Infrastructure
                 return true;
             }
 
-            if (path.StartsWith("api/", StringComparison.OrdinalIgnoreCase)
-                || string.Equals(path, "api", StringComparison.OrdinalIgnoreCase))
+            if (IsUnderSegment(path, "api"))
+            {
+                return false;
+            }
+
+            // /admin/... is redirected to the separate admin site (NexCart.Admin), not the shop shell.
+            if (IsUnderSegment(path, "admin"))
             {
                 return false;
             }
@@ -35,6 +40,13 @@ namespace NexCart.Web.Infrastructure
             var lastSegment = lastSlash >= 0 ? trimmed.Substring(lastSlash + 1) : trimmed;
 
             return !lastSegment.Contains('.');
+        }
+
+        /// <summary>True for "segment" itself or anything below it ("segment/..."), ignoring case.</summary>
+        private static bool IsUnderSegment(string path, string segment)
+        {
+            return string.Equals(path, segment, StringComparison.OrdinalIgnoreCase)
+                || path.StartsWith(segment + "/", StringComparison.OrdinalIgnoreCase);
         }
     }
 }

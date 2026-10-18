@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { YesNoDialogComponent } from '../../yes-no-dialog/yes-no-dialog.component';
 import { MakeOrderConfirmationComponent } from './make-order-confirmation/make-order-confirmation.component';
-import { OrderViewModel } from 'src/app/admin-components/admin-tool-models/order-view-model';
+import { OrderViewModel } from 'src/app/models/order-view-model';
 import { LookupViewModel } from 'src/app/models/lookup-view-model';
 import { AuthentificationService } from 'src/app/authentification/authentification.service';
 import { ToastrService } from 'ngx-toastr';

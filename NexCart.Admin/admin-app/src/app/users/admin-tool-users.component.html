@@ -1,0 +1,177 @@
+<div *ngIf="response" class="container pt-3 admin-page">
+  <div class="admin-header">
+    <div>
+      <h3 class="mb-0">User admin panel</h3>
+      <p class="text-muted mb-0 small">Manage customer and administrator accounts.</p>
+    </div>
+    <button (click)="addEditUser(newItem)" class="btn btn-coral">
+      <i class="fa-solid fa-user-plus me-1"></i> Add user
+    </button>
+  </div>
+  <hr />
+
+  <!-- Stats -->
+  <div class="row g-3 mb-3">
+    <div class="col-6 col-md-3">
+      <div class="stat-card">
+        <i class="fa-solid fa-users stat-card__icon"></i>
+        <div>
+          <div class="stat-card__value">{{ response.TotalItems }}</div>
+          <div class="stat-card__label">Total users</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-card">
+        <i class="fa-solid fa-layer-group stat-card__icon"></i>
+        <div>
+          <div class="stat-card__value">{{ response.Items?.length || 0 }}</div>
+          <div class="stat-card__label">On this page</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-card">
+        <i class="fa-solid fa-file-lines stat-card__icon"></i>
+        <div>
+          <div class="stat-card__value">{{ totalPages }}</div>
+          <div class="stat-card__label">Total pages</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-card">
+        <i class="fa-solid fa-table-list stat-card__icon"></i>
+        <div>
+          <div class="stat-card__value">{{ response.Size }}</div>
+          <div class="stat-card__label">Per page</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <div class="toolbar__search">
+      <i class="fa-solid fa-magnifying-glass toolbar__search-icon"></i>
+      <input
+        class="form-control toolbar__search-input"
+        [(ngModel)]="request.SearchString"
+        placeholder="Search users..."
+        type="search"
+        (keyup.enter)="getData()"
+      />
+    </div>
+    <div class="toolbar__actions">
+      <button class="btn btn-coral" (click)="getData()">
+        <i class="fa-solid fa-magnifying-glass me-1"></i> Search
+      </button>
+      <button class="btn btn-outline-secondary" (click)="resetSearchString()">
+        <i class="fa-solid fa-rotate-left me-1"></i> Reset
+      </button>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="table-card" *ngIf="response.TotalItems > 0">
+    <div class="bulk-bar" *ngIf="selection.count > 0">
+      <span class="bulk-bar__count">{{ selection.count }} selected</span>
+      <button type="button" class="btn btn-sm btn-link bulk-bar__clear" (click)="selection.clear()">Clear</button>
+      <button type="button" class="btn btn-sm btn-danger ms-auto" (click)="deleteSelected()">
+        <i class="fa-solid fa-trash me-1"></i> Delete selected
+      </button>
+    </div>
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead>
+          <tr>
+            <th scope="col" class="select-col">
+              <input
+                type="checkbox"
+                class="form-check-input"
+                [checked]="selection.allSelected(response.Items)"
+                [indeterminate]="selection.someSelected(response.Items)"
+                (change)="selection.toggleAll(response.Items)"
+                aria-label="Select all on this page"
+              />
+            </th>
+            <th scope="col">Name</th>
+            <th scope="col">Username</th>
+            <th scope="col">Email</th>
+            <th scope="col">Role</th>
+            <th scope="col">Address</th>
+            <th scope="col" class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let user of response.Items" [class.is-selected]="selection.isSelected(user.Id)">
+            <td class="select-col">
+              <input
+                type="checkbox"
+                class="form-check-input"
+                [checked]="selection.isSelected(user.Id)"
+                [disabled]="!selection.isSelectable(user.Id)"
+                (change)="selection.toggle(user.Id)"
+                [attr.aria-label]="'Select ' + user.Username"
+              />
+            </td>
+            <td>
+              <span class="cell-strong">{{ fullName(user) }}</span>
+            </td>
+            <td>{{ user.Username || "—" }}</td>
+            <td class="cell-muted">{{ user.Email || "—" }}</td>
+            <td>
+              <span class="pill" [ngClass]="isAdminRole(user.Role) ? 'pill--coral' : ''">
+                <i class="fa-solid" [ngClass]="isAdminRole(user.Role) ? 'fa-user-shield' : 'fa-user'"></i>
+                {{ (user.Role | uppercase) || "—" }}
+              </span>
+            </td>
+            <td class="cell-muted">{{ formatAddress(user) }}</td>
+            <td>
+              <div class="d-flex justify-content-end gap-1">
+                <button class="btn btn-sm btn-icon" (click)="addEditUser(user)" matTooltip="Edit user">
+                  <i class="fa-solid fa-pen"></i>
+                </button>
+                <button class="btn btn-sm btn-icon btn-icon--danger" (click)="deleteUser(user.Id)" matTooltip="Delete user">
+                  <i class="fa-solid fa-trash"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="table-card__footer">
+      <ngb-pagination
+        [(page)]="response.CurrentPage"
+        [pageSize]="response.Size"
+        [collectionSize]="response.TotalItems"
+        [rotate]="true"
+        [boundaryLinks]="true"
+        (pageChange)="onPageChange($event)"
+      ></ngb-pagination>
+      <label class="page-size">
+        <span>Show</span>
+        <select
+          class="form-select form-select-sm page-size__select"
+          [ngModel]="response.Size"
+          (ngModelChange)="onPageSizeChange($event)"
+        >
+          <option *ngFor="let option of pagination" [ngValue]="option">{{ option }}</option>
+        </select>
+        <span>per page</span>
+      </label>
+    </div>
+  </div>
+
+  <app-no-data
+    *ngIf="response.TotalItems === 0"
+    title="No Users in Database"
+    message="There are currently no users found in the database matching your criteria."
+    icon="fa-solid fa-database"
+    buttonText="Add User"
+    buttonIcon="fa-solid fa-user-plus"
+    (buttonClick)="addEditUser(newItem)"
+  ></app-no-data>
+</div>

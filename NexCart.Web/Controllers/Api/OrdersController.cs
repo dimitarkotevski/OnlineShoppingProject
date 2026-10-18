@@ -1,5 +1,4 @@
 ﻿using System;
-using NexCart.Business.Requests;
 using NexCart.Business.Services;
 using NexCart.Business.ViewModels;
 using NexCart.Web.Controllers.Api;
@@ -19,53 +18,6 @@ namespace NexCart.Web.Controllers
             _orderService = orderService;
             _shoppingCartService = shoppingCartService;
         }
-
-        #region ADMIN ACTION
-
-        [HttpPost]
-        [Authorize(Policy = "AdminOnly")]
-        public IActionResult All(RequestModel request)
-        {
-            return Ok(_orderService.GetAll(request));
-        }
-
-        [HttpPost]
-        [Authorize(Policy = "AdminOnly")]
-        public IActionResult Get(Guid Id)
-        {
-            return Ok(_orderService.Get(Id));
-        }
-
-        [HttpPost]
-        [Authorize(Policy = "AdminOnly")]
-        public IActionResult Create(OrderViewModel model)
-        {
-            if (!ModelState.IsValid)
-            {
-                return ErrorNotAcceptable();
-            }
-
-            _orderService.Create(model);
-            return Ok(new { success = true });
-        }
-
-        [HttpPost]
-        [Authorize(Policy = "AdminOnly")]
-        public IActionResult Edit(OrderViewModel model)
-        {
-            _orderService.Update(model);
-            return Ok(new { success = true });
-        }
-
-        [HttpPost]
-        [Authorize(Policy = "AdminOnly")]
-        public IActionResult Delete(Guid Id)
-        {
-            _orderService.Delete(Id);
-            return Ok(new { success = true });
-        }
-
-        #endregion
 
         #region USER ACTION
 

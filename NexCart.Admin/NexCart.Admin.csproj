@@ -1,0 +1,42 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <RootNamespace>NexCart.Admin</RootNamespace>
+    <AssemblyName>NexCart.Admin</AssemblyName>
+    <UserSecretsId>2c3c7a5b-e20b-456d-9549-ddf44699872d</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Autofac" Version="9.3.4" />
+    <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="11.0.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.13" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\NexCart.Business\NexCart.Business.csproj" />
+    <ProjectReference Include="..\NexCart.Domain\NexCart.Domain.csproj" />
+    <ProjectReference Include="..\NexCart.Data.NHibernate\NexCart.Data.NHibernate.csproj" />
+  </ItemGroup>
+
+  <!-- API plumbing shared with NexCart.Web (error envelope, JSON body binding, validation,
+       JWT re-check, base controller). Linked rather than copied so both sites keep one
+       implementation. -->
+  <ItemGroup>
+    <Compile Include="..\NexCart.Web\Controllers\Api\BaseController.cs" Link="Shared\BaseController.cs" />
+    <Compile Include="..\NexCart.Web\Infrastructure\ApiExceptionMiddleware.cs" Link="Shared\ApiExceptionMiddleware.cs" />
+    <Compile Include="..\NexCart.Web\Infrastructure\ClaimsPrincipalExtensions.cs" Link="Shared\ClaimsPrincipalExtensions.cs" />
+    <Compile Include="..\NexCart.Web\Infrastructure\JsonBodyModelBinder.cs" Link="Shared\JsonBodyModelBinder.cs" />
+    <Compile Include="..\NexCart.Web\Infrastructure\LenientNumberConverterFactory.cs" Link="Shared\LenientNumberConverterFactory.cs" />
+    <Compile Include="..\NexCart.Web\Infrastructure\UserTokenValidation.cs" Link="Shared\UserTokenValidation.cs" />
+    <Compile Include="..\NexCart.Web\Infrastructure\ValidationFilter.cs" Link="Shared\ValidationFilter.cs" />
+  </ItemGroup>
+
+  <!-- The Angular workspace is built with the Angular CLI, not MSBuild. Keep it out of the
+       compile/content item lists so node_modules and the build output are not treated as content. -->
+  <ItemGroup>
+    <Compile Remove="admin-app\**" />
+    <Content Remove="admin-app\**" />
+    <None Remove="admin-app\**" />
+  </ItemGroup>
+
+</Project>

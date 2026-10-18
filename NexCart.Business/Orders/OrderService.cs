@@ -23,6 +23,7 @@ namespace NexCart.Business.Services
         Guid Create(OrderViewModel model);
         void Update(OrderViewModel model);
         void Delete(Guid Id);
+        void DeleteMany(IEnumerable<Guid> ids);
         void ChangeOrderStatus(Guid orderId, OrderStatus orderStatus);
         ResponseListModel<OrderGridViewModel> GetUserNotActiveOrders(Guid userId);
         OrderViewModelWithProducts GetUserActiveOrder(Guid userId);
@@ -88,6 +89,24 @@ namespace NexCart.Business.Services
             using (_unitOfWork.BeginTransaction())
             {
                 _orderRepository.Delete(Id);
+                _unitOfWork.Commit();
+            }
+        }
+        /// <summary>Deletes all the given orders in one transaction (all or nothing).</summary>
+        public void DeleteMany(IEnumerable<Guid> ids)
+        {
+            var distinctIds = (ids ?? Enumerable.Empty<Guid>()).Distinct().ToList();
+            if (distinctIds.Count == 0)
+            {
+                return;
+            }
+
+            using (_unitOfWork.BeginTransaction())
+            {
+                foreach (var id in distinctIds)
+                {
+                    _orderRepository.Delete(id);
+                }
                 _unitOfWork.Commit();
             }
         }

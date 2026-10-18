@@ -1,0 +1,178 @@
+<div *ngIf="response" class="container pt-3 admin-page">
+  <div class="admin-header">
+    <div>
+      <h3 class="mb-0">Order admin panel</h3>
+      <p class="text-muted mb-0 small">Track orders, payments and update their status.</p>
+    </div>
+  </div>
+  <hr />
+
+  <!-- Stats -->
+  <div class="row g-3 mb-3">
+    <div class="col-6 col-md-3">
+      <div class="stat-card">
+        <i class="fa-solid fa-receipt stat-card__icon"></i>
+        <div>
+          <div class="stat-card__value">{{ response.TotalItems }}</div>
+          <div class="stat-card__label">Total orders</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-card">
+        <i class="fa-solid fa-layer-group stat-card__icon"></i>
+        <div>
+          <div class="stat-card__value">{{ response.Items?.length || 0 }}</div>
+          <div class="stat-card__label">On this page</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-card">
+        <i class="fa-solid fa-file-lines stat-card__icon"></i>
+        <div>
+          <div class="stat-card__value">{{ totalPages }}</div>
+          <div class="stat-card__label">Total pages</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-card">
+        <i class="fa-solid fa-sack-dollar stat-card__icon"></i>
+        <div>
+          <div class="stat-card__value">{{ pageTotalAmount | currency }}</div>
+          <div class="stat-card__label">Value on this page</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <div class="toolbar__search">
+      <i class="fa-solid fa-magnifying-glass toolbar__search-icon"></i>
+      <input
+        class="form-control toolbar__search-input"
+        [(ngModel)]="request.SearchString"
+        placeholder="Search orders..."
+        type="search"
+        (keyup.enter)="getData()"
+      />
+    </div>
+    <div class="toolbar__actions">
+      <button class="btn btn-coral" (click)="getData()">
+        <i class="fa-solid fa-magnifying-glass me-1"></i> Search
+      </button>
+      <button class="btn btn-outline-secondary" (click)="resetSearchString()">
+        <i class="fa-solid fa-rotate-left me-1"></i> Reset
+      </button>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="table-card" *ngIf="response.TotalItems > 0">
+    <div class="bulk-bar" *ngIf="selection.count > 0">
+      <span class="bulk-bar__count">{{ selection.count }} selected</span>
+      <button type="button" class="btn btn-sm btn-link bulk-bar__clear" (click)="selection.clear()">Clear</button>
+      <button type="button" class="btn btn-sm btn-danger ms-auto" (click)="deleteSelected()">
+        <i class="fa-solid fa-trash me-1"></i> Delete selected
+      </button>
+    </div>
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead>
+          <tr>
+            <th scope="col" class="select-col">
+              <input
+                type="checkbox"
+                class="form-check-input"
+                [checked]="selection.allSelected(response.Items)"
+                [indeterminate]="selection.someSelected(response.Items)"
+                (change)="selection.toggleAll(response.Items)"
+                aria-label="Select all on this page"
+              />
+            </th>
+            <th scope="col">Order</th>
+            <th scope="col">Customer</th>
+            <th scope="col">Shopping Cart</th>
+            <th scope="col">Total</th>
+            <th scope="col">Status</th>
+            <th scope="col">Payment</th>
+            <th scope="col">Date Created</th>
+            <th scope="col" class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let order of response.Items" [class.is-selected]="selection.isSelected(order.Id)">
+            <td class="select-col">
+              <input
+                type="checkbox"
+                class="form-check-input"
+                [checked]="selection.isSelected(order.Id)"
+                [disabled]="!selection.isSelectable(order.Id)"
+                (change)="selection.toggle(order.Id)"
+                [attr.aria-label]="'Select order'"
+              />
+            </td>
+            <td><span class="cell-strong">{{ order.OrderName || "—" }}</span></td>
+            <td>{{ order.User?.Name || "—" }}</td>
+            <td class="cell-muted">{{ order.ShoppingCart?.Name || "—" }}</td>
+            <td><span class="cell-strong">{{ order.TotalAmount | currency }}</span></td>
+            <td>
+              <span class="pill" [ngClass]="statusPillClass(order.OrderStatus)">
+                {{ order.OrderStatus | orderStatus }}
+              </span>
+            </td>
+            <td>
+              <span class="pill" [ngClass]="order.PaymentType == 1 ? 'pill--dark' : ''">
+                <i class="fa-solid" [ngClass]="order.PaymentType == 1 ? 'fa-credit-card' : 'fa-money-bill'"></i>
+                {{ order.PaymentType | paymentType }}
+              </span>
+            </td>
+            <td>{{ (order.DateCreated || "" | dateConverter) || "/" }}</td>
+            <td>
+              <div class="d-flex justify-content-end gap-1">
+                <button class="btn btn-sm btn-icon" (click)="addEditOrder(order)" matTooltip="Change status">
+                  <i class="fa-solid fa-pen"></i>
+                </button>
+                <button class="btn btn-sm btn-icon btn-icon--danger" (click)="deleteOrder(order.Id)" matTooltip="Delete order">
+                  <i class="fa-solid fa-trash"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="table-card__footer">
+      <ngb-pagination
+        [(page)]="response.CurrentPage"
+        [pageSize]="response.Size"
+        [collectionSize]="response.TotalItems"
+        [rotate]="true"
+        [boundaryLinks]="true"
+        (pageChange)="onPageChange($event)"
+      ></ngb-pagination>
+      <label class="page-size">
+        <span>Show</span>
+        <select
+          class="form-select form-select-sm page-size__select"
+          [ngModel]="response.Size"
+          (ngModelChange)="onPageSizeChange($event)"
+        >
+          <option *ngFor="let option of pagination" [ngValue]="option">{{ option }}</option>
+        </select>
+        <span>per page</span>
+      </label>
+    </div>
+  </div>
+
+  <app-no-data
+    *ngIf="response.TotalItems === 0"
+    title="No Orders in Database"
+    message="There are currently no orders found in the database."
+    icon="fa-solid fa-database"
+    [showButton]="false"
+  ></app-no-data>
+</div>

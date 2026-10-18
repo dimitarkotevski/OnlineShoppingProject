@@ -17,7 +17,6 @@ export class NavbarComponent implements OnInit, AfterViewInit, OnDestroy {
   @Output() refreshState = new EventEmitter<any>();
 
   categories?: CategoryViewModel[] | null | undefined;
-  categoryNavBar = true;
   username?: string;
   id?: string | null;
 
@@ -70,13 +69,5 @@ export class NavbarComponent implements OnInit, AfterViewInit, OnDestroy {
     this.refreshState.emit();
     this.toastr.success("Success logout!");
     window.location.replace('/')
-  }
-
-  changeCategoryNavBar(){
-    if(this.categoryNavBar==true){
-      this.categoryNavBar = false;
-    }else{
-      this.categoryNavBar=true;
-    }
   }
 }

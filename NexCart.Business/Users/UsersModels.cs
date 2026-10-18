@@ -79,6 +79,16 @@ namespace NexCart.Business.ViewModels
         public List<LookupViewModel> FavouriteProdutcs { get; set; }
     }
 
+    /// <summary>Which app a sign-in comes from; decides which roles may sign in.</summary>
+    public enum LoginPortal
+    {
+        /// <summary>The customer shop (NexCart.Web): administrators are refused.</summary>
+        Shop,
+
+        /// <summary>The admin tool (NexCart.Admin): only administrators are accepted.</summary>
+        Admin
+    }
+
     public class UserTokenInformation
     {
         public Guid Id { get; set; }

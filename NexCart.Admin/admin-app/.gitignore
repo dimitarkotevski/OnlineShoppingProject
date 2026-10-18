@@ -1,0 +1,4 @@
+/node_modules
+/bundles
+/.angular
+/out-tsc

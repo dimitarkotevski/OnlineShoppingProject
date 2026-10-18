@@ -39,25 +39,13 @@ import { CartComponent } from './cart/cart.component';
 import { OrderComponent } from './order/order.component';
 import { OrderService } from './customer-components/order-components/order.service';
 import { CategoryService } from './category-products/category.service';
-import { AdminToolComponent } from './admin-components/admin-tool/admin-tool.component';
-import { AdminToolProductsComponent } from './admin-components/admin-tool-products/admin-tool-products.component';
-import { AdminToolOrdersComponent } from './admin-components/admin-tool-orders/admin-tool-orders.component';
-import { AdminToolUsersComponent } from './admin-components/admin-tool-users/admin-tool-users.component';
 import { DateConverter } from './utils/convert-date';
 import { OrderStatusPipe } from './utils/order-pipe';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
-import { MatInputModule } from '@angular/material/input';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { AddEditProductDialogComponent } from './admin-components/admin-tool-products/add-edit-product-dialog/add-edit-product-dialog.component';
-import { PhotoDialogComponent } from './admin-components/admin-tool-products/photo-dialog/photo-dialog.component';
 import { YesNoDialogComponent } from './customer-components/yes-no-dialog/yes-no-dialog.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { MatSelectModule } from '@angular/material/select';
 import { PaymentStatusPipe } from './utils/payment-status.pipe';
-import { AddEditOrderComponent } from './admin-components/admin-tool-orders/add-edit-order/add-edit-order.component';
-import { AddEditUserComponent } from './admin-components/admin-tool-users/add-edit-user/add-edit-user.component';
 import { MakeOrderConfirmationComponent } from './customer-components/order-components/order-detail/make-order-confirmation/make-order-confirmation.component';
 import { AddPaymentComponent } from './profile/add-payment/add-payment.component';
 import { NoDataComponent } from './customer-components/no-data/no-data.component';
@@ -94,16 +82,8 @@ import { SortBarComponent } from './customer-components/sort-bar/sort-bar.compon
     SkeletonComponent,
     CartComponent,
     OrderComponent,
-    AdminToolComponent,
-    AdminToolProductsComponent,
-    AdminToolOrdersComponent,
-    AdminToolUsersComponent,
-    PhotoDialogComponent,
-    AddEditProductDialogComponent,
     YesNoDialogComponent,
     PaymentStatusPipe,
-    AddEditOrderComponent,
-    AddEditUserComponent,
     MakeOrderConfirmationComponent,
     AddPaymentComponent,
     NoDataComponent,
@@ -122,11 +102,7 @@ import { SortBarComponent } from './customer-components/sort-bar/sort-bar.compon
     BrowserAnimationsModule,
     MatDialogModule,
     MatButtonModule,
-    MatInputModule,
-    MatFormFieldModule,
-    MatTooltipModule,
     NgbModule,
-    MatSelectModule
   ],
   providers: [
     AuthentificationService,

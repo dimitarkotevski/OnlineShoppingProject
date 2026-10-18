@@ -45,7 +45,7 @@ namespace NexCart.Web.Controllers
                 return ErrorNotAcceptable();
             }
 
-            var userToken = _userService.Login(model);
+            var userToken = _userService.Login(model, LoginPortal.Shop);
             return Ok(userToken);
         }
 
