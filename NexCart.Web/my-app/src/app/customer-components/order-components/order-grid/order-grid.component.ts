@@ -3,6 +3,7 @@ import { AuthentificationService } from 'src/app/authentification/authentificati
 import { ResponseListModel } from '../../../models/response';
 import { OrderGridViewModel } from '../../../models/order-grid';
 import { OrderService } from '../order.service';
+import { OrderStatus } from 'src/app/models/enum/order-status';
 
 @Component({ standalone: false,
   selector: 'app-order-grid',
@@ -28,6 +29,26 @@ export class OrderGridComponent implements OnInit {
         this.isLoading = false;
       }
     });
+  }
+
+  statusClass(status?: OrderStatus): string {
+    switch (status) {
+      case OrderStatus.Canceled: return 'status-pill--danger';
+      case OrderStatus.OnHold: return 'status-pill--warning';
+      case OrderStatus.PendingPayment: return 'status-pill--pending';
+      case OrderStatus.Completed: return 'status-pill--success';
+      default: return '';
+    }
+  }
+
+  statusIcon(status?: OrderStatus): string {
+    switch (status) {
+      case OrderStatus.Canceled: return 'fa-circle-xmark';
+      case OrderStatus.OnHold: return 'fa-circle-pause';
+      case OrderStatus.PendingPayment: return 'fa-clock';
+      case OrderStatus.Completed: return 'fa-circle-check';
+      default: return 'fa-circle';
+    }
   }
 
 }

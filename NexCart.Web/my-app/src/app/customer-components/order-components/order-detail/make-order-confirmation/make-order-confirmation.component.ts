@@ -15,7 +15,8 @@ export class MakeOrderConfirmationComponent implements OnInit {
     @Inject(
       MAT_DIALOG_DATA) public data:any
       ) { 
-        this.orderViewModel = data.order
+        // Edit a copy, so picking a payment method and then cancelling leaves the order untouched.
+        this.orderViewModel = { ...data.order }
       }
 
   ngOnInit(): void {

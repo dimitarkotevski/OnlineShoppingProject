@@ -1,49 +1,86 @@
-<div *ngIf="productDetail" class="container">
+<div *ngIf="productDetail" class="container pb-4">
   <app-breadcrumb [isItem]="true" [itemDetail]="productDetail"></app-breadcrumb>
 
-  <div *ngIf="productDetail" class="card w-100">
-    <div class="card-body">
-      <div class="row">
-        <div class="col-lg-6 col-md-12 text-md-center w-100 h-100">
+  <div class="product-card">
+    <div class="row g-4 align-items-center">
+      <!-- Image -->
+      <div class="col-md-6">
+        <div class="product-media">
           <img
+            *ngIf="productDetail.Image"
             [src]="productDetail.Image | byPassSecurity"
-            class="img-responsive"
-            alt="{{ productDetail.Name }}"
+            [alt]="productDetail.Name"
+            class="product-media__img"
           />
-        </div>
-        <div class="container-sm py-sm-2 col-lg-6">
-          <h1 class="card-title solid-color">{{ productDetail.Name }}</h1>
-          <hr />
-          <h3 class="card-text">
-            ${{ productDetail.Price?.toFixed(2) || "/" }}
-          </h3>
-          <hr />
-          <div class="row">
-            <div class="my-sm-2 col-lg-5 col-md-12 col-sm-12 p-2">
-              <button class="btn solid_button w-100">Buy</button>
-            </div>
-            <div class="my-sm-2 col-lg-5 col-md-6 col-sm-6  p-2">
-              <button class="btn solid_button w-100" (click)="addToCart(productDetail.Id)">Add to cart</button>
-            </div>
-            <div class="my-sm-2 col-lg-2 col-md-6 col-sm-6  p-2">
-              <button
-                class="btn solid_button w-100"
-                (click)="addToFavourite(productDetail.Id)"
-              >
-                <i class="fa-regular fa-heart"></i>
-              </button>
-            </div>
+          <div *ngIf="!productDetail.Image" class="product-media__empty">
+            <i class="fa-solid fa-image"></i>
+            <span>No photo available</span>
           </div>
         </div>
-        <div class="card-body">
-          <h3>Specification</h3><hr/>
-          <div class="row">
-            <div class="col-lg-12 col-md-12 col-sm-12">
-              {{ productDetail.Description }}
-            </div>
+      </div>
+
+      <!-- Info -->
+      <div class="col-md-6">
+        <div class="product-info">
+          <a
+            *ngIf="productDetail.Category?.Name"
+            class="product-info__category"
+            [routerLink]="['/category', productDetail.Category?.Id]"
+          >
+            {{ productDetail.Category?.Name }}
+          </a>
+
+          <h1 class="product-info__name">{{ productDetail.Name }}</h1>
+
+          <div class="product-info__price">
+            {{ productDetail.Price != null ? (productDetail.Price | currency) : "/" }}
+          </div>
+
+          <p *ngIf="productDetail.Description" class="product-info__summary">
+            {{ productDetail.Description }}
+          </p>
+
+          <div class="product-actions">
+            <button class="btn btn-coral product-actions__main" (click)="buyNow(productDetail.Id)">
+              <i class="fa-solid fa-bolt me-2"></i> Buy now
+            </button>
+            <button class="btn btn-coral-outline product-actions__main" (click)="addToCart(productDetail.Id)">
+              <i class="fa-solid fa-cart-plus me-2"></i> Add to cart
+            </button>
+            <button
+              class="btn btn-heart"
+              (click)="addToFavourite(productDetail.Id)"
+              aria-label="Add to favourites"
+              title="Add to favourites"
+            >
+              <i class="fa-regular fa-heart"></i>
+            </button>
           </div>
         </div>
       </div>
     </div>
+  </div>
+
+  <!-- Specification -->
+  <div class="product-card product-spec">
+    <h2 class="product-spec__title">Specification</h2>
+    <dl class="product-spec__list">
+      <div class="product-spec__row">
+        <dt>Product</dt>
+        <dd>{{ productDetail.Name }}</dd>
+      </div>
+      <div class="product-spec__row" *ngIf="productDetail.Category?.Name">
+        <dt>Category</dt>
+        <dd>{{ productDetail.Category?.Name }}</dd>
+      </div>
+      <div class="product-spec__row" *ngIf="productDetail.Description">
+        <dt>Details</dt>
+        <dd>{{ productDetail.Description }}</dd>
+      </div>
+      <div class="product-spec__row" *ngIf="productDetail.DateCreated">
+        <dt>Listed</dt>
+        <dd>{{ productDetail.DateCreated | dateConverter }}</dd>
+      </div>
+    </dl>
   </div>
 </div>

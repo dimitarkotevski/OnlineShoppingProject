@@ -1,48 +1,63 @@
-<div class="container">
-    <app-breadcrumb [isItem]="false" [itemDetail]="'My old orders'"></app-breadcrumb>
-    
-    <div class="card">
-        <div *ngIf="!isLoading && orders" class="card-body">
-            <h1>My old orders</h1>
-                          
-              <table *ngIf="orders.length > 0" class="table table-responsive-md table-hover">
-                <thead>
-                  <tr>
-                    <th scope="col">Order name</th>
-                    <th scope="col">Order date</th>
-                    <th scope="col">Number of products</th>
-                    <th scope="col">Total Amount</th>
-                    <th scope="col" class="text-center">Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr *ngFor="let order of orders">
-                    <td>{{order.OrderName}}</td>
-                    <td *ngIf="order.DateCreated">{{(order.DateCreated | dateConverter) || '/'}}</td>
-                    <td>{{order.NumberOfProducts}}</td>
-                    <td>${{order.TotalAmount?.toFixed(2) || '/'}}</td>
-                    <td *ngIf="order.OrderStatus == 0" 
-                        class="bg-danger text-white text-center">{{order.OrderStatus | orderStatus}}</td>
-                    <td *ngIf="order.OrderStatus == 1" 
-                        class="bg-info text-white text-center">{{order.OrderStatus | orderStatus}}</td>
-                    <td *ngIf="order.OrderStatus == 2" 
-                        class="bg-warning text-white text-center">{{order.OrderStatus | orderStatus}}</td>
-                    <td *ngIf="order.OrderStatus == 3" 
-                        class="bg-success text-white text-center">{{order.OrderStatus | orderStatus}}</td>
-                  </tr>
-                </tbody>
-              </table>
+<div class="container pb-4">
+  <app-breadcrumb [isItem]="false" [itemDetail]="'My old orders'"></app-breadcrumb>
 
-              <app-no-data *ngIf="orders.length === 0"
-                  title="No Orders Found"
-                  message="There are no past orders in the database for your account."
-                  icon="fa-solid fa-receipt"
-                  buttonText="Start Shopping"
-                  buttonRoute="/">
-              </app-no-data>
+  <div class="history-card">
+    <div *ngIf="!isLoading && orders">
+      <div class="history-card__header">
+        <div>
+          <span class="history-card__eyebrow">Order history</span>
+          <h2>My old orders</h2>
         </div>
-        <div *ngIf="isLoading" class="p-4">
-            <app-loading-grid [isGridLoading]="false"></app-loading-grid>
-        </div>
+        <span *ngIf="orders.length > 0" class="history-card__count">
+          {{ orders.length }} {{ orders.length === 1 ? "order" : "orders" }}
+        </span>
+      </div>
+
+      <div *ngIf="orders.length > 0" class="table-responsive">
+        <table class="table history-table align-middle mb-0">
+          <thead>
+            <tr>
+              <th scope="col">Order</th>
+              <th scope="col">Date</th>
+              <th scope="col" class="text-center">Products</th>
+              <th scope="col" class="text-end">Total</th>
+              <th scope="col" class="text-end">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let order of orders">
+              <td>
+                <div class="history-table__order">
+                  <span class="history-table__icon"><i class="fa-solid fa-receipt"></i></span>
+                  <span class="history-table__name">{{ order.OrderName || "—" }}</span>
+                </div>
+              </td>
+              <td class="history-table__muted">{{ (order.DateCreated || "" | dateConverter) || "/" }}</td>
+              <td class="text-center">{{ order.NumberOfProducts ?? 0 }}</td>
+              <td class="text-end history-table__total">{{ order.TotalAmount != null ? (order.TotalAmount | currency) : "/" }}</td>
+              <td class="text-end">
+                <span class="status-pill" [ngClass]="statusClass(order.OrderStatus)">
+                  <i class="fa-solid" [ngClass]="statusIcon(order.OrderStatus)"></i>
+                  {{ order.OrderStatus | orderStatus }}
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <app-no-data
+        *ngIf="orders.length === 0"
+        title="No Orders Found"
+        message="There are no past orders in the database for your account."
+        icon="fa-solid fa-receipt"
+        buttonText="Start Shopping"
+        buttonRoute="/"
+      ></app-no-data>
     </div>
+
+    <div *ngIf="isLoading">
+      <app-loading-grid [isGridLoading]="false"></app-loading-grid>
+    </div>
+  </div>
 </div>

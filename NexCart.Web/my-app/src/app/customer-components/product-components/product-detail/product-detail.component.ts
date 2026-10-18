@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ProductService } from '../product.service';
 import { ProductGridModel } from '../../../models/product-grid';
 import { ProductViewModel } from 'src/app/models/product-view-model';
@@ -19,6 +19,7 @@ export class ProductDetailComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
+    private router: Router,
     private productService: ProductService,
     private favouriteProductService: FavouriteProductService,
     private shoppingCartService: ShoppingCartService,
@@ -50,6 +51,18 @@ export class ProductDetailComponent implements OnInit {
     this.favouriteProductService.addFavouriteProducts(userId, Id).subscribe(
       () => this.toastr.success("Product added to favourite"),
       () => this.toastr.warning("Product is already in favourite")
+    );
+  }
+
+  /** Adds the product to the cart and goes straight to the cart to check out. */
+  buyNow(Id:string | undefined){
+    const userId = this.authService.getLoggedUserId();
+    if(!userId || !Id){
+      window.location.replace('/login');
+      return;
+    }
+    this.shoppingCartService.AddProductToCart(userId, Id)?.subscribe(
+      () => this.router.navigate(['/cart'])
     );
   }
 

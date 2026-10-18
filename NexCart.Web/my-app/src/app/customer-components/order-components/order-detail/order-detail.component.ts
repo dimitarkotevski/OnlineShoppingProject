@@ -34,12 +34,13 @@ export class OrderDetailComponent implements OnInit {
       width: '500px', // Set the width of the modal
       panelClass: 'custom-modalbox'
     });
-    dialogRef.afterClosed().subscribe((result) => {
+    dialogRef.afterClosed().subscribe((result: OrderViewModel | null) => {
       if(result){
-         this.orderService.MakeAPay(order).subscribe(()=>{
+         // The dialog returns the order with the chosen payment method.
+         this.orderService.MakeAPay(result).subscribe(()=>{
             this.activeOrder = null
+            this.toasterService.success("Your order has been approved and the product/s will be sent to the address in your profile")
          })
-         this.toasterService.success("Your order has been aproved and the product/s will be sent to the address that you put into profile")
       }
     });
   }

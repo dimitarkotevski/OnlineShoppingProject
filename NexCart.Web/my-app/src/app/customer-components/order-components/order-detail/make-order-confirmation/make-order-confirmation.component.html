@@ -1,41 +1,62 @@
-<h1 mat-dialog-title>Pay an order</h1>
-<div mat-dialog-content>
-    <form>
-        <div class="row">
-            <div class="col-6 form-outline mb-4">
-                <label for="order_name" class="form-label">Order name</label>
-                <input disabled name="order_name" [(ngModel)]="orderViewModel.OrderName" type="text" class="form-control" />
-              </div>
-        </div>
-        <div class="row">
-            <div class="col-6 form-outline mb-4">
-                <label for="total_amount" class="form-label">Total amount</label>
-                <input disabled name="first_total_amountname" [(ngModel)]="orderViewModel.TotalAmount" type="number" class="form-control" />
-            </div>
-        </div>
+<h2 mat-dialog-title class="pay-title">
+  <i class="fa-solid fa-credit-card me-2"></i>
+  Pay for your order
+</h2>
 
-        <div class="row">
-            <div class="col-6">
-                <label for="order_status" class="form-label">Order status:</label>
-                <select disabled name="order_status" class="form-select form-control" [(ngModel)]="orderViewModel.OrderStatus">
-                  <option [ngValue]="0">Canceled</option>
-                  <option [ngValue]="1">OnHold</option>
-                  <option [ngValue]="2">PendingPayment</option>
-                  <option [ngValue]="3">Completed</option>
-                </select>
-            </div>
+<mat-dialog-content>
+  <div class="pay-summary">
+    <div class="pay-summary__row">
+      <span>Order</span>
+      <strong>{{ orderViewModel.OrderName || "—" }}</strong>
+    </div>
+    <div class="pay-summary__row">
+      <span>Status</span>
+      <span class="pay-summary__status">{{ orderViewModel.OrderStatus | orderStatus }}</span>
+    </div>
+    <div class="pay-summary__row pay-summary__row--total">
+      <span>Total</span>
+      <strong>{{ (orderViewModel.TotalAmount || 0) | currency }}</strong>
+    </div>
+  </div>
 
-            <div class="col-6">
-                <label for="payment_type" class="form-label">Payment type:</label>
-                <select name="payment_type" class="form-select form-control" [(ngModel)]="orderViewModel.PaymentType">
-                  <option [ngValue]="0">Cash</option>
-                  <option [ngValue]="1">Card</option>
-                </select>
-            </div>
-        </div>
-    </form>
-</div>
-<div style="float:right;margin:20px;">
-    <input class="btn btn-danger m-1" type="button" value="Pay"  [mat-dialog-close]="orderViewModel">
-    <input class="btn btn-outline-primary m-1" type="button" value="Cancel"  [mat-dialog-close]="false">
-</div>
+  <span class="pay-label">Payment method</span>
+  <div class="pay-methods" role="radiogroup" aria-label="Payment method">
+    <button
+      type="button"
+      class="pay-method"
+      role="radio"
+      [attr.aria-checked]="orderViewModel.PaymentType === 0"
+      [class.pay-method--selected]="orderViewModel.PaymentType === 0"
+      (click)="orderViewModel.PaymentType = 0"
+    >
+      <i class="fa-solid fa-money-bill-wave"></i>
+      <span class="pay-method__name">Cash</span>
+      <span class="pay-method__hint">Pay on delivery</span>
+    </button>
+    <button
+      type="button"
+      class="pay-method"
+      role="radio"
+      [attr.aria-checked]="orderViewModel.PaymentType === 1"
+      [class.pay-method--selected]="orderViewModel.PaymentType === 1"
+      (click)="orderViewModel.PaymentType = 1"
+    >
+      <i class="fa-solid fa-credit-card"></i>
+      <span class="pay-method__name">Card</span>
+      <span class="pay-method__hint">Pay with your saved card</span>
+    </button>
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button [mat-dialog-close]="null" class="pay-cancel">Cancel</button>
+  <button
+    mat-flat-button
+    class="pay-submit"
+    [disabled]="orderViewModel.PaymentType == null"
+    [mat-dialog-close]="orderViewModel"
+  >
+    <i class="fa-solid fa-lock me-1"></i>
+    Pay {{ (orderViewModel.TotalAmount || 0) | currency }}
+  </button>
+</mat-dialog-actions>
