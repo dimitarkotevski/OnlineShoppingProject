@@ -32,6 +32,8 @@
 
             public static string NAME_NOT_FOUND_EXCEPTION = "Category name not exist";
             public static string NAME_ALREADY_EXIST_EXCEPTION = "Category name already exist";
+            public static string NAME_REQUIRED_EXCEPTION = "Category name is required";
+            public static string HAS_PRODUCTS_EXCEPTION = "Category \"{0}\" still has {1} product(s); move or delete them first";
         }
         public static class ProductsExceptionMassages
         {

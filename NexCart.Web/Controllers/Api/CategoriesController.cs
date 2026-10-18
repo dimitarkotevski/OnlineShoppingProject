@@ -19,7 +19,8 @@ namespace NexCart.Web.Controllers
         [HttpPost]
         public IActionResult AllCategories()
         {
-            var data = _categoriesService.GetAll();
+            // Categories switched off in the admin tool are hidden from the storefront.
+            var data = _categoriesService.GetAll(activeOnly: true);
             var count = data.Count;
             return Ok(new { Items = data, TotalItems = count });
         }

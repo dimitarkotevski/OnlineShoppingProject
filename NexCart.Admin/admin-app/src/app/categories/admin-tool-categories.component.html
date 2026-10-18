@@ -1,0 +1,166 @@
+<div *ngIf="response" class="container pt-3 admin-page">
+  <div class="admin-header">
+    <div>
+      <h3 class="mb-0">Category admin panel</h3>
+      <p class="text-muted mb-0 small">Manage the categories shown in the shop's navbar.</p>
+    </div>
+    <button (click)="addEditCategory()" class="btn btn-coral">
+      <i class="fa-solid fa-plus me-1"></i> Add category
+    </button>
+  </div>
+  <hr />
+
+  <!-- Stats -->
+  <div class="row g-3 mb-3">
+    <div class="col-6 col-md-4">
+      <div class="stat-card">
+        <i class="fa-solid fa-tags stat-card__icon"></i>
+        <div>
+          <div class="stat-card__value">{{ response.TotalItems }}</div>
+          <div class="stat-card__label">Total categories</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-md-4">
+      <div class="stat-card">
+        <i class="fa-solid fa-file-lines stat-card__icon"></i>
+        <div>
+          <div class="stat-card__value">{{ totalPages }}</div>
+          <div class="stat-card__label">Total pages</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-md-4">
+      <div class="stat-card">
+        <i class="fa-solid fa-table-list stat-card__icon"></i>
+        <div>
+          <div class="stat-card__value">{{ response.Size }}</div>
+          <div class="stat-card__label">Per page</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <div class="toolbar__search">
+      <i class="fa-solid fa-magnifying-glass toolbar__search-icon"></i>
+      <input
+        class="form-control toolbar__search-input"
+        [(ngModel)]="request.SearchString"
+        placeholder="Search categories..."
+        type="search"
+        maxlength="100"
+        (keyup.enter)="applyFilters()"
+      />
+    </div>
+    <div class="toolbar__actions">
+      <button class="btn btn-outline-secondary" (click)="showFilters = !showFilters" [attr.aria-expanded]="showFilters">
+        <i class="fa-solid fa-filter me-1"></i> Filters
+        <span class="filter-badge" *ngIf="activeFilters">{{ activeFilters }}</span>
+      </button>
+      <button class="btn btn-coral" (click)="applyFilters()" [disabled]="hasFilterErrors">
+        <i class="fa-solid fa-magnifying-glass me-1"></i> Search
+      </button>
+      <button class="btn btn-outline-secondary" (click)="resetFilters()">
+        <i class="fa-solid fa-rotate-left me-1"></i> Reset
+      </button>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters" *ngIf="showFilters">
+    <div class="filters__field">
+      <label class="filters__label" for="f-active">Status</label>
+      <select id="f-active" class="form-select" [(ngModel)]="request.IsActive" (ngModelChange)="applyFilters()">
+        <option [ngValue]="null">All</option>
+        <option [ngValue]="true">Active</option>
+        <option [ngValue]="false">Inactive</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="table-card" *ngIf="response.TotalItems > 0">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead>
+          <tr>
+            <th scope="col">Name</th>
+            <th scope="col">URL slug</th>
+            <th scope="col">Products</th>
+            <th scope="col">Status</th>
+            <th scope="col" class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let category of response.Items">
+            <td><span class="cell-strong">{{ category.Name }}</span></td>
+            <td><span class="cell-muted">{{ category.Url || '—' }}</span></td>
+            <td>{{ category.ProductCount || 0 }}</td>
+            <td>
+              <span class="pill" [ngClass]="category.Status ? 'pill--success' : 'pill--dark'">
+                {{ category.Status ? 'Active' : 'Inactive' }}
+              </span>
+            </td>
+            <td>
+              <div class="d-flex justify-content-end gap-1">
+                <button
+                  class="btn btn-sm btn-icon"
+                  (click)="addEditCategory(category)"
+                  matTooltip="Edit category"
+                >
+                  <i class="fa-solid fa-pen"></i>
+                </button>
+                <!-- Wrapper keeps the tooltip working while the button is disabled. -->
+                <span [matTooltip]="(category.ProductCount || 0) > 0
+                    ? 'Move or delete its ' + category.ProductCount + ' product(s) first'
+                    : 'Delete category'">
+                  <button
+                    class="btn btn-sm btn-icon btn-icon--danger"
+                    (click)="deleteCategory(category)"
+                    [disabled]="(category.ProductCount || 0) > 0"
+                  >
+                    <i class="fa-solid fa-trash"></i>
+                  </button>
+                </span>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="table-card__footer">
+      <ngb-pagination
+        [(page)]="response.CurrentPage"
+        [pageSize]="response.Size"
+        [collectionSize]="response.TotalItems"
+        [rotate]="true"
+        [boundaryLinks]="true"
+        (pageChange)="onPageChange($event)"
+      ></ngb-pagination>
+      <label class="page-size">
+        <span>Show</span>
+        <select
+          class="form-select form-select-sm page-size__select"
+          [ngModel]="response.Size"
+          (ngModelChange)="onPageSizeChange($event)"
+        >
+          <option *ngFor="let option of pagination" [ngValue]="option">{{ option }}</option>
+        </select>
+        <span>per page</span>
+      </label>
+    </div>
+  </div>
+
+  <app-no-data
+    *ngIf="response.TotalItems === 0"
+    title="No Categories Found"
+    message="There are no categories matching your criteria."
+    icon="fa-solid fa-tags"
+    buttonText="Add Category"
+    buttonIcon="fa-solid fa-plus"
+    (buttonClick)="addEditCategory()"
+  ></app-no-data>
+</div>

@@ -1,4 +1,7 @@
+using System;
+using NexCart.Business.Requests;
 using NexCart.Business.Services;
+using NexCart.Business.ViewModels;
 using NexCart.Web.Controllers.Api;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -23,6 +26,49 @@ namespace NexCart.Admin.Controllers
             var data = _categoriesService.GetAll();
             var count = data.Count;
             return Ok(new { Items = data, TotalItems = count });
+        }
+
+        /// <summary>Paged, filtered rows for the categories grid.</summary>
+        [HttpPost]
+        public IActionResult All(RequestModel request)
+        {
+            if (!ModelState.IsValid)
+            {
+                return ErrorNotAcceptable();
+            }
+
+            return Ok(_categoriesService.GetTable(request ?? new RequestModel()));
+        }
+
+        [HttpPost]
+        public IActionResult Create(CategoryViewModel model)
+        {
+            if (model == null || !ModelState.IsValid)
+            {
+                return ErrorNotAcceptable();
+            }
+
+            _categoriesService.Create(model);
+            return Ok(new { success = true });
+        }
+
+        [HttpPost]
+        public IActionResult Edit(CategoryViewModel model)
+        {
+            if (model == null || !ModelState.IsValid)
+            {
+                return ErrorNotAcceptable();
+            }
+
+            _categoriesService.Update(model);
+            return Ok(new { success = true });
+        }
+
+        [HttpPost]
+        public IActionResult Delete(Guid id)
+        {
+            _categoriesService.Delete(id);
+            return Ok(new { success = true });
         }
     }
 }

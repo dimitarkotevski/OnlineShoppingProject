@@ -37,6 +37,8 @@ namespace NexCart.Business.Requests
         public OrderStatus? OrderStatus { get; set; }
         public PaymentType? PaymentType { get; set; }
         public UserRole? Role { get; set; }
+        /// <summary>Categories: true for active only, false for inactive only.</summary>
+        public bool? IsActive { get; set; }
         public string City { get; set; }
     }
 

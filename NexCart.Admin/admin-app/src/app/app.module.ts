@@ -27,6 +27,8 @@ import { AdminToolOrdersComponent } from './orders/admin-tool-orders.component';
 import { AddEditOrderComponent } from './orders/add-edit-order/add-edit-order.component';
 import { AdminToolUsersComponent } from './users/admin-tool-users.component';
 import { AddEditUserComponent } from './users/add-edit-user/add-edit-user.component';
+import { AdminToolCategoriesComponent } from './categories/admin-tool-categories.component';
+import { AddEditCategoryComponent } from './categories/add-edit-category/add-edit-category.component';
 
 import { YesNoDialogComponent } from './shared/yes-no-dialog/yes-no-dialog.component';
 import { NoDataComponent } from './shared/no-data/no-data.component';
@@ -47,6 +49,8 @@ import { PaymentStatusPipe } from './shared/pipes/payment-status.pipe';
     AddEditOrderComponent,
     AdminToolUsersComponent,
     AddEditUserComponent,
+    AdminToolCategoriesComponent,
+    AddEditCategoryComponent,
     YesNoDialogComponent,
     NoDataComponent,
     ByPassSecurityPipe,

@@ -21,12 +21,14 @@ export class RequestModel{
     Role?: number | null
     City?: string | null
     EmailEnding?: string | null
+    /** Categories: active / inactive. */
+    IsActive?: boolean | null
 }
 
 /** The filter fields, so a grid can clear them all while keeping paging and search. */
 export const FILTER_KEYS: (keyof RequestModel)[] = [
     'EntityId', 'PriceFrom', 'PriceTo', 'DateFrom', 'DateTo', 'HasImage',
-    'OrderStatus', 'PaymentType', 'Role', 'City', 'EmailEnding',
+    'OrderStatus', 'PaymentType', 'Role', 'City', 'EmailEnding', 'IsActive',
 ];
 
 /**

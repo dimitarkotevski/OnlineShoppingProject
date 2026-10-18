@@ -1,0 +1,54 @@
+<h2 mat-dialog-title>
+  <i class="fa-solid me-2 text-coral" [ngClass]="model.Id ? 'fa-pen' : 'fa-plus'"></i>
+  {{ title }} category
+</h2>
+
+<mat-dialog-content>
+  <form #categoryForm="ngForm" class="category-form" (ngSubmit)="categoryForm.valid && !isBlank && save()">
+    <mat-form-field appearance="outline" class="w-100 mb-2">
+      <mat-label>Category name</mat-label>
+      <input
+        matInput
+        #name="ngModel"
+        [(ngModel)]="model.Name"
+        name="name"
+        placeholder="e.g. Headphones & Audio"
+        required
+        [minlength]="nameMin"
+        [maxlength]="nameMax"
+        [pattern]="namePattern"
+        cdkFocusInitial
+      />
+      <mat-hint align="end">{{ model.Name.length }} / {{ nameMax }}</mat-hint>
+      <mat-error *ngIf="name.errors?.['required'] || isBlank">Category name is required.</mat-error>
+      <mat-error *ngIf="!isBlank && name.errors?.['minlength']">
+        Category name must be at least {{ nameMin }} characters.
+      </mat-error>
+      <mat-error *ngIf="!isBlank && !name.errors?.['minlength'] && name.errors?.['pattern']">
+        Category name must contain a letter or digit.
+      </mat-error>
+    </mat-form-field>
+
+    <div class="form-check form-switch">
+      <input class="form-check-input" type="checkbox" id="category-active" [(ngModel)]="model.Status" name="status" />
+      <label class="form-check-label" for="category-active">
+        Active <span class="text-muted small">— shown in the storefront navbar</span>
+      </label>
+    </div>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button [mat-dialog-close]="null" class="btn-cancel">
+    <i class="fa-solid fa-xmark me-1"></i> Cancel
+  </button>
+  <button
+    mat-flat-button
+    color="primary"
+    (click)="save()"
+    [disabled]="categoryForm.invalid || isBlank"
+    class="btn-save"
+  >
+    <i class="fa-solid fa-check me-1"></i> Save
+  </button>
+</mat-dialog-actions>

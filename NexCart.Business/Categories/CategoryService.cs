@@ -16,9 +16,17 @@ namespace NexCart.Business.Services
 {
     public interface ICategoryService
     {
-        List<CategoryLookupViewModel> GetAll();
+        /// <param name="activeOnly">true for the storefront navbar, which hides inactive categories.</param>
+        List<CategoryLookupViewModel> GetAll(bool activeOnly = false);
         ResponseListModel<ProductViewModel> GetProductsByCategory(Guid Id, RequestModel request);
         CategoryLookupViewModel GetCategoryById(Guid Id);
+
+        // Admin tool
+        ResponseModel<CategoryGridModel> GetTable(RequestModel request);
+        void Create(CategoryViewModel model);
+        void Update(CategoryViewModel model);
+        /// <summary>Refuses to delete a category that still has products (they would be cascade-deleted).</summary>
+        void Delete(Guid id);
     }
 
     public class CategoryService : ICategoryService
@@ -46,11 +54,16 @@ namespace NexCart.Business.Services
             _unitOfWork = unitOfWork;
         }
 
-        public List<CategoryLookupViewModel> GetAll()
+        public List<CategoryLookupViewModel> GetAll(bool activeOnly = false)
         {
             using (_unitOfWork.BeginTransaction())
             {
-                var categories = _categoryRepository.All().ToList();
+                var query = _categoryRepository.All();
+                if (activeOnly)
+                {
+                    query = query.Where(category => category.Status);
+                }
+                var categories = query.ToList();
                 var popularity = GetCategoryPopularityScores();
 
                 // Popular categories first (most ordered / most favourited products), then
@@ -179,5 +192,144 @@ namespace NexCart.Business.Services
                 return category.MapToLookupViewModel();
             }
         }
+
+        #region ADMIN
+
+        public ResponseModel<CategoryGridModel> GetTable(RequestModel request)
+        {
+            using (_unitOfWork.BeginTransaction())
+            {
+                var query = _categoryRepository.All();
+
+                if (!string.IsNullOrWhiteSpace(request.SearchString))
+                {
+                    var search = request.SearchString.Trim();
+                    query = query.Where(category => category.Name.Contains(search));
+                }
+                if (request.IsActive.HasValue)
+                {
+                    var isActive = request.IsActive.Value;
+                    query = query.Where(category => category.Status == isActive);
+                }
+
+                var categories = query.ToList();
+
+                // Product ids per category, loaded as plain ids and counted in memory.
+                var productCounts = _categoryRepository.All()
+                    .SelectMany(category => category.Products)
+                    .Select(product => product.Category.Id)
+                    .ToList()
+                    .GroupBy(categoryId => categoryId)
+                    .ToDictionary(group => group.Key, group => group.Count());
+
+                var size = request.Size > 0 ? request.Size : Math.Max(categories.Count, 1);
+                var page = request.PageNeeded > 0 ? request.PageNeeded : 1;
+
+                return new ResponseModel<CategoryGridModel>
+                {
+                    TotalItems = categories.Count,
+                    Size = size,
+                    CurrentPage = page,
+                    Items = categories
+                        .OrderBy(category => category.Name, StringComparer.OrdinalIgnoreCase)
+                        .Skip((page - 1) * size)
+                        .Take(size)
+                        .Select(category => new CategoryGridModel
+                        {
+                            Id = category.Id,
+                            Name = category.Name,
+                            Status = category.Status,
+                            Url = category.Url,
+                            ProductCount = productCounts.GetValueOrDefault(category.Id)
+                        })
+                        .ToList()
+                };
+            }
+        }
+
+        public void Create(CategoryViewModel model)
+        {
+            using (_unitOfWork.BeginTransaction())
+            {
+                var name = ValidateName(model, excludeId: null);
+
+                _categoryRepository.Add(new Category
+                {
+                    Name = name,
+                    Status = model.Status,
+                    Url = ToSlug(name)
+                });
+                _unitOfWork.Commit();
+            }
+        }
+
+        public void Update(CategoryViewModel model)
+        {
+            using (_unitOfWork.BeginTransaction())
+            {
+                var category = _categoryRepository.FindBy(model.Id)
+                    ?? throw new BllException(ShopExceptionMassages.CategoriesExceptionMassages.NOT_FOUND_EXCEPTION);
+                var name = ValidateName(model, excludeId: model.Id);
+
+                category.Name = name;
+                category.Status = model.Status;
+                category.Url = ToSlug(name);
+                _categoryRepository.Update(category);
+                _unitOfWork.Commit();
+            }
+        }
+
+        public void Delete(Guid id)
+        {
+            using (_unitOfWork.BeginTransaction())
+            {
+                var category = _categoryRepository.FindBy(id)
+                    ?? throw new BllException(ShopExceptionMassages.CategoriesExceptionMassages.NOT_FOUND_EXCEPTION);
+
+                // The Products mapping cascades deletes, so removing a non-empty category would
+                // silently delete its whole catalog.
+                var productCount = _categoryRepository.GetProductsByCategory(category).Count();
+                if (productCount > 0)
+                {
+                    throw new BllException(string.Format(
+                        ShopExceptionMassages.CategoriesExceptionMassages.HAS_PRODUCTS_EXCEPTION,
+                        category.Name, productCount));
+                }
+
+                _categoryRepository.Delete(category);
+                _unitOfWork.Commit();
+            }
+        }
+
+        /// <summary>Trimmed name; throws when it is empty or used by another category.</summary>
+        private string ValidateName(CategoryViewModel model, Guid? excludeId)
+        {
+            var name = model?.Name?.Trim();
+            if (string.IsNullOrEmpty(name))
+            {
+                throw new BllException(ShopExceptionMassages.CategoriesExceptionMassages.NAME_REQUIRED_EXCEPTION);
+            }
+
+            var duplicate = _categoryRepository.All()
+                .Where(category => category.Name == name)
+                .Select(category => category.Id)
+                .ToList()
+                .Any(id => id != excludeId);
+            if (duplicate)
+            {
+                throw new BllException(ShopExceptionMassages.CategoriesExceptionMassages.NAME_ALREADY_EXIST_EXCEPTION);
+            }
+
+            return name;
+        }
+
+        /// <summary>"Headphones &amp; Audio" -> "headphones-audio".</summary>
+        private static string ToSlug(string name)
+        {
+            var chars = name.ToLowerInvariant().Select(c => char.IsLetterOrDigit(c) ? c : '-').ToArray();
+            return string.Join("-", new string(chars).Split('-', StringSplitOptions.RemoveEmptyEntries));
+        }
+
+        #endregion
     }
 }

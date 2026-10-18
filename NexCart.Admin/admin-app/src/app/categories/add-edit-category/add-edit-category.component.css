@@ -1,0 +1,12 @@
+.category-form {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 0;
+  min-width: 380px;
+}
+
+@media (max-width: 576px) {
+  .category-form {
+    min-width: unset;
+  }
+}

@@ -18,6 +18,7 @@ export class AdminLayoutComponent {
 
   navItems: NavItem[] = [
     { label: 'Products', path: '/products', icon: 'fa-box-open' },
+    { label: 'Categories', path: '/categories', icon: 'fa-tags' },
     { label: 'Orders', path: '/orders', icon: 'fa-receipt' },
     { label: 'Users', path: '/users', icon: 'fa-users' },
   ];
