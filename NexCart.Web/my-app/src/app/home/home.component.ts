@@ -4,6 +4,7 @@ import { ProductsFilter } from '../models/products-filter';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ResponseListModel } from '../models/response';
 import { ProductGridModel } from '../models/product-grid';
+import { SORT_OPTIONS } from '../customer-components/sort-bar/sort-bar.component';
 
 
 @Component({ standalone: false,
@@ -18,19 +19,6 @@ export class HomeComponent implements OnInit {
   activeSorting: string = 'Popular';
   isLoading: boolean = true;
 
-  /** Products in the order the backend returned them; sorting is applied on a copy. */
-  private allProducts: ProductGridModel[] = [];
-  private productsLoaded: boolean = false;
-
-  /** Maps the `sort/:sort` route segment to the sort applied on the client. */
-  private readonly sortNames: { [key: string]: string } = {
-    'popular': 'Popular',
-    'newest': 'Newest',
-    'best-selling': 'BestSelling',
-    'price-low': 'PriceLow',
-    'price-high': 'PriceHigh',
-  };
-
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -38,22 +26,20 @@ export class HomeComponent implements OnInit {
     ) { }
 
   ngOnInit(): void {
-    // The route drives the sort order. Products are fetched once and re-sorted
-    // locally on every sorting change.
+    // The route drives the sort order. Sorting happens on the server (Popular and
+    // Best Selling need favourite and sales data), so each change reloads the products.
     this.route.paramMap.subscribe(params => {
       const sortUrl = params.get('sort') || 'popular';
-      this.activeSorting = this.sortNames[sortUrl] || 'Popular';
-      if (this.productsLoaded) {
-        this.applySorting();
-      } else {
-        this.loadProducts();
-      }
+      // Maps the `sort/:sort` route segment to the backend SortName value.
+      this.activeSorting = SORT_OPTIONS.find(option => option.slug === sortUrl)?.value || 'Popular';
+      this.loadProducts();
     });
   }
 
   private loadProducts(): void {
     const filter: ProductsFilter = {
       SearchString: "",
+      SortName: this.activeSorting,
       PageNeeded: "",
       Price: "",
     };
@@ -61,43 +47,16 @@ export class HomeComponent implements OnInit {
     this.isLoading = true;
     this.productService.getAll(filter).subscribe({
       next: (result: ResponseListModel<ProductGridModel>) => {
-        this.allProducts = result?.Items || [];
+        this.products = result?.Items || [];
         this.totalItems = result?.TotalItems || 0;
-        this.productsLoaded = true;
-        this.applySorting();
         this.isLoading = false;
       },
       error: () => {
-        this.allProducts = [];
         this.products = [];
         this.totalItems = 0;
         this.isLoading = false;
       }
     });
-  }
-
-  /**
-   * Sorts a copy of the loaded products. Sorts the client has no data for
-   * (Popular, BestSelling) keep the order the backend returned.
-   */
-  private applySorting(): void {
-    const sorted = [...this.allProducts];
-    const price = (p: ProductGridModel) => p.Price ?? 0;
-    const created = (p: ProductGridModel) => (p.DateCreated ? Date.parse(p.DateCreated) : 0) || 0;
-
-    switch (this.activeSorting) {
-      case 'Newest':
-        sorted.sort((a, b) => created(b) - created(a));
-        break;
-      case 'PriceLow':
-        sorted.sort((a, b) => price(a) - price(b));
-        break;
-      case 'PriceHigh':
-        sorted.sort((a, b) => price(b) - price(a));
-        break;
-    }
-
-    this.products = sorted;
   }
 
   ChangeSorting(sortUrl: string): void {

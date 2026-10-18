@@ -3,23 +3,7 @@
 <div class="container mt-3">
   <div>
     <div>
-      <ul class="shop__sorting">
-        <li [ngClass]="{ 'active': activeSorting === 'Popular' }" (click)="ChangeSorting('popular')">
-          <a class="btn solid-no-radius">Popular</a>
-        </li>
-        <li [ngClass]="{ 'active': activeSorting === 'Newest' }" (click)="ChangeSorting('newest')">
-          <a class="btn solid-no-radius">Newest</a>
-        </li>
-        <li [ngClass]="{ 'active': activeSorting === 'BestSelling' }" (click)="ChangeSorting('best-selling')">
-          <a class="btn solid-no-radius">Best Selling</a>
-        </li>
-        <li [ngClass]="{ 'active': activeSorting === 'PriceLow' }" (click)="ChangeSorting('price-low')">
-          <a class="btn solid-no-radius">Price (low)</a>
-        </li>
-        <li [ngClass]="{ 'active': activeSorting === 'PriceHigh' }" (click)="ChangeSorting('price-high')">
-          <a class="btn solid-no-radius">Price (high)</a>
-        </li>
-      </ul>
+      <app-sort-bar [active]="activeSorting" (sortChange)="ChangeSorting($event.slug)"></app-sort-bar>
 
       <!-- show product after the come from backend -->
       <app-products-grid *ngIf="!isLoading" 

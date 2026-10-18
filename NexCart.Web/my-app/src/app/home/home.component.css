@@ -341,52 +341,11 @@ body{margin-top:20px;}
   cursor: pointer;
 }
 /** Shop: Sorting **/
-.shop__sorting {
-  list-style: none;
-  padding-left: 0;
-  margin-bottom: 40px;
-  margin-top: -20px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-  text-align: right;
-}
-.shop__sorting > li {
-  display: inline-block;
-}
-.shop__sorting > li > a {
+/* The bar's styles live in the shared sort-bar component; on the home page it is
+   pulled up under the carousel as before. */
+app-sort-bar {
   display: block;
-  padding: 15px 15px;
-  margin-bottom: -1px;
-  border-bottom: 2px solid transparent;
-  color: #757575;
-  -webkit-transition: all .05s linear;
-       -o-transition: all .05s linear;
-          transition: all .05s linear;
-}
-.shop__sorting > li > a:hover,
-.shop__sorting > li > a:focus {
-  color: #333333;
-  text-decoration: none;
-}
-.shop__sorting > li.active > a {
-  color: #ed3e49;
-  border-bottom-color: #ed3e49;
-}
-@media (max-width: 767px) {
-  .shop__sorting {
-    text-align: left;
-    border-bottom: 0;
-  }
-  .shop__sorting > li {
-    display: block;
-  }
-  .shop__sorting > li > a {
-    padding: 10px 15px;
-    margin-bottom: 10px;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-  }
-  .shop__sorting > li.active > a {
-    font-weight: 600;
-  }
+  margin-top: -20px;
 }
 /** Shop: Checkout **/
 .checkout__block {

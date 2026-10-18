@@ -61,6 +61,7 @@ import { AddEditUserComponent } from './admin-components/admin-tool-users/add-ed
 import { MakeOrderConfirmationComponent } from './customer-components/order-components/order-detail/make-order-confirmation/make-order-confirmation.component';
 import { AddPaymentComponent } from './profile/add-payment/add-payment.component';
 import { NoDataComponent } from './customer-components/no-data/no-data.component';
+import { SortBarComponent } from './customer-components/sort-bar/sort-bar.component';
 
 
 @NgModule({
@@ -106,6 +107,7 @@ import { NoDataComponent } from './customer-components/no-data/no-data.component
     MakeOrderConfirmationComponent,
     AddPaymentComponent,
     NoDataComponent,
+    SortBarComponent,
   ],
   imports: [
     BrowserModule,

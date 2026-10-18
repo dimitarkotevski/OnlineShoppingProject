@@ -27,6 +27,7 @@ namespace NexCart.Business.Services
         private readonly IOrderRepository _orderRepository;
         private readonly IFavouriteProductsRepository _favouriteProductsRepository;
         private readonly IShoppingCartDetailRepository _shoppingCartDetailRepository;
+        private readonly IProductSortService _productSortService;
         private readonly IUnitOfWork _unitOfWork;
 
         public CategoryService(
@@ -34,12 +35,14 @@ namespace NexCart.Business.Services
             IOrderRepository orderRepository,
             IFavouriteProductsRepository favouriteProductsRepository,
             IShoppingCartDetailRepository shoppingCartDetailRepository,
+            IProductSortService productSortService,
             IUnitOfWork unitOfWork)
         {
             _categoryRepository = categoryRepository;
             _orderRepository = orderRepository;
             _favouriteProductsRepository = favouriteProductsRepository;
             _shoppingCartDetailRepository = shoppingCartDetailRepository;
+            _productSortService = productSortService;
             _unitOfWork = unitOfWork;
         }
 
@@ -157,7 +160,9 @@ namespace NexCart.Business.Services
 
                 }
 
-                response.Items = queryCategoryProducts.Select(x => x.MapToViewModel()).ToList();
+                response.Items = _productSortService.Sort(queryCategoryProducts.ToList(), request?.SortName)
+                    .Select(x => x.MapToViewModel())
+                    .ToList();
                 response.TotalItems = response.Items.Count();
 
                 return response;

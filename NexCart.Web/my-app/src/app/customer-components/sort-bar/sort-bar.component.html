@@ -1,0 +1,5 @@
+<ul class="shop__sorting">
+  <li *ngFor="let option of options" [ngClass]="{ 'active': option.value === active }">
+    <a class="btn solid-no-radius" (click)="select(option)">{{ option.label }}</a>
+  </li>
+</ul>

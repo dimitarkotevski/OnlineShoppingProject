@@ -10,6 +10,7 @@
             </app-side-filter>
         </div>
         <div class="col-lg-9 my-sm-2">
+            <app-sort-bar [active]="activeSorting" (sortChange)="changeSorting($event.value)"></app-sort-bar>
             <app-products-grid *ngIf="!isLoading" [products]="products?.Items"></app-products-grid>
             <app-loading-grid *ngIf="isLoading" ></app-loading-grid>
         </div>

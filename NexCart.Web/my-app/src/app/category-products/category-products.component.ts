@@ -19,6 +19,7 @@ export class CategoryProductsComponent implements OnInit {
   category?: CategoryViewModel;
   brands?: any;
   isLoading: boolean = true;
+  activeSorting: string = 'Popular';
   filterCategory:RequestModel = new RequestModel();
   categoryId?: string;
 
@@ -39,6 +40,9 @@ export class CategoryProductsComponent implements OnInit {
       }
 
       this.categoryId = categoryId;
+      // The component is reused when switching categories; start each one with no filters and the default sort.
+      this.filterCategory = new RequestModel();
+      this.activeSorting = 'Popular';
 
       this.categoryService.GetCategoryById(categoryId).subscribe((res:any)=>{
         this.category = res;
@@ -55,13 +59,22 @@ export class CategoryProductsComponent implements OnInit {
   }
 
   refreshState(filter: RequestModel): void{
+    this.filterCategory = filter;
     this.loadProducts(filter);
+  }
+
+  changeSorting(sortName: string): void{
+    this.activeSorting = sortName;
+    this.loadProducts(this.filterCategory);
   }
 
   private loadProducts(filter: RequestModel): void{
     if(!this.categoryId){
       return;
     }
+
+    // The side filter builds its own request, so the current sort is applied on every load.
+    filter.SortName = this.activeSorting;
 
     this.isLoading = true;
     this.categoryService.getProductsByCategory(this.categoryId,filter).subscribe({

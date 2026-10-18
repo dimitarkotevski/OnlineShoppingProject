@@ -41,17 +41,20 @@ namespace NexCart.Business.Services
         private readonly IProductRepository _productsRepository;
         private readonly ICategoryRepository _categoryRepository;
         private readonly IOrderRepository _orderRepository;
+        private readonly IProductSortService _productSortService;
 
         public ProductService(IProductRepository productsRepository,
             ICategoryRepository categoryRepository,
             IUnitOfWork unitOfWork,
             IOrderRepository orderRepository,
+            IProductSortService productSortService,
             IWebHostEnvironment webHostEnvironment)
         {
             _productsRepository = productsRepository;
             _categoryRepository = categoryRepository;
             _unitOfWork = unitOfWork;
             _orderRepository = orderRepository;
+            _productSortService = productSortService;
             _webHostEnvironment = webHostEnvironment;
         }
         #region ADMIN CRUD
@@ -250,8 +253,7 @@ namespace NexCart.Business.Services
                         request.SearchList.Any(item => x.Name.Contains(item)));
                 }
 
-                // Sorting is done by the client; products are returned in storage order.
-                var list = listProductForFiltering.ToList();
+                var list = _productSortService.Sort(listProductForFiltering.ToList(), request.SortName);
 
                 if (request.Size == 0 && request.PageNeeded == 0)
                 {
