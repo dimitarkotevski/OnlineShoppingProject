@@ -362,33 +362,6 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
-NexCart.Web/my-app/src/app/app.component.html
-NexCart.Web/my-app/bundles/index.html
-NexCart.Web/my-app/bundles/main.4fb89346e35a750d.js
-NexCart.Web/my-app/bundles/main.4fef38263dd14bc6.js
-NexCart.Web/my-app/bundles/polyfills.2c8feaf9a88e851e.js
-NexCart.Web/my-app/bundles/polyfills.3429e494615ca3b5.js
-NexCart.Web/my-app/bundles/index.html
-NexCart.Web/my-app/bundles/main.4fef38263dd14bc6.js
-NexCart.Web/my-app/bundles/polyfills.3429e494615ca3b5.js
-NexCart.Web/my-app/bundles/index.html
-NexCart.Web/my-app/bundles/main.4fef38263dd14bc6.js
-NexCart.Web/my-app/bundles/polyfills.3429e494615ca3b5.js
-NexCart.Web/my-app/bundles/index.html
-NexCart.Web/my-app/bundles/main.4fef38263dd14bc6.js
-NexCart.Web/my-app/bundles/polyfills.3429e494615ca3b5.js
-NexCart.Web/my-app/bundles/index.html
-NexCart.Web/my-app/bundles/main.js
-NexCart.Web/my-app/bundles/main.js.map
-NexCart.Web/my-app/bundles/polyfills.js
-NexCart.Web/my-app/bundles/runtime.js
-NexCart.Web/my-app/bundles/styles.css
-NexCart.Web/my-app/bundles/styles.css.map
-NexCart.Web/my-app/bundles/vendor.js
-NexCart.Web/my-app/bundles/main.js
-NexCart.Web/my-app/bundles/styles.css
-NexCart.Web/my-app/bundles/main.js
-NexCart.Web/my-app/bundles/styles.css
 
 # T4 scaffolder output (NexCart.Migrations/new-migration.tt)
 NexCart.Migrations/new-migration.txt
