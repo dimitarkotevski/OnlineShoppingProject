@@ -36,6 +36,7 @@
 .photo-dialog__upload {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 12px;
 }
 
@@ -59,4 +60,19 @@
 
 .photo-dialog__upload input[type="file"] {
   display: none;
+}
+
+.photo-dialog__file {
+  max-width: 260px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.82rem;
+  color: #6c757d;
+}
+
+.photo-dialog__hint {
+  margin: 8px 0 0;
+  font-size: 0.78rem;
+  color: #adb5bd;
 }

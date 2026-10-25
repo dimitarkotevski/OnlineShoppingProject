@@ -17,7 +17,7 @@
         <i class="fa-solid fa-box-open stat-card__icon"></i>
         <div>
           <div class="stat-card__value">{{ response.TotalItems }}</div>
-          <div class="stat-card__label">Total products</div>
+          <div class="stat-card__label">{{ hasActiveSearchOrFilters ? 'Matching products' : 'Total products' }}</div>
         </div>
       </div>
     </div>
@@ -34,19 +34,17 @@
       <div class="stat-card">
         <i class="fa-solid fa-file-lines stat-card__icon"></i>
         <div>
-          <div class="stat-card__value">
-            {{ totalPages }}
-          </div>
+          <div class="stat-card__value">{{ totalPages }}</div>
           <div class="stat-card__label">Total pages</div>
         </div>
       </div>
     </div>
     <div class="col-6 col-md-3">
       <div class="stat-card">
-        <i class="fa-solid fa-table-list stat-card__icon"></i>
+        <i class="fa-solid fa-tags stat-card__icon"></i>
         <div>
-          <div class="stat-card__value">{{ response.Size }}</div>
-          <div class="stat-card__label">Per page</div>
+          <div class="stat-card__value">{{ categories.length }}</div>
+          <div class="stat-card__label">Categories</div>
         </div>
       </div>
     </div>
@@ -58,6 +56,7 @@
       <i class="fa-solid fa-magnifying-glass toolbar__search-icon"></i>
       <input
         class="form-control toolbar__search-input"
+        [class.toolbar__search-input--clearable]="request.SearchString"
         [(ngModel)]="request.SearchString"
         placeholder="Search products..."
         type="search"
@@ -65,16 +64,37 @@
         maxlength="100"
         (keyup.enter)="applyFilters()"
       />
+      <button
+        *ngIf="request.SearchString"
+        type="button"
+        class="toolbar__search-clear"
+        (click)="clearSearch()"
+        aria-label="Clear search"
+      >
+        <i class="fa-solid fa-xmark"></i>
+      </button>
     </div>
     <div class="toolbar__actions">
+      <label class="toolbar__sort">
+        <i class="fa-solid fa-arrow-down-wide-short" aria-hidden="true"></i>
+        <select
+          class="form-select form-select-sm"
+          [(ngModel)]="request.SortName"
+          (ngModelChange)="onSortChange()"
+          [disabled]="loading"
+          aria-label="Sort products"
+        >
+          <option *ngFor="let option of sortOptions" [ngValue]="option.value">{{ option.label }}</option>
+        </select>
+      </label>
       <button class="btn btn-outline-secondary" (click)="showFilters = !showFilters" [attr.aria-expanded]="showFilters">
         <i class="fa-solid fa-filter me-1"></i> Filters
         <span class="filter-badge" *ngIf="activeFilters">{{ activeFilters }}</span>
       </button>
-      <button class="btn btn-coral" (click)="applyFilters()" [disabled]="hasFilterErrors">
+      <button class="btn btn-coral" (click)="applyFilters()" [disabled]="hasFilterErrors || loading">
         <i class="fa-solid fa-magnifying-glass me-1"></i> Search
       </button>
-      <button class="btn btn-outline-secondary" (click)="resetFilters()">
+      <button class="btn btn-outline-secondary" (click)="resetFilters()" [disabled]="loading">
         <i class="fa-solid fa-rotate-left me-1"></i> Reset
       </button>
     </div>
@@ -125,8 +145,37 @@
     </div>
   </div>
 
+  <!-- Active filters -->
+  <div class="filter-chips" *ngIf="filterChips.length > 0">
+    <span class="filter-chips__label">Active filters:</span>
+    <button
+      type="button"
+      class="chip"
+      *ngFor="let chip of filterChips; trackBy: trackByChip"
+      (click)="clearFilter(chip.key)"
+      [attr.aria-label]="'Remove filter: ' + chip.label"
+    >
+      {{ chip.label }}
+      <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+    </button>
+    <button type="button" class="chip chip--clear" (click)="resetFilters()">
+      <i class="fa-solid fa-rotate-left" aria-hidden="true"></i> Clear all
+    </button>
+  </div>
+
+  <!-- First load -->
+  <div class="loading-card" *ngIf="loading && response.TotalItems === 0" role="status">
+    <div class="spinner-border text-coral" aria-hidden="true"></div>
+    <span>Loading products…</span>
+  </div>
+
   <!-- Table -->
-  <div class="table-card" *ngIf="response.TotalItems > 0">
+  <div class="table-card" *ngIf="response.TotalItems > 0" [class.table-card--loading]="loading">
+    <div class="table-card__loading" *ngIf="loading" role="status">
+      <div class="spinner-border text-coral" aria-hidden="true"></div>
+      <span class="visually-hidden">Loading products…</span>
+    </div>
+
     <div class="bulk-bar" *ngIf="selection.count > 0">
       <span class="bulk-bar__count">{{ selection.count }} selected</span>
       <button type="button" class="btn btn-sm btn-link bulk-bar__clear" (click)="selection.clear()">Clear</button>
@@ -134,6 +183,14 @@
         <i class="fa-solid fa-trash me-1"></i> Delete selected
       </button>
     </div>
+
+    <div class="table-card__summary">
+      <span>
+        Showing <strong>{{ showingFrom }}–{{ showingTo }}</strong> of
+        <strong>{{ response.TotalItems }}</strong> products
+      </span>
+    </div>
+
     <div class="table-responsive">
       <table class="table table-hover align-middle mb-0">
         <thead>
@@ -157,7 +214,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let product of response.Items" [class.is-selected]="selection.isSelected(product.Id)">
+          <tr *ngFor="let product of response.Items; trackBy: trackByProductId" [class.is-selected]="selection.isSelected(product.Id)">
             <td class="select-col">
               <input
                 type="checkbox"
@@ -169,18 +226,26 @@
               />
             </td>
             <td>
-              <img
-                *ngIf="product.Image"
-                [src]="product.Image | byPassSecurity"
-                [alt]="product.Name"
-                class="product-thumb"
-              />
-              <div *ngIf="!product.Image" class="product-thumb product-thumb--empty">
-                <i class="fa-solid fa-image"></i>
-              </div>
+              <button
+                type="button"
+                class="product-thumb-btn"
+                (click)="openPhotoModal(product.Image, product.Id)"
+                [attr.aria-label]="'View photo of ' + (product.Name || 'product')"
+                matTooltip="View / change photo"
+              >
+                <img
+                  *ngIf="product.Image"
+                  [src]="product.Image | byPassSecurity"
+                  [alt]="product.Name || 'Product image'"
+                  class="product-thumb"
+                />
+                <span *ngIf="!product.Image" class="product-thumb product-thumb--empty">
+                  <i class="fa-solid fa-image" aria-hidden="true"></i>
+                </span>
+              </button>
             </td>
-            <td>
-              <span class="cell-strong">{{ product.Name }}</span>
+            <td class="product-name-cell">
+              <span class="cell-strong product-name-text" [title]="product.Name">{{ product.Name }}</span>
             </td>
             <td>
               <span class="product-price">{{ product.Price | currency }}</span>
@@ -198,22 +263,25 @@
                   class="btn btn-sm btn-icon"
                   (click)="openPhotoModal(product.Image, product.Id)"
                   matTooltip="View / change photo"
+                  [attr.aria-label]="'View photo of ' + (product.Name || 'product')"
                 >
-                  <i class="fa-solid fa-image"></i>
+                  <i class="fa-solid fa-image" aria-hidden="true"></i>
                 </button>
                 <button
                   class="btn btn-sm btn-icon"
                   (click)="addEditProduct(product)"
                   matTooltip="Edit product"
+                  [attr.aria-label]="'Edit ' + (product.Name || 'product')"
                 >
-                  <i class="fa-solid fa-pen"></i>
+                  <i class="fa-solid fa-pen" aria-hidden="true"></i>
                 </button>
                 <button
                   class="btn btn-sm btn-icon btn-icon--danger"
-                  (click)="deleteProduct(product?.Id)"
+                  (click)="deleteProduct(product)"
                   matTooltip="Delete product"
+                  [attr.aria-label]="'Delete ' + (product.Name || 'product')"
                 >
-                  <i class="fa-solid fa-trash"></i>
+                  <i class="fa-solid fa-trash" aria-hidden="true"></i>
                 </button>
               </div>
             </td>
@@ -237,6 +305,7 @@
           class="form-select form-select-sm page-size__select"
           [ngModel]="response.Size"
           (ngModelChange)="onPageSizeChange($event)"
+          [disabled]="loading"
         >
           <option *ngFor="let option of pagination" [ngValue]="option">{{ option }}</option>
         </select>
@@ -246,12 +315,18 @@
   </div>
 
   <app-no-data
-    *ngIf="response.TotalItems === 0"
-    title="No Products in Database"
-    message="There are currently no products found in the database matching your criteria."
-    icon="fa-solid fa-database"
+    *ngIf="!loading && response.TotalItems === 0"
+    [title]="hasActiveSearchOrFilters ? 'No products match your filters' : 'No Products in Database'"
+    [message]="hasActiveSearchOrFilters
+      ? 'Try a different search term or clear the filters to see every product.'
+      : 'There are currently no products found in the database.'"
+    [icon]="hasActiveSearchOrFilters ? 'fa-solid fa-magnifying-glass' : 'fa-solid fa-database'"
+    [showButton]="!hasActiveSearchOrFilters"
     buttonText="Add Product"
     buttonIcon="fa-solid fa-plus"
     (buttonClick)="addEditProduct(newItem)"
+    [secondaryButtonText]="hasActiveSearchOrFilters ? 'Clear search & filters' : undefined"
+    secondaryButtonIcon="fa-solid fa-rotate-left"
+    (secondaryButtonClick)="resetFilters()"
   ></app-no-data>
 </div>

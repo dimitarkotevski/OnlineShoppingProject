@@ -48,7 +48,8 @@ export abstract class FilterableGrid {
   /** Clears the search and every filter, keeping the page size. */
   resetFilters(): void {
     for (const key of FILTER_KEYS) {
-      delete this.request[key];
+      // null (not undefined) so select controls fall back to their "All" option.
+      (this.request as any)[key] = null;
     }
     this.request.SearchString = '';
     this.filterErrors = {};

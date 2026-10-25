@@ -4,7 +4,7 @@
 </h2>
 
 <mat-dialog-content>
-  <form #productForm="ngForm" class="product-form">
+  <form #productForm="ngForm" class="product-form" autocomplete="off">
     <mat-form-field appearance="outline" class="w-100 mb-3">
       <mat-label>Product name</mat-label>
       <input matInput [(ngModel)]="model.Name" name="name" placeholder="Enter product name" required />
@@ -29,11 +29,14 @@
 
     <mat-form-field appearance="outline" class="w-100 mb-3">
       <mat-label>Category</mat-label>
-      <mat-select [(ngModel)]="selectedCategoryId" name="category">
+      <mat-select [(ngModel)]="selectedCategoryId" name="category" required>
         <mat-option *ngFor="let item of categories" [value]="item.Id">
           {{ item.Name }}
         </mat-option>
       </mat-select>
+      <mat-error *ngIf="productForm.controls['category']?.invalid && productForm.controls['category']?.touched">
+        Category is required.
+      </mat-error>
       <mat-hint *ngIf="!categories?.length">No categories available.</mat-hint>
     </mat-form-field>
   </form>

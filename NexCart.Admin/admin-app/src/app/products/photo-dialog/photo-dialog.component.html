@@ -20,8 +20,18 @@
     <label for="myfile" class="photo-dialog__label">
       <i class="fa-solid fa-upload me-1"></i> Choose new photo
     </label>
-    <input type="file" id="myfile" name="myfile" (change)="onFileSelected($event)" accept="image/*" />
+    <input
+      type="file"
+      id="myfile"
+      name="myfile"
+      (change)="onFileSelected($event)"
+      accept="image/*"
+    />
+    <span class="photo-dialog__file" *ngIf="selectedFileName" [title]="selectedFileName">
+      {{ selectedFileName }}
+    </span>
   </div>
+  <p class="photo-dialog__hint">JPG, PNG, GIF or WebP, up to 5 MB.</p>
 </mat-dialog-content>
 
 <mat-dialog-actions align="end">
@@ -33,8 +43,11 @@
     mat-flat-button
     color="primary"
     (click)="addPhoto(photoUrl)"
+    [disabled]="saving"
     class="btn-save"
   >
-    <i class="fa-solid fa-check me-1"></i> Save photo
+    <span *ngIf="saving" class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+    <i *ngIf="!saving" class="fa-solid fa-check me-1"></i>
+    {{ saving ? 'Saving…' : 'Save photo' }}
   </button>
 </mat-dialog-actions>

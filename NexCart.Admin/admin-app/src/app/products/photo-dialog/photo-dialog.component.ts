@@ -1,5 +1,5 @@
 import { Component, Inject, Input, OnInit } from '@angular/core';
-import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
 import { AdminToolProductService } from '../admin-tool-product-service/admin-tool-product.service';
 
@@ -15,10 +15,16 @@ export class PhotoDialogComponent implements OnInit {
 
   selectedFile?: File;
   selectedFileBase64: string = '';
+  selectedFileName = '';
   addPhotoButton: boolean = false;
+  saving = false;
+
+  /** Matches the limit the browser can comfortably base64-encode and post. */
+  private readonly maxFileSizeBytes = 5 * 1024 * 1024;
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
+    private dialogRef: MatDialogRef<PhotoDialogComponent>,
     private productService: AdminToolProductService,
     private toasterService: ToastrService
     ) {
@@ -29,10 +35,26 @@ export class PhotoDialogComponent implements OnInit {
   }
 
   onFileSelected(event: any): void {
-    this.selectedFile = event.target.files[0];
-    if (this.selectedFile) {
-      this.convertFileToBase64();
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) {
+      return;
     }
+
+    if (!file.type.startsWith('image/')) {
+      this.toasterService.error('Please choose an image file.');
+      input.value = '';
+      return;
+    }
+    if (file.size > this.maxFileSizeBytes) {
+      this.toasterService.error('The image must be smaller than 5 MB.');
+      input.value = '';
+      return;
+    }
+
+    this.selectedFile = file;
+    this.selectedFileName = file.name;
+    this.convertFileToBase64();
   }
 
   convertFileToBase64(): void {
@@ -49,9 +71,21 @@ export class PhotoDialogComponent implements OnInit {
   }
 
   addPhoto(base64:string){
-    this.productService.addImageToProduct(this.id,base64).subscribe(()=>{
-      this.toasterService.success("Added photo to the product")
-    })
+    if (!base64 || this.saving) {
+      return;
+    }
+
+    this.saving = true;
+    this.productService.addImageToProduct(this.id, base64).subscribe({
+      next: () => {
+        this.toasterService.success('Added photo to the product');
+        // Closing refreshes the grid, so the new thumbnail appears immediately.
+        this.dialogRef.close(true);
+      },
+      error: () => {
+        // The failure is reported globally by the error interceptor.
+        this.saving = false;
+      }
+    });
   }
 }
-
