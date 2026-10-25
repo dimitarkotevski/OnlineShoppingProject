@@ -1,5 +1,9 @@
 # Repository structure — fixes (2026-10-14)
 
+> Historical record. Current frontend build/deployment behavior is documented in
+> [`docs/frontend/build-and-deploy.md`](docs/frontend/build-and-deploy.md) — notably, the
+> generated `bundles/` folders are now gitignored and the shop SPA is built by MSBuild.
+
 Cleanup pass over the solution layout and project identity. There are **no behaviour changes**
 to the HTTP contract (PascalCase JSON / numeric enums / `409 {success,exception}` /
 `400 {Success,Errors}` are untouched).

@@ -71,12 +71,28 @@ Top-level `WebApplication` bootstrap:
 
 ## Frontend — `my-app/` (Angular 20 SPA)
 
-- Dev: `npm install` → `ng serve` at `http://localhost:4200`; build: `npm run build` → outputs to `my-app/bundles/browser`, which the host serves statically. (When using `ng serve`, the CORS policy allows the configured dev origin.)
-- Auth: `authentification/` (login, register) + `authentification.service.ts` (JWT via `@auth0/angular-jwt`), plus an HTTP interceptor.
-- Customer: `home`, `category-products`, `product-components/` (grid + detail), `cart`, `order` + `order-components/` (grid + detail), `favourite`, `profile`, `settings`, `side-filter`.
-- Admin: `admin-components/` — `admin-tool` shell + tools for **users / products / orders** (CRUD dialogs, plain HTML tables).
-- Routing: `app-routing.module.ts` — `/`, `/sort/:sort`, `/category/:category`, `/register`, `/login`, `/profile/:id`, `/cart`, `/favourite`, `/settings`, `/product-detail/:id`, `/my-order`, `/order-grid`, `/orders/:id/details`, `/admin-tool[/products|/orders|/users]`, `**` → `/error-404`.
-- **Review & fixes:** see `my-app/FRONTEND-FIXES.md` for the list of defects found during the Angular 20 review, what was fixed, and what was intentionally left alone.
+Full guides: [frontend docs](../docs/frontend/README.md) · [shop app](../docs/frontend/shop-app.md) ·
+[API integration](../docs/frontend/api-integration.md) · [authentication](../docs/frontend/authentication.md) ·
+[build & deployment](../docs/frontend/build-and-deploy.md).
+
+- **Build:** `NexCart.Web.csproj` builds the SPA automatically on `dotnet build`/`run`/`publish`
+  (`npm ci` when needed, then `npm run build` into `my-app/bundles/browser`). Skip with
+  `-p:BuildSpa=false`. The bundle is served through the Razor shell (`Views/Home/Home.cshtml`
+  + `SpaAssets`), with a `{*path}` SPA fallback.
+- **Dev UI only:** `npm start` (`ng serve`, port 4200). Relative `api/...` calls are not
+  proxied, so use the ASP.NET host for API-backed development; add a `proxy.conf.json` if you
+  need HMR against the API.
+- **Auth:** `authentification/` (login/register) + `AuthentificationService`; JWT in
+  `localStorage.token`, identity decoded from claims, admin tokens rejected. `AuthInterceptor`
+  attaches the bearer token to `api/...`; `ErrorInterceptor` shows API errors as toasts.
+- **Pages:** `home` (carousel + sorted grid), `category-products` (side filter + sort),
+  `product-detail`, `cart`, `my-order` / `order-grid`, `favourite`, `profile` (payment),
+  `settings` (account/address/password), `error-404`.
+- **Routing:** `app-routing.module.ts` — routes listed in the [shop guide](../docs/frontend/shop-app.md#routes);
+  there are no Angular route guards (pages check the session manually).
+- **Admin:** the admin tool is a separate SPA/host (`NexCart.Admin/admin-app`) — see the
+  [admin guide](../docs/frontend/admin-app.md). Old `/admin/...` links on this host redirect there.
+- **Review & fixes:** see [my-app/FRONTEND-FIXES.md](my-app/FRONTEND-FIXES.md).
 
 ## Quirks
 

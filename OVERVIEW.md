@@ -1,15 +1,17 @@
 # NexCart Online Shopping Project — Overview
 
 > Context file for AI assistants. Full-stack online shopping web app.
-> Last updated: 2026-10-14
+> Last updated: 2026-10-25
+>
+> Frontend docs live in [`docs/frontend/`](docs/frontend/README.md).
 
 ## Overview
 
-**NexCart** — an online shopping web site with an ASP.NET Core backend and an Angular SPA frontend.
+**NexCart** — an online shopping web site with an ASP.NET Core backend and two Angular SPAs (shop and admin tool).
 
 - **Backend:** .NET 10 / ASP.NET Core (MVC + attribute-routed API controllers), NHibernate + FluentNHibernate (`Microsoft.Data.SqlClient` driver), SQL Server, Autofac DI, FluentValidation
-- **Frontend:** Angular 20 SPA (lives inside `NexCart.Web/my-app/`), Angular Material, Bootstrap 5, @auth0/angular-jwt
-- **Solution:** `NexCartProject.sln` (6 projects)
+- **Frontend:** two Angular 20 SPAs — customer shop in `NexCart.Web/my-app/` and admin tool in `NexCart.Admin/admin-app/`; Angular Material, Bootstrap 5, @auth0/angular-jwt
+- **Solution:** `NexCart.sln` (7 projects)
 
 ## Solution Structure
 
@@ -21,6 +23,7 @@ Each project also has its own detailed doc inside its folder:
 | `NexCart.Business` | `NexCart.Business/` | [`NexCart.Business/NexCart.Business.md`](NexCart.Business/NexCart.Business.md) |
 | `NexCart.Data.NHibernate` | `NexCart.Data.NHibernate/` | [`NexCart.Data.NHibernate/NexCart.Data.NHibernate.md`](NexCart.Data.NHibernate/NexCart.Data.NHibernate.md) |
 | `NexCart.Web` | `NexCart.Web/` | [`NexCart.Web/NexCart.Web.md`](NexCart.Web/NexCart.Web.md) |
+| `NexCart.Admin` | `NexCart.Admin/` | Admin host + admin SPA — see [`docs/frontend/admin-app.md`](docs/frontend/admin-app.md) |
 | `NexCart.Migrations` | `NexCart.Migrations/` | FluentMigrator migrations + a console runner that applies them all to `ShopDb` — see [`NexCart.Migrations/README.md`](NexCart.Migrations/README.md) |
 | `NexCart.Tests` | `NexCart.Tests/` | xUnit tests for the business layer (e.g. `PasswordHasher`) |
 
@@ -63,14 +66,20 @@ Configured in `NexCart.Web/Program.cs`:
 - **SQL migrations:** `NexCart.Migrations/` — [FluentMigrator](https://fluentmigrator.github.io/) (`FluentMigrator`/`FluentMigrator.Runner`/`FluentMigrator.Runner.SqlServer` 8.0.1). Each migration lives in `Migrations/<version>/<timestamp>-<gitUser>/` as `sqlmigration.cs` plus `up.sql` / `down.sql` applied via `Execute.Script`. New ones are scaffolded with the `new-migration.tt` T4 template; the version lives in `NexCart.Migrations/appsettings.json` (`Migrations:Version`). A console runner creates `ShopDb` if needed and applies pending migrations in order; FluentMigrator tracks them in `dbo.VersionInfo`. Run with `dotnet run --project NexCart.Migrations` (`-- down` / `-- list`). See `NexCart.Migrations/README.md`.
 - `UnitOfWork` takes an `ISessionFactoryProvider` (`ConfigurationRepository/SessionFactoryProvider.cs`) that builds the NHibernate session factory once and reuses it. Building it opens a connection, so a reachable `ShopDb` is required.
 
-## Frontend (Angular 20) — `NexCart.Web/my-app/`
+## Frontend (Angular 20)
 
-Run: `npm install` → `ng serve` (port 4200). Build: `npm run build` → outputs to `my-app/bundles/browser`, which `NexCart.Web` serves as static files.
+There are **two separate SPAs**, documented in [`docs/frontend/`](docs/frontend/README.md):
 
-- **Auth:** `authentification/` (login, register) + `authentification.service.ts` (JWT via `@auth0/angular-jwt`)
-- **Customer:** `home`, `category-products`, `product-components/` (grid + detail), `cart`, `order`/`order-components` (grid + detail), `favourite`, `profile`, `settings`, `side-filter`
-- **Admin:** `admin-components/` — `admin-tool` shell + tools for users / products / orders (CRUD dialogs, datatables)
-- **Routing:** `app-routing.module.ts` (e.g. `/profile/:id`, `/product-detail/:id`, `/admin-tool/users`, `**` → `/error-404`)
+| App | Source | Host | Auth token key |
+|---|---|---|---|
+| Customer shop | `NexCart.Web/my-app/` | `NexCart.Web` — <http://localhost:5080> | `token` |
+| Admin tool | `NexCart.Admin/admin-app/` | `NexCart.Admin` — <http://localhost:5090> | `adminToken` |
+
+- **Shop:** `authentification/` (login/register), `home`, `category-products`, `product-components/` (grid + detail), `cart`, `order` + `order-components/` (grid + detail), `favourite`, `profile`, `settings`, shared `customer-components/` (side filter, sort bar, dialogs, loading/empty states). Routing in `app-routing.module.ts`; there are no route guards (pages check the session manually).
+- **Admin:** its own login page, sidebar layout and `products`, `categories`, `orders`, `users` grids with management dialogs, photo upload and bulk delete. `adminGuard` protects the layout; the admin API is served by the admin host.
+- **Build:** `NexCart.Web.csproj` builds the shop SPA automatically (`npm ci` + `npm run build` → `my-app/bundles/browser`). The admin SPA is **not** built by MSBuild — run `npm ci && npm run build` in `admin-app` (or `npm run watch`) before starting `NexCart.Admin`.
+- **HTTP contract:** relative `api/...` URLs, PascalCase JSON, numeric enums, `409 {success, exception}` / `400 {Success, Errors}` envelopes. Shop and admin have separate error/auth interceptors.
+- **Docs:** [frontend index](docs/frontend/README.md) · [shop guide](docs/frontend/shop-app.md) · [admin guide](docs/frontend/admin-app.md) · [API integration](docs/frontend/api-integration.md) · [authentication](docs/frontend/authentication.md) · [build/deployment](docs/frontend/build-and-deploy.md) · [frontend fixes](NexCart.Web/my-app/FRONTEND-FIXES.md).
 
 ## Known Issues / Quirks
 
@@ -80,6 +89,7 @@ Run: `npm install` → `ng serve` (port 4200). Build: `npm run build` → output
 ## Commands
 
 **Database (once):** `dotnet run --project NexCart.Migrations` — creates `ShopDb` if needed and applies migrations.
-**Backend:** `dotnet run --project NexCart.Web` (already-built SPA served from `my-app/bundles/browser`).
-**Frontend:** `cd NexCart.Web/my-app && npm install && npm run build` (or `ng serve`).
+**Backend:** `dotnet run --project NexCart.Web` (builds the shop SPA into `my-app/bundles/browser`; skip with `-p:BuildSpa=false`).
+**Shop frontend:** `cd NexCart.Web/my-app && npm ci && npm run build` (or `npm start` for UI-only `ng serve`).
+**Admin site:** build the SPA first: `cd NexCart.Admin/admin-app && npm ci && npm run build` (or `npm run watch`), then `dotnet run --project NexCart.Admin` at <http://localhost:5090>.
 **Tests:** `dotnet test NexCart.Tests`.

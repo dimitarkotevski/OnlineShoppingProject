@@ -1,6 +1,15 @@
 # NexCart — Online Shopping Web Site
 
-A full-stack online shopping application: **ASP.NET Core (.NET 10) backend** with an **Angular 20 SPA** frontend.
+A full-stack online shopping application: **ASP.NET Core (.NET 10) backend** with **Angular 20 SPAs** for the shop and the admin tool.
+
+## Documentation
+
+- **[Frontend documentation](docs/frontend/README.md)** — both SPAs: source maps, routes, API contract, authentication, build/deployment and troubleshooting
+- [Shop frontend guide](docs/frontend/shop-app.md) · [Admin frontend guide](docs/frontend/admin-app.md)
+- [Frontend review & fixes](NexCart.Web/my-app/FRONTEND-FIXES.md) — historical defects and deferred items
+- [OVERVIEW.md](OVERVIEW.md) — condensed project context
+- [STRUCTURE-FIXES.md](STRUCTURE-FIXES.md) — repository layout/cleanup history
+- Per-project docs: [Domain](NexCart.Domain/NexCart.Domain.md) · [Business](NexCart.Business/NexCart.Business.md) · [Data](NexCart.Data.NHibernate/NexCart.Data.NHibernate.md) · [Web](NexCart.Web/NexCart.Web.md) · [Migrations](NexCart.Migrations/README.md)
 
 ## Technology Used
 
@@ -77,31 +86,39 @@ dotnet run --project NexCart.Migrations
 dotnet run --project NexCart.Web
 ```
 
-Serves the API and the already-built Angular bundle from `NexCart.Web/my-app/bundles/browser`
-(override the URL with `--urls`, e.g. `dotnet run --project NexCart.Web --urls http://localhost:5080`).
+Serves the API and the Angular shop. The first build restores the SPA packages (`npm ci` when
+`node_modules` is missing) and builds the app into `NexCart.Web/my-app/bundles/browser`; later
+builds are incremental. Pass `-p:BuildSpa=false` to skip the SPA build (for example on a
+machine without Node.js). Override the URL with `--urls`, e.g.
+`dotnet run --project NexCart.Web --urls http://localhost:5080`.
 
-**Frontend** (only needed when changing the Angular code):
+**Frontend** (only needed when changing the Angular shop code):
 
 ```bash
 cd NexCart.Web/my-app
-npm install
+npm ci
 npm run build    # outputs to bundles/browser, which NexCart.Web serves
-# or: ng serve   # dev server on port 4200
+# or: ng serve   # UI-only dev server on port 4200 (no API proxy)
 ```
+
+The generated bundles are gitignored, so a fresh clone has no UI until a SPA build runs.
+
+**Admin frontend** (required before starting the admin site, and when changing the admin UI):
+
+```bash
+cd NexCart.Admin/admin-app
+npm ci
+npm run build    # outputs to bundles/browser, which NexCart.Admin serves
+# or: npm run watch   # rebuilds on every change; refresh the admin site to see it
+```
+
+Unlike the shop, the admin SPA is **not** built by `dotnet run`/`dotnet build`; run one of the
+build commands above first.
 
 **Admin site:**
 
 ```bash
 dotnet run --project NexCart.Admin    # http://localhost:5090
-```
-
-**Admin frontend** (only needed when changing the admin UI):
-
-```bash
-cd NexCart.Admin/admin-app
-npm install
-npm run build    # outputs to bundles/browser, which NexCart.Admin serves
-# or: npm run watch   # rebuilds on every change; refresh the admin site to see it
 ```
 
 **Tests:**
