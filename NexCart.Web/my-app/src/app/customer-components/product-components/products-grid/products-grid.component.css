@@ -61,6 +61,8 @@ input {
 .product-card {
   margin-bottom: 0;
   border-radius: 8px;
+  /* Let the card's own width drive the compact action-bar rules below. */
+  container-type: inline-size;
 }
 
 .product-card__link {
@@ -105,14 +107,14 @@ input {
   letter-spacing: 0.4px;
 }
 
-/* Two-line clamp with reserved height keeps titles from pushing cards out of line. */
+/* Clamp long names to two lines; the card footer is pushed to the bottom by mt-auto,
+   so rows stay aligned without reserving empty space under short titles. */
 .product-card__title {
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
   line-height: 1.35;
-  min-height: calc(2 * 1.35em);
   margin-bottom: 0;
 }
 
@@ -124,17 +126,19 @@ input {
 
 .product-card__actions {
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
+  flex-wrap: nowrap;
+  gap: 6px;
 }
 
-/* Grows to fill the row; if it ever can't fit beside the favourite button it wraps
-   onto its own line instead of overflowing the card. */
+/* Fills the remaining width next to the favourite button. The slimmer padding and
+   min-width: 0 let both buttons stay on one line even when the card is only 240px. */
 .product-card__cart {
-  flex: 1 1 140px;
+  flex: 1 1 auto;
+  min-width: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  padding: 8px 6px;
   white-space: nowrap;
   border: 1px solid #dee2e6;
 }
@@ -142,4 +146,16 @@ input {
 .product-card__fav {
   flex: 0 0 44px;
   border: 1px solid #dee2e6;
+}
+
+/* Very narrow cards (tiny windows / embedded views): drop the icon and use a
+   smaller label so the two buttons still fit side by side. */
+@container (max-width: 200px) {
+  .product-card__cart {
+    font-size: 0.85rem;
+  }
+
+  .product-card__cart i {
+    display: none;
+  }
 }
