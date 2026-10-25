@@ -4,6 +4,13 @@
     <RootNamespace>NexCart.Web</RootNamespace>
     <AssemblyName>NexCart.Web</AssemblyName>
     <UserSecretsId>ff82099b-d007-49b0-b98f-ee5cf894dd1c</UserSecretsId>
+
+    <!-- The Angular shop app is built as part of dotnet build/publish. Set
+         -p:BuildSpa=false to skip it (for example on a machine without Node.js). -->
+    <SpaRoot>my-app\</SpaRoot>
+    <SpaBuildOutput>$(SpaRoot)bundles\browser\</SpaBuildOutput>
+    <SpaBuildConfiguration Condition="'$(SpaBuildConfiguration)' == ''">production</SpaBuildConfiguration>
+    <BuildSpa Condition="'$(BuildSpa)' == ''">true</BuildSpa>
   </PropertyGroup>
 
   <ItemGroup>
@@ -18,12 +25,71 @@
     <ProjectReference Include="..\NexCart.Data.NHibernate\NexCart.Data.NHibernate.csproj" />
   </ItemGroup>
 
-  <!-- The Angular workspace is built with the Angular CLI, not MSBuild. Keep it out of the
-       compile/content item lists so node_modules and the build output are not treated as content. -->
+  <!-- The Angular workspace is built by the Angular CLI. Keep its files out of the default
+       compile/content item lists so node_modules and the build output are not treated as
+       Razor content; the built bundles are added explicitly below. -->
   <ItemGroup>
     <Compile Remove="my-app\**" />
     <Content Remove="my-app\**" />
     <None Remove="my-app\**" />
+
+    <!-- Inputs for the incremental Angular build target (MSBuild does not expand
+         wildcards inside a target's Inputs attribute, so expand them here). -->
+    <_SpaSourceFiles Include="$(SpaRoot)package.json;$(SpaRoot)package-lock.json;$(SpaRoot)angular.json;$(SpaRoot)tsconfig.json;$(SpaRoot)tsconfig.app.json;$(SpaRoot)tsconfig.spec.json;$(SpaRoot)src\**\*" />
   </ItemGroup>
+
+  <!-- Restore the npm packages the first time the Angular app is built. -->
+  <Target Name="SpaRestoreDependencies"
+          BeforeTargets="SpaBuild"
+          Condition="'$(BuildSpa)' == 'true' And !Exists('$(SpaRoot)node_modules')">
+    <Exec Command="npm --version" EchoOff="true" ContinueOnError="true">
+      <Output TaskParameter="ExitCode" PropertyName="_SpaNpmExitCode" />
+    </Exec>
+    <Error Condition="'$(_SpaNpmExitCode)' != '0'"
+           Text="npm was not found. Install Node.js (https://nodejs.org/) or build with -p:BuildSpa=false." />
+
+    <Message Importance="high" Text="Restoring the Angular app dependencies (my-app)..." />
+    <Exec WorkingDirectory="$(SpaRoot)" Command="npm ci" />
+  </Target>
+
+  <!-- Build the Angular app into my-app/bundles/browser. The target is incremental: it runs
+       only when a source/configuration file is newer than the built index.html. It is hooked
+       before BeforeBuild so the bundles exist before the compile/copy phase. -->
+  <Target Name="SpaBuild"
+          BeforeTargets="BeforeBuild"
+          Condition="'$(BuildSpa)' == 'true'"
+          Inputs="@(_SpaSourceFiles)"
+          Outputs="$(SpaBuildOutput)index.html">
+    <Message Importance="high" Text="Building the Angular app (my-app, configuration: $(SpaBuildConfiguration))..." />
+    <Exec WorkingDirectory="$(SpaRoot)" Command="npm run build -- --configuration $(SpaBuildConfiguration)" />
+  </Target>
+
+  <!-- Also copy the built SPA next to the compiled assembly, so the app is self-contained
+       when started from bin/ (the publish target handles the publish folder separately). -->
+  <Target Name="SpaCopyToOutput"
+          BeforeTargets="CopyFilesToOutputDirectory"
+          Condition="Exists('$(SpaBuildOutput)index.html')">
+    <ItemGroup>
+      <_SpaOutputFiles Include="$(SpaBuildOutput)**\*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(_SpaOutputFiles)"
+          DestinationFiles="@(_SpaOutputFiles->'$(OutDir)my-app\bundles\browser\%(RecursiveDir)%(Filename)%(Extension)')"
+          SkipUnchangedFiles="true" />
+  </Target>
+
+  <!-- Preserve the my-app/bundles/browser layout in the publish output, matching the paths
+       Program.cs and SpaAssets read at runtime. -->
+  <Target Name="SpaIncludeInPublish"
+          AfterTargets="ComputeFilesToPublish"
+          Condition="Exists('$(SpaBuildOutput)index.html')">
+    <ItemGroup>
+      <_SpaPublishFiles Include="$(SpaBuildOutput)**\*" />
+      <ResolvedFileToPublish Include="@(_SpaPublishFiles->'%(FullPath)')" Exclude="@(ResolvedFileToPublish)">
+        <RelativePath>%(_SpaPublishFiles.Identity)</RelativePath>
+        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+        <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      </ResolvedFileToPublish>
+    </ItemGroup>
+  </Target>
 
 </Project>
