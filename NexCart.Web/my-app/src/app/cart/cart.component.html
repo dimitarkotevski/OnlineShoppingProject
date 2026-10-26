@@ -7,10 +7,15 @@
   <div *ngIf="shoppingCart">
     <app-products-grid [type]="'cart'" [shoppingCart]="shoppingCart" (refreshState)="refreshState()">
     </app-products-grid>
-    <div *ngIf="shoppingCart.ShoppingCartDetails.length>0" class="row">
-      <div class="pt-lg-3 pull-right">
-        <button class="btn solid-button-order" data-bs-toggle="modal" data-bs-target="#orderMaking" (click)="MakeOrder(shoppingCart.Id)" ><h5>Order here</h5></button>
-      </div>
+    <div *ngIf="shoppingCart.ShoppingCartDetails.length > 0" class="cart-actions">
+      <button
+        type="button"
+        class="btn solid-button-order"
+        (click)="MakeOrder(shoppingCart.Id)"
+      >
+        <i class="fa-solid fa-bag-shopping me-2" aria-hidden="true"></i>
+        Order here
+      </button>
     </div>
   </div>
   <app-loading-grid *ngIf="isLoading" [isGridLoading]="false"></app-loading-grid>

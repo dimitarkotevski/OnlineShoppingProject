@@ -27,6 +27,26 @@ export class ProductsGridComponent implements OnInit {
   @Input() emptyTitle: string = 'No Products in Database';
   @Input() emptyMessage: string = 'There are currently no products available in the database.';
   @Input() emptyIcon: string = 'fa-solid fa-box-open';
+
+  // Keep the cart UI in sync with ShoppingCartService's server-side limit.
+  readonly maxQuantityPerLine = 999;
+
+  get cartItemCount(): number {
+    return (this.shoppingCart?.ShoppingCartDetails ?? []).reduce(
+      (count: number, detail: any) => count + (Number(detail?.Quantity) || 0),
+      0
+    );
+  }
+
+  get cartTotal(): number {
+    return (this.shoppingCart?.ShoppingCartDetails ?? []).reduce(
+      (total: number, detail: any) =>
+        total +
+        (Number(detail?.Product?.Price) || 0) *
+          (Number(detail?.Quantity) || 0),
+      0
+    );
+  }
   
   constructor(
     private router: Router,
@@ -85,18 +105,19 @@ export class ProductsGridComponent implements OnInit {
 
 
   handleMinus(i:number){
-    if(this.shoppingCart.ShoppingCartDetails[i].Quantity>1){
-      this.shoppingCart.ShoppingCartDetails[i].Quantity--;
-      this.shoppingCartService.MinusQuantity(this.shoppingCart.ShoppingCartDetails[i].Id)?.subscribe(res=>{
-
-      })
+    const detail = this.shoppingCart?.ShoppingCartDetails?.[i];
+    if(detail && detail.Quantity > 1){
+      detail.Quantity--;
+      this.shoppingCartService.MinusQuantity(detail.Id)?.subscribe();
     }
   }
-  handlePlus(i:number){
-    this.shoppingCart.ShoppingCartDetails[i].Quantity++;
-    this.shoppingCartService.PlusQuantity(this.shoppingCart.ShoppingCartDetails[i].Id)?.subscribe((res)=>{
 
-    })
+  handlePlus(i:number){
+    const detail = this.shoppingCart?.ShoppingCartDetails?.[i];
+    if(detail && detail.Quantity < this.maxQuantityPerLine){
+      detail.Quantity++;
+      this.shoppingCartService.PlusQuantity(detail.Id)?.subscribe();
+    }
   }
 
   deleteProductCartDetail(id:string){

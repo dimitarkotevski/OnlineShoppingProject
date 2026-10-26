@@ -72,67 +72,133 @@
   </div>
 
   <!-- HTML FOR CART -->
-  <div *ngIf="type == 'cart'">
-    <div
-      *ngFor="let detail of shoppingCart.ShoppingCartDetails; let i = index"
-      class="card solid_pb_3"
-    >
-      <div class="card-body">
-        <div class="col-lg-12">
-          <div class="col-lg-12">
-            <div>
-              <a
-                class="solid-color-a"
-                [routerLink]="['/product-detail', detail.Product.Id]"
-              >
-                <h1>{{ detail.Product?.Name }}</h1>
-              </a>
-            </div>
-          </div>
-          <hr />
-          <div class="row">
-            <div class="col-lg-3 col-sm-12">
-              <a [routerLink]="['/product-detail', detail.Product.Id]">
-                <img
-                  [src]="detail.Product.Image | byPassSecurity"
-                  class="img-responsive"
-                  alt="{{ detail.Product?.Name }}"
-                />
-              </a>
-            </div>
-            <div class="col-lg-6 col-sm-12 solid-side-borders">
-              <p>{{ detail.Product?.Description }}</p>
-            </div>
-            <div class="col-lg-3 col-sm-12 text-center">
-              <div>
-                ${{ ((detail.Product?.Price || 0) * (detail.Quantity || 0)).toFixed(2) }}
-              </div>
-              <hr />
-              <div class="text-center">
-                <div class="wrapper">
-                  <button class="plusminus" (click)="handleMinus(i)">-</button>
-                  <input
-                    type="number"
-                    class="num"
-                    [ngModel]="detail?.Quantity"
+  <div
+    *ngIf="type == 'cart' && shoppingCart?.ShoppingCartDetails?.length"
+    class="cart-table-card"
+  >
+    <div class="table-responsive">
+      <table class="table cart-table align-middle mb-0">
+        <thead>
+          <tr>
+            <th scope="col" class="cart-product-col">Product</th>
+            <th scope="col" class="text-end">Unit price</th>
+            <th scope="col" class="text-center cart-quantity-col">Quantity</th>
+            <th scope="col" class="text-end">Subtotal</th>
+            <th scope="col" class="cart-actions-col">
+              <span class="visually-hidden">Remove</span>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            *ngFor="
+              let detail of shoppingCart.ShoppingCartDetails;
+              let i = index
+            "
+          >
+            <td>
+              <div class="cart-product">
+                <a
+                  class="cart-product__image"
+                  [routerLink]="['/product-detail', detail.Product?.Id]"
+                  [attr.aria-label]="'View ' + (detail.Product?.Name || 'product')"
+                >
+                  <img
+                    *ngIf="detail.Product?.Image; else cartNoImage"
+                    [src]="detail.Product.Image | byPassSecurity"
+                    [alt]="detail.Product?.Name"
+                    loading="lazy"
                   />
-                  <button class="plusminus" (click)="handlePlus(i)">+</button>
+                  <ng-template #cartNoImage>
+                    <i class="fa-regular fa-image" aria-hidden="true"></i>
+                  </ng-template>
+                </a>
+                <div class="cart-product__info">
+                  <a
+                    class="cart-product__name"
+                    [routerLink]="['/product-detail', detail.Product?.Id]"
+                  >
+                    {{ detail.Product?.Name }}
+                  </a>
+                  <p
+                    *ngIf="detail.Product?.Description"
+                    class="cart-product__description"
+                  >
+                    {{ detail.Product?.Description }}
+                  </p>
                 </div>
               </div>
-              <hr />
-              <div>
+            </td>
+            <td class="text-end cart-price">
+              ${{ (detail.Product?.Price || 0).toFixed(2) }}
+            </td>
+            <td class="text-center">
+              <div
+                class="cart-quantity"
+                role="group"
+                [attr.aria-label]="
+                  'Quantity for ' + (detail.Product?.Name || 'product')
+                "
+              >
                 <button
-                  (click)="deleteProductCartDetail(detail.Id)"
-                  class="w-100 btn btn-danger"
+                  type="button"
+                  class="cart-quantity__button"
+                  (click)="handleMinus(i)"
+                  [disabled]="detail.Quantity <= 1"
+                  aria-label="Decrease quantity"
                 >
-                  Delete fromCart
+                  &minus;
+                </button>
+                <span class="cart-quantity__value">{{ detail.Quantity }}</span>
+                <button
+                  type="button"
+                  class="cart-quantity__button"
+                  (click)="handlePlus(i)"
+                  [disabled]="detail.Quantity >= maxQuantityPerLine"
+                  aria-label="Increase quantity"
+                >
+                  +
                 </button>
               </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <br />
+            </td>
+            <td class="text-end cart-subtotal">
+              ${{
+                (
+                  (detail.Product?.Price || 0) * (detail.Quantity || 0)
+                ).toFixed(2)
+              }}
+            </td>
+            <td class="text-end">
+              <button
+                type="button"
+                class="btn cart-remove"
+                (click)="deleteProductCartDetail(detail.Id)"
+                [attr.aria-label]="
+                  'Remove ' + (detail.Product?.Name || 'product') + ' from cart'
+                "
+                title="Remove from cart"
+              >
+                <i class="fa-solid fa-trash-can" aria-hidden="true"></i>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr class="cart-total-row">
+            <td colspan="3" class="text-end">
+              Total
+              <span class="cart-total-count"
+                >({{ cartItemCount }}
+                {{ cartItemCount === 1 ? "item" : "items" }})</span
+              >
+            </td>
+            <td class="text-end cart-grand-total">
+              ${{ cartTotal.toFixed(2) }}
+            </td>
+            <td></td>
+          </tr>
+        </tfoot>
+      </table>
     </div>
   </div>
 

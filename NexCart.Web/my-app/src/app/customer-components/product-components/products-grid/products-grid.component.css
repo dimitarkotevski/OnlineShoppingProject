@@ -1,53 +1,206 @@
-input {
-    text-align: center;  
-    border: 1px solid #6C757D;
-    top: 50%;
-  } 
-  
-  input[type="number"] {
-    -webkit-appearance: textfield !important;
-    -moz-appearance: textfield !important;
-    appearance: textfield !important;
-    }
-  
-  input[type=number]::-webkit-inner-spin-button,
-  input[type=number]::-webkit-outer-spin-button {
-      -webkit-appearance: none;
-    }
-  
-  .wrapper {
-    border: 2px #dcd3d3 solid;
-    width: 100%;
-    height: 20%;
-    display: flex;
-    border-radius: 15px;
-  }
-  
-  .plusminus {
-    height: 100%;
-    width: 30%;
-    background: white;
-    border: none;
-    font-size: 40px;
-    color: #5f5fce;
-  }
-  
-  .num {
-    width: 39%;
-    border: none;
-    font-size: 30px;
+/* ---------- Cart table ---------- */
+.cart-table-card {
+  border: 1px solid #e9ecef;
+  border-radius: 12px;
+  background-color: #ffffff;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
+  overflow: hidden;
+}
+
+.cart-table {
+  min-width: 720px;
+}
+
+.cart-table thead th {
+  padding: 0.9rem 1rem;
+  border-bottom: 1px solid #e9ecef;
+  background-color: #f8f9fa;
+  color: #6c757d;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.cart-table tbody td {
+  padding: 1rem;
+  border-color: #edf0f2;
+}
+
+.cart-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.cart-product-col {
+  min-width: 280px;
+}
+
+.cart-quantity-col {
+  width: 150px;
+}
+
+.cart-actions-col {
+  width: 64px;
+}
+
+.cart-product {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+}
+
+.cart-product__image {
+  flex: 0 0 76px;
+  width: 76px;
+  height: 76px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  background-color: #f8f9fa;
+  color: #c3c9cf;
+  font-size: 1.4rem;
+}
+
+.cart-product__image img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.cart-product__info {
+  min-width: 0;
+}
+
+.cart-product__name {
+  display: block;
+  color: #212529;
+  font-weight: 600;
+  line-height: 1.3;
+  text-decoration: none;
+}
+
+.cart-product__name:hover {
+  color: #0d6efd;
+}
+
+.cart-product__description {
+  display: -webkit-box;
+  margin: 0.25rem 0 0;
+  overflow: hidden;
+  color: #6c757d;
+  font-size: 0.85rem;
+  line-height: 1.35;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.cart-price,
+.cart-subtotal,
+.cart-grand-total {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.cart-subtotal {
+  font-weight: 600;
+}
+
+.cart-quantity {
+  display: inline-flex;
+  align-items: center;
+  overflow: hidden;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  background-color: #ffffff;
+}
+
+.cart-quantity__button {
+  width: 34px;
+  height: 34px;
+  border: 0;
+  background-color: transparent;
+  color: #495057;
+  font-size: 1.15rem;
+  line-height: 1;
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.cart-quantity__button:hover:not(:disabled) {
+  background-color: #f1f3f5;
+  color: #0d6efd;
+}
+
+.cart-quantity__button:disabled {
+  color: #ced4da;
+  cursor: not-allowed;
+}
+
+.cart-quantity__value {
+  min-width: 40px;
+  color: #212529;
+  font-weight: 600;
+  text-align: center;
+}
+
+.cart-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  color: #dc3545;
+}
+
+.cart-remove:hover,
+.cart-remove:focus-visible {
+  border-color: #f5c2c7;
+  background-color: #f8d7da;
+  color: #a71d2a;
+}
+
+.cart-total-row td {
+  padding: 1rem;
+  border-top: 2px solid #dee2e6;
+  background-color: #fbfbfc;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.cart-total-count {
+  color: #6c757d;
+  font-size: 0.85rem;
+  font-weight: 400;
+}
+
+.cart-grand-total {
+  color: #198754;
+  font-size: 1.1rem;
+}
+
+@media (max-width: 767.98px) {
+  .cart-table thead th,
+  .cart-table tbody td,
+  .cart-total-row td {
+    padding: 0.75rem 0.6rem;
   }
 
-
-  .circle {
-    height: 200px;
-    width: 200px;
-    display: table-cell;
-    vertical-align: middle;
-    border-radius: 50%; /* may require vendor prefixes */
-    background-color: rgb(230 82 40 / 0.25);
-    color: coral;
+  .cart-product__image {
+    flex-basis: 56px;
+    width: 56px;
+    height: 56px;
   }
+
+  .cart-product__description {
+    display: none;
+  }
+}
 
 /* ---------- Product cards (home / favourite) ---------- */
 /* auto-fill + minmax: as many columns as fit at >= 240px each, so the card never gets

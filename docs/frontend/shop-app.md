@@ -127,10 +127,12 @@ the grid. Changing categories resets filters and sorting.
 
 ### Cart and checkout
 
-`CartComponent` loads the current user's cart. Quantity changes and removals are persisted
-immediately (`MinusQuantity`, `PlusQuantity`, `RemoveProductFromShoppingCart`). "Order here"
-opens `YesNoDialogComponent`, then calls `Orders/MakeAnOrder` and navigates to `/my-order` with
-a full page reload.
+`CartComponent` loads the current user's cart and renders it through
+`ProductsGridComponent` in `type="cart"` mode as a responsive table (product, unit price,
+quantity stepper, line subtotal, remove action and an order total footer). Quantity changes and
+removals are persisted immediately (`MinusQuantity`, `PlusQuantity`,
+`RemoveProductFromShoppingCart`). "Order here" opens `YesNoDialogComponent`, then calls
+`Orders/MakeAnOrder` and navigates to `/my-order` with a full page reload.
 
 ### Orders and payment
 
