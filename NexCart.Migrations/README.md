@@ -139,19 +139,27 @@ exist, so re-applying the migration is a no-op.
 | Column | Type | Key/Constraint |
 | :--- | :--- | :--- |
 | `Id` | Guid | PK |
-| `Name` | string | |
-| `Active` | bool | Default: 1 |
-| `UserId` | Guid | FK $\rightarrow$ `Users.Id` |
+| `Name` | string(255) | NOT NULL, non-blank check |
+| `Active` | bool | NOT NULL, Default: 1 |
+| `UserId` | Guid | NOT NULL, FK $\rightarrow$ `Users.Id` |
+| `CreatedAt` | DateTime2 | NOT NULL, Default: `SYSUTCDATETIME()` |
 *Relationships: Many-to-One with Users; One-to-Many with ShoppingCartDetails.*
+*Indexes: unique filtered `UX_ShoppingCarts_ActiveUser` on `UserId` where `Active = 1` (one active cart per user); `IX_ShoppingCarts_UserId`.*
 
 ### ShoppingCartDetails
 | Column | Type | Key/Constraint |
 | :--- | :--- | :--- |
 | `Id` | Guid | PK |
-| `Quantity` | int | Default: 1 |
-| `ShoppingCartId` | Guid | FK $\rightarrow$ `ShoppingCarts.Id` |
-| `ProductId` | Guid | FK $\rightarrow$ `Products.Id` |
+| `Quantity` | int | NOT NULL, Default: 1, Check: `1`–`999` |
+| `ShoppingCartId` | Guid | NOT NULL, FK $\rightarrow$ `ShoppingCarts.Id` (ON DELETE CASCADE) |
+| `ProductId` | Guid | NOT NULL, FK $\rightarrow$ `Products.Id` |
+| `AddedAt` | DateTime2 | NOT NULL, Default: `SYSUTCDATETIME()` |
 *Relationships: Many-to-One with ShoppingCarts; Many-to-One with Products.*
+*Indexes: unique `UX_ShoppingCartDetails_CartProduct` on (`ShoppingCartId`, `ProductId`); `IX_ShoppingCartDetails_ProductId`.*
+
+Migration `20261026002958000` applies this hardening. Before adding the constraints it merges
+duplicate product lines, deactivates duplicate active carts (keeping the one with the most
+lines) and removes orphan rows, so it is safe to run against an existing database.
 
 ### Orders
 | Column | Type | Key/Constraint |
