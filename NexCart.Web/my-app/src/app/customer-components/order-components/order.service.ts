@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { OrderViewModel } from 'src/app/models/order-view-model';
+import { OrderStatus } from 'src/app/models/enum/order-status';
 
 @Injectable({
     providedIn: 'root'
@@ -29,7 +30,8 @@ export class OrderService{
     }
 
     MakeAPay(order : OrderViewModel){
-        return this.http.post<any>(this.baseApi+'/MakeAPay',
+        return this.http.post<{ success: boolean; orderStatus: OrderStatus }>(
+            this.baseApi+'/MakeAPay',
             { model: order })
     }
 }

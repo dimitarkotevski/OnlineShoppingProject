@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { OrderService } from '../order.service';
 import { Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
@@ -7,6 +7,7 @@ import { MakeOrderConfirmationComponent } from './make-order-confirmation/make-o
 import { OrderViewModel } from 'src/app/models/order-view-model';
 import { LookupViewModel } from 'src/app/models/lookup-view-model';
 import { AuthentificationService } from 'src/app/authentification/authentification.service';
+import { OrderStatus } from 'src/app/models/enum/order-status';
 import { ToastrService } from 'ngx-toastr';
 
 @Component({ standalone: false,
@@ -17,6 +18,7 @@ import { ToastrService } from 'ngx-toastr';
 export class OrderDetailComponent implements OnInit {
 
   @Input() activeOrder?: any;
+  @Output() orderPlaced = new EventEmitter<void>();
 
   constructor(
     private dialog: MatDialog,
@@ -37,9 +39,16 @@ export class OrderDetailComponent implements OnInit {
     dialogRef.afterClosed().subscribe((result: OrderViewModel | null) => {
       if(result){
          // The dialog returns the order with the chosen payment method.
-         this.orderService.MakeAPay(result).subscribe(()=>{
-            this.activeOrder = null
-            this.toasterService.success("Your order has been approved and the product/s will be sent to the address in your profile")
+         this.orderService.MakeAPay(result).subscribe((response)=>{
+            this.activeOrder = null;
+
+            if (response?.orderStatus === OrderStatus.Completed) {
+              this.toasterService.success("Payment successful. Your order will be sent to the address in your profile.");
+            } else {
+              this.toasterService.info("Your order has been placed. It is waiting for payment.");
+            }
+
+            this.orderPlaced.emit();
          })
       }
     });

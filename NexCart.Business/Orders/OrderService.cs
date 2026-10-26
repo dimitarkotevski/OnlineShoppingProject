@@ -30,7 +30,7 @@ namespace NexCart.Business.Services
         void CancelActiveOrder(Guid orderId);
         List<OrderViewModelWithProducts> GetUserOtherOrders(Guid userId);
         void MakeAnOrder(Guid shoppingCartId,Guid userId);
-        void MakeAPay(OrderViewModel order);
+        OrderStatus MakeAPay(OrderViewModel order);
         bool DoesOrderBelongToUser(Guid orderId, Guid userId);
 
     }
@@ -276,13 +276,14 @@ namespace NexCart.Business.Services
                     throw new BllException(ShopExceptionMassages.UserExceptionMassages.NOT_FOUND_EXCEPTION);
                 }
 
-                var userOrder = _orderRepository.FilterBy(x => x.User == user && x.OrderStatus != OrderStatus.OnHold)
-                    ?? throw new BllException(ShopExceptionMassages.OrderExceptionMassages.NOT_FOUND_EXCEPTION);
+                var userOrders = _orderRepository
+                    .FilterBy(x => x.User == user && x.OrderStatus != OrderStatus.OnHold)
+                    .OrderByDescending(x => x.DateCreated);
 
                 return new ResponseListModel<OrderGridViewModel>
                 {
-                    Items = userOrder.Select(x => x.MapToGridViewModel()).ToList(),
-                    TotalItems = userOrder.Count()
+                    Items = userOrders.Select(x => x.MapToGridViewModel()).ToList(),
+                    TotalItems = userOrders.Count()
                 };
             }
         }
@@ -291,8 +292,15 @@ namespace NexCart.Business.Services
         {
             using (_unitOfWork.BeginTransaction())
             {
-                var userOrder = _orderRepository.FilterBy(x => x.User.Id == userId && x.OrderStatus == OrderStatus.OnHold).FirstOrDefault()
-                    ?? throw new BllException(ShopExceptionMassages.OrderExceptionMassages.NOT_FOUND_EXCEPTION);
+                var userOrder = _orderRepository
+                    .FilterBy(x => x.User.Id == userId && x.OrderStatus == OrderStatus.OnHold)
+                    .FirstOrDefault();
+
+                // A customer with no active order is a normal state, not an error.
+                if (userOrder == null)
+                {
+                    return null;
+                }
 
                 userOrder.TotalAmount = userOrder.ShoppingCart.ShoppingCartDetails.Select(x=>x.Product.Price * x.Quantity).Sum();
                 _orderRepository.Update(userOrder);
@@ -404,7 +412,7 @@ namespace NexCart.Business.Services
             }
         }
 
-        public void MakeAPay(OrderViewModel model)
+        public OrderStatus MakeAPay(OrderViewModel model)
         {
             using (_unitOfWork.BeginTransaction())
             {
@@ -415,7 +423,7 @@ namespace NexCart.Business.Services
                 }
 
                 var shoppingCart = _shoppingCartRepository.FindBy(model.ShoppingCart.Id);
-                if (order == null)
+                if (shoppingCart == null)
                 {
                     throw new BllException(ShopExceptionMassages.ShoppingCartExceptionMassages.NOT_FOUNG);
                 }
@@ -440,8 +448,12 @@ namespace NexCart.Business.Services
                         Name = "Cart#" + Guid.NewGuid().ToString("N").Substring(0, 8)
                     };
 
-                    _shoppingCartRepository.Add(newShoppingCartForUser);
+                    // The filtered unique index UX_ShoppingCarts_ActiveUser allows only
+                    // one active cart per user. NHibernate flushes inserts before updates,
+                    // so persist the old cart's deactivation before inserting the new one.
                     _shoppingCartRepository.Update(shoppingCart);
+                    _unitOfWork.Session.Flush();
+                    _shoppingCartRepository.Add(newShoppingCartForUser);
 
                     _orderRepository.Update(order);
                     _unitOfWork.Commit();
@@ -450,6 +462,7 @@ namespace NexCart.Business.Services
                 {
                     if(order.TotalAmount > user.Amount)
                     {
+                        order.PaymentType = PaymentType.Card;
                         order.OrderStatus = OrderStatus.PendingPayment;
 
                         _orderRepository.Update(order);
@@ -471,8 +484,11 @@ namespace NexCart.Business.Services
                             Name = "Cart#" + Guid.NewGuid().ToString("N").Substring(0, 8)
                         };
 
-                        _shoppingCartRepository.Add(newShoppingCartForUser);
+                        // See the cash branch above: deactivate the old cart first so the
+                        // one-active-cart-per-user index is not violated by the insert.
                         _shoppingCartRepository.Update(shoppingCart);
+                        _unitOfWork.Session.Flush();
+                        _shoppingCartRepository.Add(newShoppingCartForUser);
 
                         _orderRepository.Update(order);
 
@@ -484,6 +500,8 @@ namespace NexCart.Business.Services
                 {
                     // DO NOTHING
                 }
+
+                return order.OrderStatus;
             }
         }
         #endregion

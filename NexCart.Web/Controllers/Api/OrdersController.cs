@@ -87,8 +87,8 @@ namespace NexCart.Web.Controllers
                 return Forbid();
             }
 
-            _orderService.MakeAPay(model);
-            return Ok(new { success = true });
+            var orderStatus = _orderService.MakeAPay(model);
+            return Ok(new { success = true, orderStatus = (int)orderStatus });
         }
 
         #endregion

@@ -1,7 +1,11 @@
-<div class="container pb-4">
-  <app-breadcrumb [isItem]="false" [itemDetail]="'My old orders'"></app-breadcrumb>
+<div [class.container]="!embedded" [class.pb-4]="!embedded">
+  <app-breadcrumb *ngIf="!embedded" [isItem]="false" [itemDetail]="'My old orders'"></app-breadcrumb>
 
-  <div class="history-card">
+  <div
+    class="history-card"
+    [class.history-card--embedded]="embedded"
+    *ngIf="!embedded || isLoading || (orders && orders.length > 0)"
+  >
     <div *ngIf="!isLoading && orders">
       <div class="history-card__header">
         <div>
@@ -47,7 +51,7 @@
       </div>
 
       <app-no-data
-        *ngIf="orders.length === 0"
+        *ngIf="!embedded && orders.length === 0"
         title="No Orders Found"
         message="There are no past orders in the database for your account."
         icon="fa-solid fa-receipt"

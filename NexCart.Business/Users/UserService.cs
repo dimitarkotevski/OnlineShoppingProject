@@ -119,6 +119,7 @@ namespace NexCart.Business.Services
                 {
                     User = model,
                     Active = true,
+                    Name = "Cart#" + Guid.NewGuid().ToString("N").Substring(0, 8),
                     ShoppingCartDetails = new List<ShoppingCartDetail>()
                 };
                 _shoppingCartRepository.Add(shoppingCart);

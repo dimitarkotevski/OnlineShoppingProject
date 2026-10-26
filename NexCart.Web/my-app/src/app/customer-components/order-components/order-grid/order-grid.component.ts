@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { AuthentificationService } from 'src/app/authentification/authentification.service';
 import { ResponseListModel } from '../../../models/response';
 import { OrderGridViewModel } from '../../../models/order-grid';
@@ -11,6 +11,9 @@ import { OrderStatus } from 'src/app/models/enum/order-status';
   styleUrls: ['./order-grid.component.css']
 })
 export class OrderGridComponent implements OnInit {
+  /** When embedded under the active-order card, hide the page chrome. */
+  @Input() embedded = false;
+
   orders?: OrderGridViewModel[] | null;
   isLoading: boolean = true;
 
@@ -20,12 +23,18 @@ export class OrderGridComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
+    this.loadOrders();
+  }
+
+  loadOrders(): void {
+    this.isLoading = true;
     this.orderService.GetUserNotActiveOrders(this.authService.getLoggedUserId()).subscribe({
       next: (res: ResponseListModel<OrderGridViewModel>) => {
-        this.orders = res.Items;
+        this.orders = res.Items ?? [];
         this.isLoading = false;
       },
       error: () => {
+        this.orders = [];
         this.isLoading = false;
       }
     });

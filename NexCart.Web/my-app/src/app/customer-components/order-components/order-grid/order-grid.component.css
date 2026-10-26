@@ -1,3 +1,7 @@
+:host {
+  display: block;
+}
+
 /* Matches the active order card (order-detail.component.css). */
 .history-card {
   background: #fff;
@@ -5,6 +9,10 @@
   border-radius: 16px;
   padding: 1.75rem;
   box-shadow: 0 6px 24px rgba(0, 0, 0, 0.06);
+}
+
+.history-card--embedded {
+  margin-top: 1.5rem;
 }
 
 .history-card__header {
