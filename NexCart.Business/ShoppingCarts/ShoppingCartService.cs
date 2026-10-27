@@ -100,7 +100,6 @@ namespace NexCart.Business.Services
                     };
 
                     _shoppingCartRepository.Add(shoppingCart);
-                    _unitOfWork.Commit();
 
                     var shoppingCartDetail = new ShoppingCartDetail
                     {
@@ -161,6 +160,8 @@ namespace NexCart.Business.Services
                     throw new BllException("Detail not exist");
                 }
 
+                EnsureCartIsActive(detailCart);
+
                 _shoppingCartDetailRepository.Delete(detailCart);
                 _unitOfWork.Commit();
             }
@@ -172,6 +173,8 @@ namespace NexCart.Business.Services
             {
                 var shoppingCardDetail = _shoppingCartDetailRepository.FindBy(detailId)
                     ?? throw new BllException(ShopExceptionMassages.ShoppingCartExceptionMassages.DETAIL_NOT_FOUND_EXCEPTION);
+
+                EnsureCartIsActive(shoppingCardDetail);
 
                 if (shoppingCardDetail.Quantity < MaxQuantityPerLine)
                 {
@@ -191,6 +194,8 @@ namespace NexCart.Business.Services
                 var shoppingCardDetail = _shoppingCartDetailRepository.FindBy(detailId)
                     ?? throw new BllException(ShopExceptionMassages.ShoppingCartExceptionMassages.DETAIL_NOT_FOUND_EXCEPTION);
 
+                EnsureCartIsActive(shoppingCardDetail);
+
                 // Never let the quantity drop to zero or below (previously this could underflow).
                 if (shoppingCardDetail.Quantity > 1)
                 {
@@ -200,6 +205,14 @@ namespace NexCart.Business.Services
                 _shoppingCartDetailRepository.Update(shoppingCardDetail);
 
                 _unitOfWork.Commit();
+            }
+        }
+
+        private static void EnsureCartIsActive(ShoppingCartDetail detail)
+        {
+            if (detail.ShoppingCart == null || !detail.ShoppingCart.Active)
+            {
+                throw new BllException(ShopExceptionMassages.ShoppingCartExceptionMassages.NOT_ACTIVE_EXCEPTION);
             }
         }
 

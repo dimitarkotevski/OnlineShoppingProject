@@ -30,7 +30,8 @@ namespace NexCart.Tests.Services
             var detail = new ShoppingCartDetail
             {
                 Id = detailId,
-                Quantity = 1
+                Quantity = 1,
+                ShoppingCart = new ShoppingCart { Active = true }
             };
 
             _detailRepo.FindBy(detailId).Returns(detail);
@@ -49,7 +50,8 @@ namespace NexCart.Tests.Services
             var detail = new ShoppingCartDetail
             {
                 Id = detailId,
-                Quantity = 5
+                Quantity = 5,
+                ShoppingCart = new ShoppingCart { Active = true }
             };
 
             _detailRepo.FindBy(detailId).Returns(detail);
@@ -78,7 +80,8 @@ namespace NexCart.Tests.Services
             var detail = new ShoppingCartDetail
             {
                 Id = detailId,
-                Quantity = 3
+                Quantity = 3,
+                ShoppingCart = new ShoppingCart { Active = true }
             };
 
             _detailRepo.FindBy(detailId).Returns(detail);
@@ -97,7 +100,8 @@ namespace NexCart.Tests.Services
             var detail = new ShoppingCartDetail
             {
                 Id = detailId,
-                Quantity = 999
+                Quantity = 999,
+                ShoppingCart = new ShoppingCart { Active = true }
             };
 
             _detailRepo.FindBy(detailId).Returns(detail);
@@ -106,6 +110,24 @@ namespace NexCart.Tests.Services
 
             Assert.Equal(999, detail.Quantity);
             _detailRepo.Received(1).Update(detail);
+        }
+
+        [Fact]
+        public void PlusQuantity_throws_when_cart_is_no_longer_active()
+        {
+            var sut = CreateSut();
+            var detailId = Guid.NewGuid();
+            var detail = new ShoppingCartDetail
+            {
+                Id = detailId,
+                Quantity = 3,
+                ShoppingCart = new ShoppingCart { Active = false }
+            };
+
+            _detailRepo.FindBy(detailId).Returns(detail);
+
+            Assert.Throws<BllException>(() => sut.PlusQuantity(detailId));
+            _detailRepo.DidNotReceive().Update(detail);
         }
 
         [Fact]

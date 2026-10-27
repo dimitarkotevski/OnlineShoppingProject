@@ -58,6 +58,8 @@
         {
             public static string NOT_FOUNG = "Shopping cart not found";
             public static string DETAIL_NOT_FOUND_EXCEPTION = "Shopping detail not found";
+            public static string NOT_ACTIVE_EXCEPTION = "Shopping cart is no longer active";
+            public static string EMPTY_EXCEPTION = "Shopping cart is empty";
         }
         public static class PaymentExceptionMassages
         {
