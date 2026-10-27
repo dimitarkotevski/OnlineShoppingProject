@@ -215,7 +215,8 @@
       <tbody>
         <tr *ngFor="let product of orderProducts">
           <td>
-            <a class="solid-color solid-color-a" [routerLink]="['/product-detail',product.Product.Id]">{{product.Product?.Name}}</a>
+            <a *ngIf="product.Product?.Id" class="solid-color solid-color-a" [routerLink]="['/product-detail',product.Product.Id]">{{product.Product?.Name}}</a>
+            <span *ngIf="!product.Product?.Id" class="solid-color">{{product.Product?.Name}}</span>
           </td>
           <td class="solid-color">
             {{ (product.Product?.Price || 0).toFixed(2) }}
