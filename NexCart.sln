@@ -17,6 +17,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NexCart.Tests", "NexCart.Te
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NexCart.Admin", "NexCart.Admin\NexCart.Admin.csproj", "{9CF7286D-8DDE-44A5-B617-FA1AA3E0FD24}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Frontend", "Frontend", "{CFD91F0C-26DB-8432-C08C-E203A38210D2}"
+EndProject
+Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "my-app", "NexCart.Web\my-app\my-app.esproj", "{0D2463D5-0D70-40FA-A1EE-60CEF777E1F9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -111,8 +115,17 @@ Global
 		{9CF7286D-8DDE-44A5-B617-FA1AA3E0FD24}.Release|x64.Build.0 = Release|Any CPU
 		{9CF7286D-8DDE-44A5-B617-FA1AA3E0FD24}.Release|x86.ActiveCfg = Release|Any CPU
 		{9CF7286D-8DDE-44A5-B617-FA1AA3E0FD24}.Release|x86.Build.0 = Release|Any CPU
+		{0D2463D5-0D70-40FA-A1EE-60CEF777E1F9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0D2463D5-0D70-40FA-A1EE-60CEF777E1F9}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{0D2463D5-0D70-40FA-A1EE-60CEF777E1F9}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{0D2463D5-0D70-40FA-A1EE-60CEF777E1F9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0D2463D5-0D70-40FA-A1EE-60CEF777E1F9}.Release|x64.ActiveCfg = Release|Any CPU
+		{0D2463D5-0D70-40FA-A1EE-60CEF777E1F9}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{0D2463D5-0D70-40FA-A1EE-60CEF777E1F9} = {CFD91F0C-26DB-8432-C08C-E203A38210D2}
 	EndGlobalSection
 EndGlobal

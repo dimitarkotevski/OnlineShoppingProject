@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.VisualStudio.JavaScript.Sdk/1.0.6887863">
+  <PropertyGroup>
+    <!-- Visual Studio's Start button runs the Angular dev server. -->
+    <StartupCommand>npm start</StartupCommand>
+
+    <!-- The ASP.NET Core host builds the SPA into bundles/browser, so the
+         JavaScript project must not run npm install or npm build again. -->
+    <ShouldRunNpmInstall>false</ShouldRunNpmInstall>
+    <ShouldRunBuildScript>false</ShouldRunBuildScript>
+
+    <JavaScriptTestRoot>src\</JavaScriptTestRoot>
+    <JavaScriptTestFramework>Jasmine</JavaScriptTestFramework>
+  </PropertyGroup>
+</Project>
