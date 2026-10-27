@@ -43,6 +43,7 @@ export class CategoryProductsComponent implements OnInit {
       // The component is reused when switching categories; start each one with no filters and the default sort.
       this.filterCategory = new RequestModel();
       this.activeSorting = 'Popular';
+      this.brands = undefined;
 
       this.categoryService.GetCategoryById(categoryId).subscribe((res:any)=>{
         this.category = res;

@@ -3,9 +3,10 @@
     <app-breadcrumb *ngIf="category" [isItem]="false" [itemDetail]="category.Name"></app-breadcrumb>
     
     <div class="row">
-        <div *ngIf="category" class="col-lg-3 my-sm-2">
+        <div *ngIf="category" class="col-lg-3 mb-4 mb-lg-0">
             <app-side-filter
-                [brands] = "brands"
+                [brands]="brands"
+                [categoryId]="categoryId"
                 (refreshState)="refreshState($event)">
             </app-side-filter>
         </div>

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 import { RequestModel } from 'src/app/models/request';
 
 @Component({ standalone: false,
@@ -6,48 +6,64 @@ import { RequestModel } from 'src/app/models/request';
   templateUrl: './side-filter.component.html',
   styleUrls: ['./side-filter.component.css']
 })
-export class SideFilterComponent {
+export class SideFilterComponent implements OnChanges {
 
   @Output() refreshState: EventEmitter<RequestModel> = new EventEmitter<RequestModel>();
-  filterProducts: RequestModel;
-  @Input() brands:any;
+  @Input() brands?: string[] | null;
+  /** Used to clear the visible selections when the parent switches category. */
+  @Input() categoryId?: string;
+
+  filterProducts: RequestModel = new RequestModel();
   filter: string[] = [];
 
-  constructor() { 
-    this.filterProducts = new RequestModel();
+  get hasActiveFilters(): boolean {
+    return this.filter.length > 0
+      || this.filterProducts.PriceFrom != null
+      || this.filterProducts.PriceTo != null;
   }
 
-  onChangeBrands(event: any) {
-    if(event.target.checked){
-      this.filter.push(event.target.value);
-    }else{
-      const index = this.filter.indexOf(event.target.value);
-      if (index > -1) {
-        this.filter.splice(index, 1);
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['categoryId'] && !changes['categoryId'].firstChange) {
+      this.resetFilters();
+    }
+  }
+
+  onChangeBrands(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const brand = input.value;
+
+    if (input.checked) {
+      if (!this.filter.includes(brand)) {
+        this.filter.push(brand);
       }
+    } else {
+      this.filter = this.filter.filter(item => item !== brand);
     }
 
     // Keep the other filter values (price range, etc.); only the brand list changes.
-    this.filterProducts.SearchBrands = this.filter
-    this.refreshState.emit(this.filterProducts);
+    this.filterProducts.SearchBrands = this.filter;
+    this.emitFilters();
   }
 
-  onChange(event: any) {
-    if(event.target.checked){
-      this.filter.push(event.target.value);
-    }else{
-      const index = this.filter.indexOf(event.target.value);
-      if (index > -1) {
-        this.filter.splice(index, 1);
-      }
-    }
-    this.filterProducts.SearchList = this.filter;
-    this.refreshState.emit(this.filterProducts);
+  searchPrice(): void {
+    this.emitFilters();
   }
 
-  searchPrice(){
-    this.refreshState.emit(this.filterProducts);
+  clearFilters(): void {
+    this.resetFilters();
+    this.emitFilters();
   }
 
+  private emitFilters(): void {
+    // Emit a snapshot so the parent never holds a reference to the live form state.
+    this.refreshState.emit({
+      ...this.filterProducts,
+      SearchBrands: [...this.filter]
+    });
+  }
+
+  private resetFilters(): void {
+    this.filter = [];
+    this.filterProducts = new RequestModel();
+  }
 }
-

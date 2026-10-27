@@ -1,75 +1,377 @@
-.side-filter-container {
-  padding: 1rem;
-  background-color: #f8f9fa;
-  border-radius: 8px;
+:host {
+  display: block;
 }
 
-.accordion .accordion-button {
-  font-weight: 600;
-  color: #333;
-  background-color: #fff;
-  box-shadow: none;
-  border: 1px solid #dee2e6;
+.side-filter {
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 16px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
 }
 
-.accordion .accordion-button:not(.collapsed) {
-  background-color: #fff;
+/* ---- Header ---- */
+.side-filter__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 1.25rem 1.25rem 1rem;
+  border-bottom: 1px solid #f1f3f5;
+}
+
+.side-filter__eyebrow {
+  display: block;
+  margin-bottom: 0.2rem;
   color: coral;
-  box-shadow: none;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
 
-.accordion .accordion-button:not(.collapsed)::after {
-  filter: hue-rotate(150deg); /* Adjusts the arrow color to match coral */
+.side-filter__title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+  color: #212529;
+  font-size: 1.2rem;
+  font-weight: 700;
 }
 
-.btn-coral {
-  background-color: coral;
-  color: white;
-  border: none;
+.side-filter__title i {
+  color: coral;
+  font-size: 1rem;
+}
+
+.side-filter__clear {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.6rem;
+  border: 1px solid rgba(255, 127, 80, 0.35);
+  border-radius: 50px;
+  background: rgba(255, 127, 80, 0.08);
+  color: coral;
+  font-size: 0.78rem;
   font-weight: 600;
-  transition: background-color 0.3s ease;
+  line-height: 1;
+  white-space: nowrap;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-.btn-coral:hover {
-  background-color: #ff6347;
-  color: white;
+.side-filter__clear:hover {
+  background: coral;
+  color: #fff;
+}
+
+.side-filter__clear:focus-visible {
+  outline: 2px solid rgba(255, 127, 80, 0.4);
+  outline-offset: 2px;
+}
+
+/* ---- Sections ---- */
+.filter-section {
+  border-bottom: 1px solid #f1f3f5;
+}
+
+.filter-section:last-child {
+  border-bottom: 0;
+}
+
+.filter-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 1rem 1.25rem;
+  border: 0;
+  background: transparent;
+  color: #212529;
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-align: left;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.filter-toggle:hover {
+  background: #fcfcfd;
+  color: coral;
+}
+
+.filter-toggle:focus-visible {
+  outline: 2px solid rgba(255, 127, 80, 0.4);
+  outline-offset: -2px;
+}
+
+.filter-toggle__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-width: 0;
+}
+
+.filter-toggle__label > i {
+  width: 1rem;
+  color: coral;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.filter-toggle__icon {
+  color: #adb5bd;
+  font-size: 0.8rem;
+  transition: transform 0.25s ease, color 0.2s ease;
+}
+
+.filter-toggle:not(.collapsed) .filter-toggle__icon {
+  color: coral;
+  transform: rotate(180deg);
+}
+
+.filter-section__body {
+  padding: 0 1.25rem 1.25rem;
+}
+
+/* ---- Price ---- */
+.price-fields {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: end;
+  gap: 0.5rem;
+}
+
+.price-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.price-field__label {
+  color: #6c757d;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.price-field__control {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.45rem 0.55rem;
+  border: 1px solid #dee2e6;
+  border-radius: 10px;
+  background: #f8f9fa;
+  transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.price-field__control:focus-within {
+  border-color: coral;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(255, 127, 80, 0.12);
+}
+
+.price-field__currency {
+  color: #adb5bd;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.price-field__input {
+  width: 100%;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: #212529;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.price-field__input::placeholder {
+  color: #adb5bd;
+  font-weight: 400;
+}
+
+/* The fields are narrow, so hide the number spinners and let the value be typed. */
+.price-field__input::-webkit-outer-spin-button,
+.price-field__input::-webkit-inner-spin-button {
+  margin: 0;
+  -webkit-appearance: none;
+}
+
+.price-field__input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+.price-fields__separator {
+  padding-bottom: 0.55rem;
+  color: #adb5bd;
+  font-weight: 600;
+}
+
+.filter-apply {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  width: 100%;
+  margin-top: 0.9rem;
+  padding: 0.55rem 1rem;
+  border: 0;
+  border-radius: 10px;
+  background: coral;
+  color: #fff;
+  font-size: 0.88rem;
+  font-weight: 600;
+  transition: background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.filter-apply:hover {
+  background: chocolate;
+  color: #fff;
+}
+
+.filter-apply:focus-visible {
+  box-shadow: 0 0 0 3px rgba(255, 127, 80, 0.25);
+}
+
+/* ---- Brands ---- */
+.filter-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.25rem;
+  height: 1.25rem;
+  padding: 0 0.35rem;
+  border-radius: 50px;
+  background: coral;
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
 }
 
 .brand-list {
-  max-height: 300px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  max-height: 280px;
   overflow-y: auto;
-  padding-right: 5px;
+  padding-right: 0.15rem;
 }
 
-.form-check-input:checked {
-  background-color: coral;
-  border-color: coral;
-}
-
-.form-check-label {
+.brand-option {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.45rem 0.5rem;
+  border-radius: 8px;
   cursor: pointer;
-  font-size: 0.9rem;
-  color: #555;
-  transition: color 0.2s ease;
+  transition: background-color 0.15s ease;
 }
 
-.form-check-input:hover + .form-check-label,
-.form-check-input:checked + .form-check-label {
-  color: #000;
-  font-weight: 500;
+.brand-option:hover {
+  background: #f8f9fa;
 }
 
-/* Custom scrollbar for brand list */
-.brand-list::-webkit-scrollbar {
-  width: 4px;
+.brand-option--selected {
+  background: rgba(255, 127, 80, 0.08);
 }
-.brand-list::-webkit-scrollbar-track {
-  background: #f1f1f1;
+
+.brand-option--selected:hover {
+  background: rgba(255, 127, 80, 0.12);
 }
-.brand-list::-webkit-scrollbar-thumb {
-  background: #ccc;
-  border-radius: 10px;
+
+.brand-option__input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
 }
-.brand-list::-webkit-scrollbar-thumb:hover {
+
+.brand-option__box {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 18px;
+  width: 18px;
+  height: 18px;
+  border: 1.5px solid #ced4da;
+  border-radius: 5px;
+  background: #fff;
+  color: transparent;
+  font-size: 0.65rem;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.brand-option__input:checked + .brand-option__box {
+  border-color: coral;
   background: coral;
+  color: #fff;
+}
+
+.brand-option__input:focus-visible + .brand-option__box {
+  outline: 2px solid rgba(255, 127, 80, 0.35);
+  outline-offset: 2px;
+}
+
+.brand-option__name {
+  min-width: 0;
+  color: #495057;
+  font-size: 0.9rem;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+
+.brand-option--selected .brand-option__name {
+  color: #212529;
+  font-weight: 600;
+}
+
+.filter-empty {
+  margin: 0.25rem 0 0;
+  color: #6c757d;
+  font-size: 0.85rem;
+}
+
+.brand-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.brand-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.brand-list::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+  background: #dee2e6;
+}
+
+.brand-list::-webkit-scrollbar-thumb:hover {
+  background: #ced4da;
+}
+
+@media (max-width: 575.98px) {
+  .side-filter__header {
+    padding: 1rem 1rem 0.85rem;
+  }
+
+  .side-filter__title {
+    font-size: 1.1rem;
+  }
+
+  .filter-toggle {
+    padding: 0.9rem 1rem;
+  }
+
+  .filter-section__body {
+    padding: 0 1rem 1rem;
+  }
 }

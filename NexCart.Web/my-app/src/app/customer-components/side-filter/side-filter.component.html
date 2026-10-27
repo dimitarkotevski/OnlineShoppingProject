@@ -1,63 +1,122 @@
-<div class="side-filter-container">
-  <div class="accordion" id="productFilterAccordion">
-
-    <!-- Price Filter -->
-    <div class="accordion-item">
-      <h2 class="accordion-header" id="headingPrice">
-        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePrice" aria-expanded="false" aria-controls="collapsePrice">
-          Price Range
-        </button>
+<aside class="side-filter" aria-label="Product filters">
+  <div class="side-filter__header">
+    <div>
+      <span class="side-filter__eyebrow">Refine</span>
+      <h2 class="side-filter__title">
+        <i class="fa-solid fa-sliders" aria-hidden="true"></i>
+        Filters
       </h2>
-      <div id="collapsePrice" class="accordion-collapse collapse" aria-labelledby="headingPrice" data-bs-parent="#productFilterAccordion">
-        <div class="accordion-body">
-          <div class="row g-2">
-            <div class="col-5">
-              <div class="input-group">
-                <span class="input-group-text">$</span>
-                <input [(ngModel)]="filterProducts.PriceFrom" type="number" class="form-control" placeholder="From">
-              </div>
-            </div>
-            <div class="col-2 text-center align-self-center">-</div>
-            <div class="col-5">
-              <div class="input-group">
-                <span class="input-group-text">$</span>
-                <input [(ngModel)]="filterProducts.PriceTo" type="number" class="form-control" placeholder="To">
-              </div>
-            </div>
-          </div>
-          <div class="text-center mt-3">
-            <button class="btn btn-coral w-100" (click)="searchPrice()">Apply Price</button>
-          </div>
-        </div>
-      </div>
     </div>
-
-    <!-- Brands Filter -->
-    <div class="accordion-item">
-      <h2 class="accordion-header" id="headingBrands">
-        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseBrands" aria-expanded="false" aria-controls="collapseBrands">
-          Brands
-        </button>
-      </h2>
-      <div id="collapseBrands" class="accordion-collapse collapse" aria-labelledby="headingBrands" data-bs-parent="#productFilterAccordion">
-        <div class="accordion-body">
-          <div class="brand-list">
-            <div *ngFor="let brand of brands" class="form-check mb-2">
-              <input
-                class="form-check-input"
-                type="checkbox"
-                [id]="'brand-' + brand"
-                [value]="brand"
-                (change)="onChangeBrands($event)"
-              >
-              <label class="form-check-label" [for]="'brand-' + brand">
-                {{ brand }}
-              </label>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
+    <button
+      *ngIf="hasActiveFilters"
+      type="button"
+      class="side-filter__clear"
+      (click)="clearFilters()">
+      <i class="fa-solid fa-rotate-left" aria-hidden="true"></i>
+      Clear
+    </button>
   </div>
-</div>
+
+  <section class="filter-section">
+    <button
+      class="filter-toggle"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#collapsePrice"
+      aria-expanded="true"
+      aria-controls="collapsePrice">
+      <span class="filter-toggle__label">
+        <i class="fa-solid fa-dollar-sign" aria-hidden="true"></i>
+        Price range
+      </span>
+      <i class="fa-solid fa-chevron-down filter-toggle__icon" aria-hidden="true"></i>
+    </button>
+
+    <div id="collapsePrice" class="collapse show">
+      <div class="filter-section__body">
+        <div class="price-fields">
+          <label class="price-field">
+            <span class="price-field__label">Min</span>
+            <span class="price-field__control">
+              <span class="price-field__currency">$</span>
+              <input
+                [(ngModel)]="filterProducts.PriceFrom"
+                type="number"
+                min="0"
+                step="0.01"
+                class="price-field__input"
+                placeholder="0"
+                aria-label="Minimum price">
+            </span>
+          </label>
+
+          <span class="price-fields__separator" aria-hidden="true">&ndash;</span>
+
+          <label class="price-field">
+            <span class="price-field__label">Max</span>
+            <span class="price-field__control">
+              <span class="price-field__currency">$</span>
+              <input
+                [(ngModel)]="filterProducts.PriceTo"
+                type="number"
+                min="0"
+                step="0.01"
+                class="price-field__input"
+                placeholder="Any"
+                aria-label="Maximum price">
+            </span>
+          </label>
+        </div>
+
+        <button type="button" class="btn filter-apply" (click)="searchPrice()">
+          <i class="fa-solid fa-check" aria-hidden="true"></i>
+          Apply price
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <section class="filter-section">
+    <button
+      class="filter-toggle collapsed"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#collapseBrands"
+      aria-expanded="false"
+      aria-controls="collapseBrands">
+      <span class="filter-toggle__label">
+        <i class="fa-solid fa-tags" aria-hidden="true"></i>
+        Brands
+        <span *ngIf="filter.length" class="filter-count">{{ filter.length }}</span>
+      </span>
+      <i class="fa-solid fa-chevron-down filter-toggle__icon" aria-hidden="true"></i>
+    </button>
+
+    <div id="collapseBrands" class="collapse">
+      <div class="filter-section__body">
+        <div *ngIf="brands?.length; else noBrands" class="brand-list">
+          <label
+            *ngFor="let brand of brands"
+            class="brand-option"
+            [class.brand-option--selected]="filter.includes(brand)">
+            <input
+              class="brand-option__input"
+              type="checkbox"
+              [value]="brand"
+              [checked]="filter.includes(brand)"
+              (change)="onChangeBrands($event)">
+            <span class="brand-option__box">
+              <i class="fa-solid fa-check" aria-hidden="true"></i>
+            </span>
+            <span class="brand-option__name">{{ brand }}</span>
+          </label>
+        </div>
+
+        <ng-template #noBrands>
+          <!-- Show the empty state only once the brand request has resolved. -->
+          <p *ngIf="brands" class="filter-empty">No brands available for this category.</p>
+        </ng-template>
+      </div>
+    </div>
+  </section>
+</aside>
