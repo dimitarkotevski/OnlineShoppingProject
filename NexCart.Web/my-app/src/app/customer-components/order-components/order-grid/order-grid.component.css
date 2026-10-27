@@ -108,6 +108,21 @@
   white-space: nowrap;
 }
 
+.history-table__details {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+  color: coral;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.history-table__details:hover {
+  color: chocolate;
+  text-decoration: underline;
+}
+
 /* ---- Status ---- */
 .status-pill {
   display: inline-flex;

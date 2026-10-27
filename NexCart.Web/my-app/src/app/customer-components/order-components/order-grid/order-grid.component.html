@@ -26,6 +26,7 @@
               <th scope="col" class="text-center">Products</th>
               <th scope="col" class="text-end">Total</th>
               <th scope="col" class="text-end">Status</th>
+              <th scope="col" class="text-end">Details</th>
             </tr>
           </thead>
           <tbody>
@@ -44,6 +45,15 @@
                   <i class="fa-solid" [ngClass]="statusIcon(order.OrderStatus)"></i>
                   {{ order.OrderStatus | orderStatus }}
                 </span>
+              </td>
+              <td class="text-end">
+                <a
+                  class="history-table__details"
+                  [routerLink]="['/orders', order.Id, 'details']"
+                  [attr.aria-label]="'View details for ' + (order.OrderName || 'this order')"
+                >
+                  View <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+                </a>
               </td>
             </tr>
           </tbody>
