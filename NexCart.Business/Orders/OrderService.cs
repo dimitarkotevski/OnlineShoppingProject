@@ -148,7 +148,8 @@ namespace NexCart.Business.Services
                                                     x.User.LastName.Contains(request.SearchString) || 
                                                     x.User.Username.Contains(request.SearchString) ||
                                                     x.OrderName.Contains(request.SearchString) || 
-                                                    x.ShoppingCart.Name.Contains(request.SearchString));
+                                                    (x.ShoppingCart != null && x.ShoppingCart.Name.Contains(request.SearchString)) ||
+                                                    x.OrderItems.Any(item => item.ProductName.Contains(request.SearchString)));
                 }
 
                 if (request.OrderStatus.HasValue)
@@ -192,11 +193,11 @@ namespace NexCart.Business.Services
                         }
                         else if (request.isAscending.Equals("asc"))
                         {
-                            ordersListForFiltering = ordersListForFiltering.OrderBy(x => x.ShoppingCart.ShoppingCartDetails);
+                            ordersListForFiltering = ordersListForFiltering.OrderBy(x => x.OrderItems.Min(item => item.ProductName));
                         }
                         else
                         {
-                            ordersListForFiltering = ordersListForFiltering.OrderByDescending(x => x.ShoppingCart.ShoppingCartDetails);
+                            ordersListForFiltering = ordersListForFiltering.OrderByDescending(x => x.OrderItems.Min(item => item.ProductName));
                         }
                         break;
                     case "UserName":
@@ -220,11 +221,11 @@ namespace NexCart.Business.Services
                         }
                         else if (request.isAscending.Equals("asc"))
                         {
-                            ordersListForFiltering = ordersListForFiltering.OrderBy(x => x.OrderStatus);
+                            ordersListForFiltering = ordersListForFiltering.OrderBy(x => x.OrderItems.Sum(item => item.Quantity));
                         }
                         else
                         {
-                            ordersListForFiltering = ordersListForFiltering.OrderByDescending(x => x.OrderStatus);
+                            ordersListForFiltering = ordersListForFiltering.OrderByDescending(x => x.OrderItems.Sum(item => item.Quantity));
                         }
                         break;
                     default:
@@ -241,7 +242,7 @@ namespace NexCart.Business.Services
                 response.Items = ordersListForFiltering
                                     .Skip((response.CurrentPage - 1) * response.Size)
                                     .Take(response.Size).Select(x => x.MapToViewModel()).ToList();
-                response.TotalItems = ordersListForFiltering.ToList().Count();
+                response.TotalItems = ordersListForFiltering.Count();
 
                 return response;
             }
