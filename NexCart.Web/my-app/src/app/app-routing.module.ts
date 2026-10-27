@@ -9,7 +9,7 @@ import { SettingsComponent } from './settings/settings.component';
 import { ProductDetailComponent } from './customer-components/product-components/product-detail/product-detail.component';
 import { ErrorPageComponent } from './customer-components/error-page/error-page.component';
 import { CategoryProductsComponent } from './category-products/category-products.component';
-import { OrderDetailComponent } from './customer-components/order-components/order-detail/order-detail.component';
+import { OrderHistoryDetailComponent } from './customer-components/order-components/order-history-detail/order-history-detail.component';
 import { CartGridComponent } from './customer-components/cart-components/cart-grid/cart-grid.component';
 import { OrderGridComponent } from './customer-components/order-components/order-grid/order-grid.component';
 import { OrderComponent } from './order/order.component';
@@ -29,7 +29,7 @@ const routes: Routes = [
   { path: 'error-404',component: ErrorPageComponent },
   { path: 'my-order', component: OrderComponent},
   { path: 'order-grid', component: OrderGridComponent },
-  { path: 'orders/:id/details', component: OrderDetailComponent},
+  { path: 'orders/:id/details', component: OrderHistoryDetailComponent},
   { path: '**', redirectTo: '/error-404' },
 ];
 

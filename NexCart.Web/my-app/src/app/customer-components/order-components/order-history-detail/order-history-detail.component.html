@@ -1,0 +1,102 @@
+<div class="container py-4">
+  <app-breadcrumb [isItem]="false" [itemDetail]="'Order details'"></app-breadcrumb>
+
+  <div
+    *ngIf="isLoading"
+    class="order-card"
+    role="status"
+    aria-live="polite"
+    aria-busy="true"
+    aria-label="Loading order details"
+  >
+    <div class="order-card__header">
+      <div class="order-card__title w-100">
+        <app-skeleton width="9rem" height="0.75rem"></app-skeleton>
+        <app-skeleton width="16rem" height="1.7rem"></app-skeleton>
+      </div>
+    </div>
+
+    <div class="order-meta">
+      <div class="order-meta__item">
+        <app-skeleton width="45%" height="0.7rem"></app-skeleton>
+        <app-skeleton width="70%" height="1rem"></app-skeleton>
+      </div>
+      <div class="order-meta__item">
+        <app-skeleton width="45%" height="0.7rem"></app-skeleton>
+        <app-skeleton width="60%" height="1rem"></app-skeleton>
+      </div>
+      <div class="order-meta__item">
+        <app-skeleton width="45%" height="0.7rem"></app-skeleton>
+        <app-skeleton width="55%" height="1rem"></app-skeleton>
+      </div>
+    </div>
+
+    <div class="order-products">
+      <app-loading-grid [isGridLoading]="false"></app-loading-grid>
+    </div>
+  </div>
+
+  <ng-container *ngIf="!isLoading">
+    <div class="order-card" *ngIf="order as details; else notFound">
+      <div class="order-card__header">
+        <div class="order-card__title">
+          <span class="order-card__eyebrow">Order details</span>
+          <h2>{{ details.OrderName || "Order" }}</h2>
+        </div>
+        <a class="btn order-primary-btn" routerLink="/my-order">
+          <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back to my orders
+        </a>
+      </div>
+
+      <div class="order-meta">
+        <div class="order-meta__item">
+          <span class="order-meta__label">Order date</span>
+          <span class="order-meta__value">
+            {{ details.DateCreated ? (details.DateCreated | dateConverter) : "/" }}
+          </span>
+        </div>
+        <div class="order-meta__item">
+          <span class="order-meta__label">Status</span>
+          <span class="order-meta__value order-meta__value--accent">
+            {{ details.OrderStatus | orderStatus }}
+          </span>
+        </div>
+        <div class="order-meta__item">
+          <span class="order-meta__label">Payment type</span>
+          <span class="order-meta__value">{{ details.PaymentType | paymentType }}</span>
+        </div>
+      </div>
+
+      <div class="order-products">
+        <app-products-grid
+          *ngIf="details.Products?.length; else noLines"
+          [type]="'order'"
+          [orderProducts]="details.Products">
+        </app-products-grid>
+        <ng-template #noLines>
+          <p class="text-muted py-3 mb-0">This order has no saved product lines.</p>
+        </ng-template>
+      </div>
+
+      <div class="order-footer">
+        <span class="text-muted small">
+          Prices are the amounts recorded when the order was placed.
+        </span>
+        <div class="order-total">
+          <span>Total amount</span>
+          <strong>{{ details.TotalAmount | currency }}</strong>
+        </div>
+      </div>
+    </div>
+
+    <ng-template #notFound>
+      <app-no-data
+        title="Order not available"
+        [message]="errorMessage"
+        icon="fa-solid fa-receipt"
+        buttonText="Back to my orders"
+        buttonRoute="/my-order">
+      </app-no-data>
+    </ng-template>
+  </ng-container>
+</div>

@@ -28,6 +28,7 @@ import { BreadcrumbComponent } from './customer-components/breadcrumb/breadcrumb
 import { ToastrModule } from 'ngx-toastr';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { OrderDetailComponent } from './customer-components/order-components/order-detail/order-detail.component';
+import { OrderHistoryDetailComponent } from './customer-components/order-components/order-history-detail/order-history-detail.component';
 import { SideFilterComponent } from './customer-components/side-filter/side-filter.component';
 import { AuthentificationService } from './authentification/authentification.service';
 import { CartGridComponent } from './customer-components/cart-components/cart-grid/cart-grid.component';
@@ -77,6 +78,7 @@ import { SortBarComponent } from './customer-components/sort-bar/sort-bar.compon
     BreadcrumbComponent,
     OrderGridComponent,
     OrderDetailComponent,
+    OrderHistoryDetailComponent,
     SideFilterComponent,
     LoadingGridComponent,
     SkeletonComponent,
