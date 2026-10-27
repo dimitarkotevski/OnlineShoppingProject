@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using NexCart.Business.Services;
 using NexCart.Data.NHibernate.Repositories;
@@ -11,9 +12,8 @@ namespace NexCart.Tests.Services
 {
     public class ProductSortServiceTests
     {
-        private readonly IOrderRepository _orderRepo = Substitute.For<IOrderRepository>();
+        private readonly IOrderItemRepository _orderItemRepo = Substitute.For<IOrderItemRepository>();
         private readonly IFavouriteProductsRepository _favouriteRepo = Substitute.For<IFavouriteProductsRepository>();
-        private readonly IShoppingCartDetailRepository _detailRepo = Substitute.For<IShoppingCartDetailRepository>();
 
         // Created dates make "newest first" the tie-break order: New, Mid, Old.
         private readonly Product _old = NewProduct("Old", 2020, price: 30);
@@ -23,18 +23,17 @@ namespace NexCart.Tests.Services
         public ProductSortServiceTests()
         {
             _favouriteRepo.All().Returns(Enumerable.Empty<FavouriteProducts>().AsQueryable());
-            _orderRepo.All().Returns(Enumerable.Empty<Order>().AsQueryable());
-            _detailRepo.All().Returns(Enumerable.Empty<ShoppingCartDetail>().AsQueryable());
+            _orderItemRepo.All().Returns(Enumerable.Empty<OrderItem>().AsQueryable());
         }
 
-        private static Product NewProduct(string name, int year, double price)
+        private static Product NewProduct(string name, int year, decimal price)
         {
             return new Product { Id = Guid.NewGuid(), Name = name, Price = price, Created = new DateTime(year, 1, 1) };
         }
 
         private string[] SortedNames(string sortName)
         {
-            var sut = new ProductSortService(_orderRepo, _favouriteRepo, _detailRepo);
+            var sut = new ProductSortService(_orderItemRepo, _favouriteRepo);
             return sut.Sort(new[] { _old, _mid, _new }, sortName).Select(p => p.Name).ToArray();
         }
 
@@ -58,28 +57,30 @@ namespace NexCart.Tests.Services
         }
 
         [Fact]
-        public void BestSelling_sums_quantities_from_orders_that_were_not_canceled()
+        public void BestSelling_sums_quantities_from_order_items_that_were_not_canceled()
         {
-            var soldCart = new ShoppingCart { Id = Guid.NewGuid() };
-            var canceledCart = new ShoppingCart { Id = Guid.NewGuid() };
-            var openCart = new ShoppingCart { Id = Guid.NewGuid() };
-
-            _orderRepo.All().Returns(new[]
+            var completedOrder = new Order
             {
-                new Order { ShoppingCart = soldCart, OrderStatus = OrderStatus.Completed },
-                new Order { ShoppingCart = canceledCart, OrderStatus = OrderStatus.Canceled },
+                OrderStatus = OrderStatus.Completed,
+                OrderItems = new List<OrderItem>()
+            };
+            var canceledOrder = new Order
+            {
+                OrderStatus = OrderStatus.Canceled,
+                OrderItems = new List<OrderItem>()
+            };
+
+            _orderItemRepo.All().Returns(new[]
+            {
+                new OrderItem { Order = completedOrder, Product = _old, Quantity = 1 },
+                new OrderItem { Order = completedOrder, Product = _mid, Quantity = 3 },
+                new OrderItem { Order = completedOrder, Product = _new, Quantity = 10 },
+                // Cancelled orders do not count as sales. If this line were included,
+                // Old would score 101 and sort first.
+                new OrderItem { Order = canceledOrder, Product = _old, Quantity = 100 },
             }.AsQueryable());
 
-            _detailRepo.All().Returns(new[]
-            {
-                new ShoppingCartDetail { ShoppingCart = soldCart, Product = _old, Quantity = 1 },
-                new ShoppingCartDetail { ShoppingCart = soldCart, Product = _mid, Quantity = 3 },
-                // Canceled orders and carts that were never ordered do not count as sales.
-                new ShoppingCartDetail { ShoppingCart = canceledCart, Product = _new, Quantity = 10 },
-                new ShoppingCartDetail { ShoppingCart = openCart, Product = _new, Quantity = 10 },
-            }.AsQueryable());
-
-            Assert.Equal(new[] { "Mid", "Old", "New" }, SortedNames(ProductSortNames.BestSelling));
+            Assert.Equal(new[] { "New", "Mid", "Old" }, SortedNames(ProductSortNames.BestSelling));
         }
 
         [Theory]

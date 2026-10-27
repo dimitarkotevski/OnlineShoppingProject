@@ -13,7 +13,7 @@ namespace NexCart.Business.ViewModels
         public LookupViewModel ShoppingCart { get; set; }
         public LookupViewModel User { get; set; }
         public OrderStatus OrderStatus { get; set; }
-        public double TotalAmount { get; set; }
+        public decimal TotalAmount { get; set; }
         public DateTime DateCreated { get; set; }
     }
     public class OrderViewModelWithProducts
@@ -23,7 +23,7 @@ namespace NexCart.Business.ViewModels
         public List<ShoppingCartDetailViewModel> Products { get; set; }
         public OrderStatus OrderStatus { get; set; }
         public PaymentType PaymentType { get; set; }
-        public double TotalAmount { get; set; }
+        public decimal TotalAmount { get; set; }
         public LookupViewModel ShoppingCart { get; set; }
     }
     public class OrderGridViewModel
@@ -32,7 +32,7 @@ namespace NexCart.Business.ViewModels
         public string OrderName { get; set; }
         public int NumberOfProducts { get; set; }
         public OrderStatus OrderStatus { get; set; }
-        public double TotalAmount { get; set; }
+        public decimal TotalAmount { get; set; }
         public DateTime DateCreated { get; set; }
         public PaymentType PaymentType { get; set; }
     }

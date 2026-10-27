@@ -4,7 +4,6 @@ using NexCart.Data.NHibernate.ConfigurationRepository;
 using System.Linq;
 using NexCart.Business.Exceptions;
 using NexCart.Business.Exceptions.ExceptionMassages;
-using NexCart.Data.NHibernate.Repositories;
 using NexCart.Domain;
 using NexCart.Business.Requests;
 using NexCart.Business.Responses;
@@ -60,6 +59,11 @@ namespace NexCart.Business.Services
 
         public Guid Create(OrderViewModel model)
         {
+            if (model?.User == null || model.ShoppingCart == null)
+            {
+                throw new BllException(ShopExceptionMassages.OrderExceptionMassages.NOT_FOUND_EXCEPTION);
+            }
+
             using (_unitOfWork.BeginTransaction())
             {
                 var user = _userRepository.FindBy(model.User.Id);
@@ -74,10 +78,13 @@ namespace NexCart.Business.Services
                 }
                 var order = new Order
                 {
-                    User =user,
-                    OrderStatus =model.OrderStatus,
+                    User = user,
+                    ShoppingCart = shoppingCart,
+                    OrderStatus = model.OrderStatus,
                     PaymentType = model.PaymentType,
-
+                    OrderName = string.IsNullOrWhiteSpace(model.OrderName) ? NewOrderName() : model.OrderName.Trim(),
+                    DateCreated = DateTime.UtcNow,
+                    TotalAmount = model.TotalAmount
                 };
                 _orderRepository.Add(order);
                 _unitOfWork.Commit();
@@ -256,7 +263,6 @@ namespace NexCart.Business.Services
                 
                 entityOrder.OrderStatus = model.OrderStatus;
                 entityOrder.PaymentType = model.PaymentType;
-                entityOrder.OrderStatus = model.OrderStatus;
                 
                 _orderRepository.Update(entityOrder);
                 _unitOfWork.Commit();
@@ -302,11 +308,7 @@ namespace NexCart.Business.Services
                     return null;
                 }
 
-                userOrder.TotalAmount = userOrder.ShoppingCart.ShoppingCartDetails.Select(x=>x.Product.Price * x.Quantity).Sum();
-                _orderRepository.Update(userOrder);
-
-                _unitOfWork.Commit();
-
+                // Do not recalculate from the cart: OrderItems is the checkout snapshot.
                 return userOrder.MapToViewModelWithProducts();
             }
         }
@@ -348,50 +350,64 @@ namespace NexCart.Business.Services
             }
         }
 
+        /// <summary>
+        /// Creates or refreshes the active order for a cart, copying every cart line into an
+        /// immutable <see cref="OrderItem"/> snapshot and fixing the total at that moment.
+        /// </summary>
         public void MakeAnOrder(Guid shoppingCartId,Guid userId)
         {
             using (_unitOfWork.BeginTransaction())
             {
                 var shoppingCart = _shoppingCartRepository.FindBy(shoppingCartId)
-                    ?? throw new BllException(ShopExceptionMassages.ShoppingCartExceptionMassages.DETAIL_NOT_FOUND_EXCEPTION);
+                    ?? throw new BllException(ShopExceptionMassages.ShoppingCartExceptionMassages.NOT_FOUNG);
+
+                if (!shoppingCart.Active)
+                {
+                    throw new BllException(ShopExceptionMassages.ShoppingCartExceptionMassages.NOT_ACTIVE_EXCEPTION);
+                }
+                if (shoppingCart.User == null || shoppingCart.User.Id != userId)
+                {
+                    throw new BllException(ShopExceptionMassages.ShoppingCartExceptionMassages.NOT_FOUNG);
+                }
+                if (shoppingCart.ShoppingCartDetails == null || !shoppingCart.ShoppingCartDetails.Any())
+                {
+                    throw new BllException(ShopExceptionMassages.ShoppingCartExceptionMassages.EMPTY_EXCEPTION);
+                }
 
                 var user = _userRepository.FindBy(userId)
                     ?? throw new BllException(ShopExceptionMassages.UserExceptionMassages.NOT_FOUND_EXCEPTION);
 
-                if(_orderRepository.CheckExist(x=>x.User == user && x.ShoppingCart == shoppingCart))
+                var order = _orderRepository.FindBy(x => x.ShoppingCart.Id == shoppingCartId
+                                                        && x.OrderStatus == OrderStatus.OnHold);
+
+                var isNewOrder = order == null;
+                if (isNewOrder)
                 {
-                    var order = _orderRepository.FindBy(x => x.User == user && x.ShoppingCart == shoppingCart);
-                    if(order == null)
+                    order = new Order
                     {
-                        throw new BllException(ShopExceptionMassages.OrderExceptionMassages.NOT_FOUND_EXCEPTION);
-                    }
+                        OrderName = NewOrderName()
+                    };
+                }
 
-                    order.ShoppingCart = shoppingCart;
-                    order.User = user;
-                    order.DateCreated = DateTime.Now;
-                    order.TotalAmount = shoppingCart.ShoppingCartDetails.Select(x => x.Product.Price * x.Quantity).Sum();
-                    order.OrderStatus = OrderStatus.OnHold;
-                    order.PaymentType = PaymentType.Cash;
+                ReplaceOrderItems(order, shoppingCart);
 
-                    _orderRepository.Update(order);
-                    _unitOfWork.Commit();
+                order.ShoppingCart = shoppingCart;
+                order.User = user;
+                order.DateCreated = DateTime.UtcNow;
+                order.TotalAmount = order.OrderItems.Sum(item => item.UnitPrice * item.Quantity);
+                order.OrderStatus = OrderStatus.OnHold;
+                order.PaymentType = PaymentType.Cash;
+
+                if (isNewOrder)
+                {
+                    _orderRepository.Add(order);
                 }
                 else
                 {
-                    string number = Guid.NewGuid().ToString("N").Substring(0, 8);
-                    Order order = new Order
-                    {
-                        ShoppingCart = shoppingCart,
-                        User = user,
-                        PaymentType = PaymentType.Cash,
-                        DateCreated = DateTime.Now,
-                        TotalAmount = shoppingCart.ShoppingCartDetails.Select(x=>x.Product.Price * x.Quantity).Sum(),
-                        OrderName = "Order#" + number,
-                        OrderStatus = OrderStatus.OnHold
-                    };
-                    _orderRepository.Add(order);
-                    _unitOfWork.Commit();
+                    _orderRepository.Update(order);
                 }
+
+                _unitOfWork.Commit();
             }
         }
 
@@ -414,6 +430,11 @@ namespace NexCart.Business.Services
 
         public OrderStatus MakeAPay(OrderViewModel model)
         {
+            if (model == null)
+            {
+                throw new BllException(ShopExceptionMassages.OrderExceptionMassages.NOT_FOUND_EXCEPTION);
+            }
+
             using (_unitOfWork.BeginTransaction())
             {
                 var order = _orderRepository.FindBy(model.Id);
@@ -422,16 +443,18 @@ namespace NexCart.Business.Services
                     throw new BllException(ShopExceptionMassages.OrderExceptionMassages.NOT_FOUND_EXCEPTION);
                 }
 
-                var shoppingCart = _shoppingCartRepository.FindBy(model.ShoppingCart.Id);
-                if (shoppingCart == null)
-                {
-                    throw new BllException(ShopExceptionMassages.ShoppingCartExceptionMassages.NOT_FOUNG);
-                }
-
-                var user = _userRepository.FindBy(shoppingCart.User.Id);
+                var user = order.User;
                 if (user == null)
                 {
                     throw new BllException(ShopExceptionMassages.UserExceptionMassages.NOT_FOUND_EXCEPTION);
+                }
+
+                var shoppingCart = order.ShoppingCart
+                    ?? _shoppingCartRepository.FindBy(x => x.User.Id == user.Id && x.Active);
+
+                if (shoppingCart == null)
+                {
+                    throw new BllException(ShopExceptionMassages.ShoppingCartExceptionMassages.NOT_FOUNG);
                 }
 
                 if (model.PaymentType == PaymentType.Cash)
@@ -439,21 +462,7 @@ namespace NexCart.Business.Services
                     order.PaymentType = PaymentType.Cash;
                     order.OrderStatus = OrderStatus.PendingPayment;
 
-                    shoppingCart.Active = false;
-
-                    var newShoppingCartForUser = new ShoppingCart
-                    {
-                        User = user,
-                        Active = true,
-                        Name = "Cart#" + Guid.NewGuid().ToString("N").Substring(0, 8)
-                    };
-
-                    // The filtered unique index UX_ShoppingCarts_ActiveUser allows only
-                    // one active cart per user. NHibernate flushes inserts before updates,
-                    // so persist the old cart's deactivation before inserting the new one.
-                    _shoppingCartRepository.Update(shoppingCart);
-                    _unitOfWork.Session.Flush();
-                    _shoppingCartRepository.Add(newShoppingCartForUser);
+                    DeactivateCartAndOpenNewOne(shoppingCart, user);
 
                     _orderRepository.Update(order);
                     _unitOfWork.Commit();
@@ -474,24 +483,10 @@ namespace NexCart.Business.Services
 
                         order.OrderStatus = OrderStatus.Completed;
                         order.PaymentType = PaymentType.Card; 
-                    
-                        shoppingCart.Active = false;
 
-                        var newShoppingCartForUser = new ShoppingCart
-                        {
-                            User = user,
-                            Active = true,
-                            Name = "Cart#" + Guid.NewGuid().ToString("N").Substring(0, 8)
-                        };
-
-                        // See the cash branch above: deactivate the old cart first so the
-                        // one-active-cart-per-user index is not violated by the insert.
-                        _shoppingCartRepository.Update(shoppingCart);
-                        _unitOfWork.Session.Flush();
-                        _shoppingCartRepository.Add(newShoppingCartForUser);
+                        DeactivateCartAndOpenNewOne(shoppingCart, user);
 
                         _orderRepository.Update(order);
-
                         _userRepository.Update(user);
                         _unitOfWork.Commit();
                     }
@@ -504,6 +499,65 @@ namespace NexCart.Business.Services
                 return order.OrderStatus;
             }
         }
+
         #endregion
+
+        /// <summary>
+        /// Copies the current cart lines into order items. Existing items are replaced when the
+        /// customer deliberately re-confirms the same cart.
+        /// </summary>
+        private static void ReplaceOrderItems(Order order, ShoppingCart shoppingCart)
+        {
+            if (order.OrderItems == null)
+            {
+                order.OrderItems = new List<OrderItem>();
+            }
+
+            order.OrderItems.Clear();
+
+            foreach (var detail in shoppingCart.ShoppingCartDetails)
+            {
+                if (detail.Product == null)
+                {
+                    throw new BllException(ShopExceptionMassages.ProductsExceptionMassages.NOT_FOUND_EXCEPTION);
+                }
+
+                order.OrderItems.Add(new OrderItem
+                {
+                    Order = order,
+                    Product = detail.Product,
+                    ProductName = detail.Product.Name ?? string.Empty,
+                    UnitPrice = detail.Product.Price,
+                    Quantity = detail.Quantity
+                });
+            }
+        }
+
+        /// <summary>
+        /// Closes the paid cart and creates the user's next empty active cart. The old cart is
+        /// kept because it is the traceability link from the order.
+        /// </summary>
+        private void DeactivateCartAndOpenNewOne(ShoppingCart shoppingCart, User user)
+        {
+            shoppingCart.Active = false;
+
+            var newShoppingCartForUser = new ShoppingCart
+            {
+                User = user,
+                Active = true,
+                Name = "Cart#" + Guid.NewGuid().ToString("N").Substring(0, 8)
+            };
+
+            // UX_ShoppingCarts_ActiveUser allows one active cart per user. NHibernate flushes
+            // inserts before updates, so persist the deactivation before inserting the new one.
+            _shoppingCartRepository.Update(shoppingCart);
+            _unitOfWork.Session.Flush();
+            _shoppingCartRepository.Add(newShoppingCartForUser);
+        }
+
+        private static string NewOrderName()
+        {
+            return "Order#" + Guid.NewGuid().ToString("N").Substring(0, 8);
+        }
     }
 }

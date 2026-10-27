@@ -16,7 +16,10 @@ namespace NexCart.Data.NHibernate.Mapping
             Map(c => c.Name);
             Map(c => c.Tags);
             Map(c => c.Description);
-            Map(c => c.Price);
+            Map(c => c.Price)
+                .Not.Nullable()
+                .Precision(18)
+                .Scale(2);
             Map(c => c.Created);
             Map(c => c.Image)
                 .Length(500)

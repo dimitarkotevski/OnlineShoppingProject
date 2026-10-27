@@ -63,7 +63,9 @@ namespace NexCart.Data.NHibernate.Mapping
             Map(c => c.Amount)
                 .Column("Amount")
                 .Access.CamelCaseField(Prefix.Underscore)
-                .Nullable();
+                .Not.Nullable()
+                .Precision(18)
+                .Scale(2);
 
             #endregion
 

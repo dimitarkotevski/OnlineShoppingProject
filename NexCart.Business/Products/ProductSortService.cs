@@ -31,18 +31,15 @@ namespace NexCart.Business.Services
 
     public class ProductSortService : IProductSortService
     {
-        private readonly IOrderRepository _orderRepository;
+        private readonly IOrderItemRepository _orderItemRepository;
         private readonly IFavouriteProductsRepository _favouriteProductsRepository;
-        private readonly IShoppingCartDetailRepository _shoppingCartDetailRepository;
 
         public ProductSortService(
-            IOrderRepository orderRepository,
-            IFavouriteProductsRepository favouriteProductsRepository,
-            IShoppingCartDetailRepository shoppingCartDetailRepository)
+            IOrderItemRepository orderItemRepository,
+            IFavouriteProductsRepository favouriteProductsRepository)
         {
-            _orderRepository = orderRepository;
+            _orderItemRepository = orderItemRepository;
             _favouriteProductsRepository = favouriteProductsRepository;
-            _shoppingCartDetailRepository = shoppingCartDetailRepository;
         }
 
         public List<Product> Sort(IEnumerable<Product> products, string sortName)
@@ -84,23 +81,17 @@ namespace NexCart.Business.Services
         }
 
         /// <summary>
-        /// Units sold per product. Only products in a cart that became a real (non-canceled)
-        /// order count; carts that were never checked out are not sales.
+        /// Units sold per product, taken from immutable order snapshots. Cancelled orders and
+        /// carts that were never checked out do not count as sales.
         /// </summary>
         private Dictionary<Guid, int> GetSoldQuantities()
         {
-            var orderedCartIds = _orderRepository.All()
-                .Where(order => order.OrderStatus != OrderStatus.Canceled)
-                .Select(order => order.ShoppingCart.Id)
+            return _orderItemRepository.All()
+                .Where(item => item.Order.OrderStatus != OrderStatus.Canceled && item.Product != null)
+                .Select(item => new { ProductId = item.Product.Id, item.Quantity })
                 .ToList()
-                .ToHashSet();
-
-            return _shoppingCartDetailRepository.All()
-                .Select(detail => new { CartId = detail.ShoppingCart.Id, ProductId = detail.Product.Id, detail.Quantity })
-                .ToList()
-                .Where(detail => orderedCartIds.Contains(detail.CartId))
-                .GroupBy(detail => detail.ProductId)
-                .ToDictionary(group => group.Key, group => group.Sum(detail => detail.Quantity));
+                .GroupBy(item => item.ProductId)
+                .ToDictionary(group => group.Key, group => group.Sum(item => item.Quantity));
         }
     }
 }

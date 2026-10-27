@@ -20,9 +20,9 @@ namespace NexCart.Business.Requests
         public List<string> SearchBrands { get; set; }
         public List<string> SearchList { get; set; }
         /// <summary>Lower bound for product price or order total (inclusive).</summary>
-        public double? PriceFrom { get; set; }
+        public decimal? PriceFrom { get; set; }
         /// <summary>Upper bound for product price or order total (inclusive).</summary>
-        public double? PriceTo { get; set; }
+        public decimal? PriceTo { get; set; }
         public string SearchStatus { get; set; }
         /// <summary>Users whose email ends with this text, e.g. "@gmail.com".</summary>
         public string EmailEnding { get; set; }

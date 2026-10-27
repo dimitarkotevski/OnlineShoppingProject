@@ -7,7 +7,7 @@ namespace NexCart.Domain
     public class Product : BaseEntity
     {
         private string _name;
-        private double _price;
+        private decimal _price;
         private string _imageUrl;
         private string _description;
         private string _tags;
@@ -44,7 +44,7 @@ namespace NexCart.Domain
             get => _orders;
             set => _orders = value;
         }
-        public virtual double Price
+        public virtual decimal Price
         {
             get => _price;
             set => _price = value;

@@ -42,7 +42,7 @@ namespace NexCart.Business.Services
         void Update(UserViewModel model);
         void Delete(Guid Id);
         void DeleteMany(IEnumerable<Guid> ids);
-        double GetAmountMoneyOfUser(Guid userId);
+        decimal GetAmountMoneyOfUser(Guid userId);
         void AddPayment(Guid userId, PaymentsViewModelInfo model);
         void DeletePayment(Guid userId);
     }
@@ -222,7 +222,7 @@ namespace NexCart.Business.Services
 
         #endregion
 
-        public double GetAmountMoneyOfUser(Guid userId)
+        public decimal GetAmountMoneyOfUser(Guid userId)
         {
             using (_unitOfWork.BeginTransaction())
             {

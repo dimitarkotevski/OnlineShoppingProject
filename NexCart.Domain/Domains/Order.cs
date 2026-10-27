@@ -1,6 +1,7 @@
 ﻿using NexCart.Domain.Enum;
 using NexCart.Domain.Enums;
 using System;
+using System.Collections.Generic;
 
 namespace NexCart.Domain
 {
@@ -11,9 +12,15 @@ namespace NexCart.Domain
         private ShoppingCart _shoppingCart;
         private PaymentType _paymentType;
         private OrderStatus _orderStatus;
-        private double _totalAmount;
+        private decimal _totalAmount;
         private DateTime _dateCreated;
-        public Order() { }
+        private IList<OrderItem> _orderItems;
+
+        public Order()
+        {
+            _orderItems = new List<OrderItem>();
+        }
+
         public virtual User User 
         {
             get => _user;
@@ -34,7 +41,7 @@ namespace NexCart.Domain
             get => _orderStatus; 
             set { _orderStatus = value; }
         }
-        public virtual double TotalAmount
+        public virtual decimal TotalAmount
         {
             get => _totalAmount;
             set => _totalAmount = value;
@@ -48,6 +55,13 @@ namespace NexCart.Domain
         {
             get => _orderName;
             set => _orderName = value;
+        }
+
+        /// <summary>Immutable checkout snapshot. See <see cref="OrderItem"/>.</summary>
+        public virtual IList<OrderItem> OrderItems
+        {
+            get => _orderItems;
+            set => _orderItems = value;
         }
     }
 }

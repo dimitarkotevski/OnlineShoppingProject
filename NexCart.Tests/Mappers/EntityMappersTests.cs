@@ -35,7 +35,7 @@ namespace NexCart.Tests.Mappers
                 Id = Guid.NewGuid(),
                 Name = "Headphones",
                 Description = "Noise cancelling",
-                Price = 199.99,
+                Price = 199.99m,
                 Image = imageString,
                 Created = new DateTime(2026, 1, 1),
                 Category = new Category
@@ -52,7 +52,7 @@ namespace NexCart.Tests.Mappers
             Assert.Equal(product.Id, vm.Id);
             Assert.Equal("Headphones", vm.Name);
             Assert.Equal("Noise cancelling", vm.Description);
-            Assert.Equal(199.99, vm.Price);
+            Assert.Equal(199.99m, vm.Price);
             Assert.Equal(imageString, vm.Image);
             Assert.Equal(new DateTime(2026, 1, 1), vm.DateCreated);
             Assert.NotNull(vm.Category);

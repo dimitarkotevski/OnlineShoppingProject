@@ -16,7 +16,7 @@ namespace NexCart.Domain
         private string _state;
         private string _city;
         private string _zipCode;
-        private double _amount;
+        private decimal _amount;
         private Payment _payment;
         private UserRole _role;
         private IList<Order> _orders;
@@ -75,7 +75,7 @@ namespace NexCart.Domain
             get => _zipCode;
             set => _zipCode = value;
         }
-        public virtual double Amount
+        public virtual decimal Amount
         {
             get => _amount; 
             set => _amount = value;

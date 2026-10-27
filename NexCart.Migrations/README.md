@@ -95,7 +95,7 @@ with `IF OBJECT_ID(...) IS NULL`, so re-applying is a no-op.
 | `ZipCode` | string | |
 | `PhoneNumber` | string | |
 | `Description` | string | |
-| `Amount` | double | Default: 0 |
+| `Amount` | decimal(18,2) | NOT NULL, Default: 0, Check: `>= 0` |
 | `Role` | int | Default: 2 (User); Check: `IN (1, 2)` — Admin = 1, User = 2 |
 *Relationships: One-to-One with Payments; One-to-Many with Orders; Many-to-Many with Products via FavouriteProducts.*
 
@@ -127,13 +127,13 @@ exist, so re-applying the migration is a no-op.
 | :--- | :--- | :--- |
 | `Id` | Guid | PK |
 | `Name` | string | |
-| `Price` | double | Default: 0 |
+| `Price` | decimal(18,2) | NOT NULL, Default: 0, Check: `>= 0` |
 | `ImageUrl` | string | |
 | `Description` | string | |
 | `Tags` | string | |
 | `Created` | DateTime | Default: GETDATE() |
 | `CategoryId` | Guid | FK $\rightarrow$ `Categories.Id` |
-*Relationships: Many-to-One with Categories; Many-to-Many with Orders; Many-to-Many with Users via FavouriteProducts.*
+*Relationships: Many-to-One with Categories; One-to-Many with OrderItems; Many-to-Many with Users via FavouriteProducts.*
 
 ### ShoppingCarts
 | Column | Type | Key/Constraint |
@@ -152,7 +152,7 @@ exist, so re-applying the migration is a no-op.
 | `Id` | Guid | PK |
 | `Quantity` | int | NOT NULL, Default: 1, Check: `1`–`999` |
 | `ShoppingCartId` | Guid | NOT NULL, FK $\rightarrow$ `ShoppingCarts.Id` (ON DELETE CASCADE) |
-| `ProductId` | Guid | NOT NULL, FK $\rightarrow$ `Products.Id` |
+| `ProductId` | Guid | NOT NULL, FK $\rightarrow$ `Products.Id` (ON DELETE CASCADE) |
 | `AddedAt` | DateTime2 | NOT NULL, Default: `SYSUTCDATETIME()` |
 *Relationships: Many-to-One with ShoppingCarts; Many-to-One with Products.*
 *Indexes: unique `UX_ShoppingCartDetails_CartProduct` on (`ShoppingCartId`, `ProductId`); `IX_ShoppingCartDetails_ProductId`.*
@@ -165,14 +165,32 @@ lines) and removes orphan rows, so it is safe to run against an existing databas
 | Column | Type | Key/Constraint |
 | :--- | :--- | :--- |
 | `Id` | Guid | PK |
-| `OrderName` | string | |
-| `TotalAmount` | double | Default: 0 |
-| `DateCreated` | DateTime | Default: GETDATE() |
-| `PaymentTypeId` | int | Enum |
-| `OrderStatusId` | int | Enum |
-| `UserId` | Guid | FK $\rightarrow$ `Users.Id` |
-| `ShoppingCartId` | Guid | FK $\rightarrow$ `ShoppingCarts.Id` |
-*Relationships: Many-to-One with Users; Many-to-One with ShoppingCarts.*
+| `OrderName` | string(255) | NOT NULL, non-blank check, unique |
+| `TotalAmount` | decimal(18,2) | NOT NULL, Default: 0, Check: `>= 0` |
+| `DateCreated` | DateTime2 | NOT NULL, Default: `SYSUTCDATETIME()` |
+| `PaymentType` | int | NOT NULL, Default: 0 (Cash), Check: `IN (0, 1, 2)` |
+| `OrderStatus` | int | NOT NULL, Default: 1 (OnHold), Check: `IN (0, 1, 2, 3)` |
+| `UserId` | Guid | NOT NULL, FK $\rightarrow$ `Users.Id` |
+| `ShoppingCartId` | Guid | NULL, FK $\rightarrow$ `ShoppingCarts.Id` (ON DELETE SET NULL) |
+*Relationships: Many-to-One with Users; optional Many-to-One with ShoppingCarts for traceability; One-to-Many with OrderItems.*
+*Indexes: unique `UX_Orders_OrderName`; unique filtered `UX_Orders_OnHoldShoppingCart` on `ShoppingCartId` where `OrderStatus = 1` (one active order per cart); `IX_Orders_UserId_DateCreated` on (`UserId`, `DateCreated` DESC).*
+
+### OrderItems
+| Column | Type | Key/Constraint |
+| :--- | :--- | :--- |
+| `Id` | Guid | PK |
+| `OrderId` | Guid | NOT NULL, FK $\rightarrow$ `Orders.Id` (ON DELETE CASCADE) |
+| `ProductId` | Guid | NULL, FK $\rightarrow$ `Products.Id` (ON DELETE SET NULL) |
+| `ProductName` | string(255) | NOT NULL — checkout-time snapshot |
+| `UnitPrice` | decimal(18,2) | NOT NULL, Check: `>= 0` — checkout-time snapshot |
+| `Quantity` | int | NOT NULL, Check: `> 0` |
+*Relationships: Many-to-One with Orders; optional Many-to-One with Products.*
+*Indexes: `IX_OrderItems_OrderId`; `IX_OrderItems_ProductId`.*
+
+Order history reads these rows instead of the live cart/product catalogue, so later price, name,
+cart or product changes cannot rewrite an order. Migration `20261026120000000` adds the table,
+converts `Products.Price`, `Orders.TotalAmount` and `Users.Amount` from `FLOAT` to
+`DECIMAL(18,2)`, backfills existing orders and tightens the `Orders` constraints.
 
 ### Payments
 | Column | Type | Key/Constraint |
@@ -193,7 +211,7 @@ lines) and removes orphan rows, so it is safe to run against an existing databas
 | :--- | :--- | :--- |
 | `Id` | Guid | PK |
 | `UserId` | Guid | FK $\rightarrow$ `Users.Id` |
-| `ProductId` | Guid | FK $\rightarrow$ `Products.Id` |
+| `ProductId` | Guid | FK $\rightarrow$ `Products.Id` (ON DELETE CASCADE) |
 *Relationships: Many-to-One with Users; Many-to-One with Products.*
 
 ## Creating a migration
