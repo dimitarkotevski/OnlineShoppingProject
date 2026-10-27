@@ -47,6 +47,21 @@ namespace NexCart.Web.Controllers
             return Ok(result);
         }
 
+        [HttpGet]
+        [Authorize]
+        public IActionResult GetUserOrder(Guid orderId)
+        {
+            var result = _orderService.GetUserOrder(orderId, CurrentUserId);
+
+            // A missing order and somebody else's order look the same on purpose.
+            if (result == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(result);
+        }
+
         [HttpPost]
         [Authorize]
         public IActionResult CancelActiveOrder(Guid orderId)

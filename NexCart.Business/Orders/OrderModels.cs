@@ -24,6 +24,7 @@ namespace NexCart.Business.ViewModels
         public OrderStatus OrderStatus { get; set; }
         public PaymentType PaymentType { get; set; }
         public decimal TotalAmount { get; set; }
+        public DateTime DateCreated { get; set; }
         public LookupViewModel ShoppingCart { get; set; }
     }
     public class OrderGridViewModel

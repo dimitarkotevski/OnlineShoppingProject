@@ -54,6 +54,7 @@ namespace NexCart.Business.Mappers
                     .Select(x => x.MapToViewModel())
                     .ToList(),
                 TotalAmount = model.TotalAmount,
+                DateCreated = model.DateCreated,
                 ShoppingCart = model.ShoppingCart != null ? new LookupViewModel
                 {
                     Id = model.ShoppingCart.Id,

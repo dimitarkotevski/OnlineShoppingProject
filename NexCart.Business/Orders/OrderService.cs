@@ -26,6 +26,7 @@ namespace NexCart.Business.Services
         void ChangeOrderStatus(Guid orderId, OrderStatus orderStatus);
         ResponseListModel<OrderGridViewModel> GetUserNotActiveOrders(Guid userId);
         OrderViewModelWithProducts GetUserActiveOrder(Guid userId);
+        OrderViewModelWithProducts GetUserOrder(Guid orderId, Guid userId);
         void CancelActiveOrder(Guid orderId);
         List<OrderViewModelWithProducts> GetUserOtherOrders(Guid userId);
         void MakeAnOrder(Guid shoppingCartId,Guid userId);
@@ -311,6 +312,22 @@ namespace NexCart.Business.Services
 
                 // Do not recalculate from the cart: OrderItems is the checkout snapshot.
                 return userOrder.MapToViewModelWithProducts();
+            }
+        }
+
+        /// <summary>
+        /// Returns one order with its snapshot lines only when it belongs to the given user.
+        /// The user id always comes from the authenticated caller, never from the request.
+        /// </summary>
+        public OrderViewModelWithProducts GetUserOrder(Guid orderId, Guid userId)
+        {
+            using (_unitOfWork.BeginTransaction())
+            {
+                var order = _orderRepository
+                    .FilterBy(x => x.Id == orderId && x.User.Id == userId)
+                    .FirstOrDefault();
+
+                return order?.MapToViewModelWithProducts();
             }
         }
 
